@@ -11,6 +11,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 import org.gradle.process.internal.ExecException
 import org.gradle.work.DisableCachingByDefault
+import org.kohsuke.github.GHIssueState
 import org.kohsuke.github.GitHub
 import org.kohsuke.github.GitHubBuilder
 
@@ -36,15 +37,20 @@ abstract class UpgradeWrapper extends DefaultTask {
 
     @TaskAction
     def upgrade() {
+        GitHub github = new GitHubBuilder().withOAuthToken(System.getenv('CCUD_GIT_TOKEN')).build()
         changeSet.get().each { Map change ->
             def gitDir = project.layout.buildDirectory.dir("gitClones/${change.name}").get()
             try {
-                // TODO: Check if PR exists first
-                clone(gitDir, change.repo)
-                upgradeWrapper(gitDir, change.subfolder, change.noBuild == true)
                 def branch = "bot/upgrade-gw-${change.name}-to-${gradleVersion.get()}"
-                gitCommit(gitDir, branch)
-                createPr(branch, change.baseBranch, change.repo)
+                if (!prExists(github, branch, change.repo)) {
+                    clone(gitDir, change.repo)
+                    upgradeWrapper(gitDir, change.subfolder, change.noBuild == true)
+                    if (gitCommit(gitDir, branch)) {
+                        createPr(github, branch, change.baseBranch, change.repo)
+                    }
+                } else {
+                    logger.lifecycle("PR already exists for ${change}")
+                }
             } catch (GradleException e) {
                 logger.error("Failed to update ${change}")
             }
@@ -79,7 +85,7 @@ abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    def gitCommit(Directory gitDir, String branch) {
+    boolean gitCommit(Directory gitDir, String branch) {
         def changes = project.fileTree(dir: gitDir, includes: ['**/gradle/wrapper/**', '**/gradlew', '**/gradlew.bat'])
         def message = "Upgrade Gradle wrapper to ${gradleVersion.get()}"
         if (checkChanges(gitDir)) {
@@ -105,9 +111,11 @@ abstract class UpgradeWrapper extends DefaultTask {
                 execSpec.workingDir(gitDir)
                 execSpec.commandLine(args)
             }
+            return true
         } else {
             logger.warn("No changes detected on ${changeSet}.")
         }
+        return false
     }
 
     def checkChanges(Directory gitDir) {
@@ -131,8 +139,11 @@ abstract class UpgradeWrapper extends DefaultTask {
         return versionJson.version
     }
 
-    def createPr(String branch, String baseBranch, String repoName) {
-        GitHub github = new GitHubBuilder().withOAuthToken(System.getenv('CCUD_GIT_TOKEN')).build()
+    static boolean prExists(GitHub github, String branch, String repoName) {
+        github.getRepository(repoName).getPullRequests(GHIssueState.OPEN).any { it.head.ref == branch }
+    }
+
+    def createPr(GitHub github, String branch, String baseBranch, String repoName) {
         def pr = github.getRepository(repoName).createPullRequest(
             "Upgrading Gradle Wrapper to ${gradleVersion.get()}", branch, baseBranch ?: 'main', null)
         logger.lifecycle("Pull request created ${pr.htmlUrl}")
