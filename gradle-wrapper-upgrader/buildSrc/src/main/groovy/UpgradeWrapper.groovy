@@ -49,10 +49,10 @@ abstract class UpgradeWrapper extends DefaultTask {
                         createPr(github, branch, change.baseBranch, change.repo)
                     }
                 } else {
-                    logger.lifecycle("PR already exists for ${change}")
+                    println("::warning ::PR already exists for ${change}")
                 }
             } catch (GradleException e) {
-                logger.error("Failed to update ${change}")
+                println("::error ::Failed to update ${change}")
             }
         }
     }
@@ -113,7 +113,7 @@ abstract class UpgradeWrapper extends DefaultTask {
             }
             return true
         } else {
-            logger.warn("No changes detected on ${changeSet}.")
+            println("::notice ::No changes detected on ${changeSet}.")
         }
         return false
     }
@@ -146,7 +146,7 @@ abstract class UpgradeWrapper extends DefaultTask {
     def createPr(GitHub github, String branch, String baseBranch, String repoName) {
         def pr = github.getRepository(repoName).createPullRequest(
             "Upgrading Gradle Wrapper to ${gradleVersion.get()}", branch, baseBranch ?: 'main', null)
-        logger.lifecycle("Pull request created ${pr.htmlUrl}")
+        println("::notice ::Pull request created ${pr.htmlUrl}")
     }
 
 }
