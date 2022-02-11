@@ -1,0 +1,30 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.kohsuke:github-api:1.301'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
+    testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events('passed', 'skipped', 'failed')
+    }
+}
+
+gradlePlugin {
+    plugins {
+        upgradeWrapper {
+            id = 'com.gradle.upgrade.wrapper'
+            implementationClass = 'com.gradle.upgrade.wrapper.UpgradeWrapperPlugin'
+        }
+    }
+}
