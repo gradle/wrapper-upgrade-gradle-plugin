@@ -3,6 +3,7 @@ package com.gradle.upgrade.wrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.credentials.PasswordCredentials;
 import org.gradle.api.file.Directory;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -36,10 +37,14 @@ abstract class UpgradeWrapper extends DefaultTask {
     @Input
     final Property<String> gradleVersion;
 
+    final Property<PasswordCredentials> githubToken;
+
     @Inject
     public UpgradeWrapper(ProviderFactory providers, ObjectFactory objects, ExecOperations execOperations) {
         this.execOperations = execOperations;
         this.gradleVersion = objects.property(String.class).convention(providers.provider(UpgradeWrapper::latestGradleRelease));
+        this.githubToken = objects.property(PasswordCredentials.class);
+        this.githubToken.set(providers.credentials(PasswordCredentials.class, "github"));
     }
 
     public Property<String> getGradleVersion() {
@@ -48,7 +53,7 @@ abstract class UpgradeWrapper extends DefaultTask {
 
     @TaskAction
     void upgrade() throws IOException {
-        var github = new GitHubBuilder().withOAuthToken(System.getenv("BOT_GITHUB_TOKEN")).build();
+        var github = new GitHubBuilder().withOAuthToken(githubToken.get().getPassword()).build();
         var upgrade = getUpgrade().get();
         var upgradeName = upgrade.name;
         var gitDir = getProject().getLayout().getBuildDirectory().dir("gitClones/" + upgradeName).get();
