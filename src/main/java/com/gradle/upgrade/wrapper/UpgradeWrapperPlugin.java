@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 @CompileStatic
 public class UpgradeWrapperPlugin implements Plugin<Project> {
+
     @Override
     public void apply(Project project) {
         var objects = project.getObjects();
@@ -28,6 +29,7 @@ public class UpgradeWrapperPlugin implements Plugin<Project> {
     }
 
     public abstract static class Upgrade {
+
         String name;
 
         abstract Property<String> getRepo();
@@ -60,6 +62,7 @@ public class UpgradeWrapperPlugin implements Plugin<Project> {
         public Property<String> getSubfolder() {
             return subfolder;
         }
+
     }
 
 }

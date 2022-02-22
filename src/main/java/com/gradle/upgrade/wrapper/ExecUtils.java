@@ -6,8 +6,19 @@ import org.gradle.process.ExecOperations;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-public class ExecUtils {
-    private ExecUtils() {}
+class ExecUtils {
+
+    static void execGradleCmd(ExecOperations execOperations, Directory gitDir, Object... args) {
+        execCmd(execOperations, gitDir, "./gradlew", args);
+    }
+
+    static void execGitCmd(ExecOperations execOperations, Directory gitDir, Object... args) {
+        execCmd(execOperations, gitDir, "git", args);
+    }
+
+    static void execGitCmd(ExecOperations execOperations, Object... args) {
+        execCmd(execOperations, null, "git", args);
+    }
 
     static private void execCmd(ExecOperations execOperations, Directory workingDir, String cmd, Object... args) {
         var cmdLine = new LinkedList<>();
@@ -22,15 +33,7 @@ public class ExecUtils {
             });
     }
 
-    static void execGradleCmd(ExecOperations execOperations, Directory gitDir, Object... args) {
-        execCmd(execOperations, gitDir, "./gradlew", args);
+    private ExecUtils() {
     }
 
-    static void execGitCmd(ExecOperations execOperations, Directory gitDir, Object... args) {
-        execCmd(execOperations, gitDir, "git", args);
-    }
-
-    static void execGitCmd(ExecOperations execOperations, Object... args) {
-        execCmd(execOperations, null, "git", args);
-    }
 }
