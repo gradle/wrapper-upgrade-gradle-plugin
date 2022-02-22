@@ -20,8 +20,9 @@ class GradleUtils {
             if (distributionUrl != null) {
                 var matcher = Pattern.compile(GRADLE_VERSION_REGEXP).matcher(distributionUrl);
                 return matcher.find() ? Optional.of(matcher.group(1)) : Optional.empty();
+            } else {
+                throw new IOException("Could not find " + DISTRIBUTION_URL + " property");
             }
-            throw new IOException("Could not find " + DISTRIBUTION_URL + " property");
         }
     }
 
