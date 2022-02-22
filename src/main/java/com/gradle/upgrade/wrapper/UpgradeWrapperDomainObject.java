@@ -10,19 +10,24 @@ public abstract class UpgradeWrapperDomainObject {
 
     final String name;
 
-    abstract Property<String> getRepo();
+    public final Property<String> repo;
 
     @Optional
-    Property<String> dir;
+    public final Property<String> dir;
 
     @Optional
-    Property<String> baseBranch;
+    public final Property<String> baseBranch;
 
     @Inject
     public UpgradeWrapperDomainObject(String name, ObjectFactory objects) {
         this.name = name;
+        this.repo = objects.property(String.class);
         this.dir = objects.property(String.class).convention(".");
         this.baseBranch = objects.property(String.class).convention("main");
+    }
+
+    public Property<String> getRepo() {
+        return repo;
     }
 
     public Property<String> getDir() {
