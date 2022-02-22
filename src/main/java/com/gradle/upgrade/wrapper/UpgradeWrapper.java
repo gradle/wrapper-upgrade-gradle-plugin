@@ -79,7 +79,7 @@ abstract class UpgradeWrapper extends DefaultTask {
 
     private void clone(Directory gitDir, String repo) {
         var gitUrl = "https://github.com/" + repo + ".git";
-        execGitCmd(execOperations, "clone", "--depth", "1", gitUrl, gitDir);
+        execGitCmd(execOperations, getProject().getLayout().getProjectDirectory(), "clone", "--depth", "1", gitUrl, gitDir);
     }
 
     private void upgradeWrapper(Directory workingDir) {

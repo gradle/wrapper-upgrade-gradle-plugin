@@ -8,16 +8,12 @@ import java.util.LinkedList;
 
 class ExecUtils {
 
-    static void execGradleCmd(ExecOperations execOperations, Directory gitDir, Object... args) {
-        execCmd(execOperations, gitDir, "./gradlew", args);
+    static void execGradleCmd(ExecOperations execOperations, Directory workingDir, Object... args) {
+        execCmd(execOperations, workingDir, "./gradlew", args);
     }
 
-    static void execGitCmd(ExecOperations execOperations, Directory gitDir, Object... args) {
-        execCmd(execOperations, gitDir, "git", args);
-    }
-
-    static void execGitCmd(ExecOperations execOperations, Object... args) {
-        execCmd(execOperations, null, "git", args);
+    static void execGitCmd(ExecOperations execOperations, Directory workingDir, Object... args) {
+        execCmd(execOperations, workingDir, "git", args);
     }
 
     private static void execCmd(ExecOperations execOperations, Directory workingDir, String cmd, Object... args) {
@@ -26,9 +22,7 @@ class ExecUtils {
         cmdLine.addAll(Arrays.asList(args));
         execOperations.exec(
             execSpec -> {
-                if (workingDir != null) {
-                    execSpec.workingDir(workingDir);
-                }
+                execSpec.workingDir(workingDir);
                 execSpec.commandLine(cmdLine);
             });
     }
