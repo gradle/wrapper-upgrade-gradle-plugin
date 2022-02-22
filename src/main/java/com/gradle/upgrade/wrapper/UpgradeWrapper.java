@@ -57,7 +57,7 @@ abstract class UpgradeWrapper extends DefaultTask {
         var upgrade = getUpgrade().get();
         var upgradeName = upgrade.name;
         var gitDir = getProject().getLayout().getBuildDirectory().dir("gitClones/" + upgradeName).get();
-        var workingDir = upgrade.getSubfolder().isPresent() ? gitDir.dir(upgrade.getSubfolder().get()) : gitDir;
+        var workingDir = upgrade.getDir().isPresent() ? gitDir.dir(upgrade.getDir().get()) : gitDir;
         try {
             var branch = String.format("bot/upgrade-gw-%s-to-%s", upgradeName, gradleVersion.get());
             if (!prExists(github, branch, upgrade.getRepo().get())) {
