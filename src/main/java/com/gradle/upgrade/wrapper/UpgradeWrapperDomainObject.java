@@ -25,12 +25,12 @@ public abstract class UpgradeWrapperDomainObject {
         this.baseBranch = objects.property(String.class).convention("main");
     }
 
-    public Property<String> getBaseBranch() {
-        return baseBranch;
-    }
-
     public Property<String> getDir() {
         return dir;
+    }
+
+    public Property<String> getBaseBranch() {
+        return baseBranch;
     }
 
 }
