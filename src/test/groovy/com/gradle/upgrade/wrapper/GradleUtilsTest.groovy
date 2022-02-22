@@ -38,10 +38,11 @@ class GradleUtilsTest extends Specification {
         createGradleWrapperProperties().text = 'unexpected'
 
         when:
-        def version = GradleUtils.getCurrentGradleVersion(workingDir)
+        GradleUtils.getCurrentGradleVersion(workingDir)
 
         then:
-        version == Optional.empty()
+        def e = thrown(IOException)
+        e.message == 'Could not find distributionUrl property'
     }
 
     private static String standard(String gradleVersion, String gradleDistro) {
