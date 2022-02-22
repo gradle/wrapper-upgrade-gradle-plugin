@@ -93,17 +93,18 @@ abstract class UpgradeWrapper extends DefaultTask {
             execGitCmd(execOperations, gitDir, "commit", "-m", message);
             execGitCmd(execOperations, gitDir, "push", "-u", "origin", branch);
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     private boolean hasChanges(Directory gitDir) {
         try {
             execGitCmd(execOperations, gitDir, "diff", "--quiet", "--exit-code");
+            return false;
         } catch (ExecException e) {
             return true;
         }
-        return false;
     }
 
     private static String latestGradleRelease() throws IOException {
