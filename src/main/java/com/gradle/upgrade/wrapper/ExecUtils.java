@@ -6,7 +6,7 @@ import org.gradle.process.ExecOperations;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-class ExecUtils {
+final class ExecUtils {
 
     static void execGradleCmd(ExecOperations execOperations, Directory workingDir, Object... args) {
         execCmd(execOperations, workingDir, "./gradlew", args);
