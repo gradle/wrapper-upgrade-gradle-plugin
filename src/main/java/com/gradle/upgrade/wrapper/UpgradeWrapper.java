@@ -24,7 +24,6 @@ import java.net.URL;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGradleCmd;
 import static com.gradle.upgrade.wrapper.GradleUtils.getCurrentGradleVersion;
-import static com.gradle.upgrade.wrapper.GradleUtils.replaceInProperties;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")
 abstract class UpgradeWrapper extends DefaultTask {
@@ -63,7 +62,7 @@ abstract class UpgradeWrapper extends DefaultTask {
             if (!prExists(github, branch, upgrade.getRepo().get())) {
                 clone(gitDir, upgrade.getRepo().get());
                 var currentGradleVersion = getCurrentGradleVersion(workingDir.getAsFile().toPath());
-                upgradeWrapper(workingDir, upgrade.noBuild.get());
+                upgradeWrapper(workingDir);
                 var message = "Bump Gradle wrapper " + currentGradleVersion.map(v -> "from " + v).orElse("") + " to " + gradleVersion.get() + " in " + upgradeName;
                 if (gitCommit(gitDir, branch, message)) {
                     createPullRequest(github, branch, upgrade.getBaseBranch().get(), upgrade.getRepo().get(), message);
@@ -84,13 +83,9 @@ abstract class UpgradeWrapper extends DefaultTask {
         execGitCmd(execOperations, "clone", "--depth", "1", gitUrl, gitDir);
     }
 
-    private void upgradeWrapper(Directory workingDir, boolean noBuild) {
-        if (noBuild) {
-            replaceInProperties(workingDir.getAsFile().toPath(), gradleVersion.get());
-        } else {
-            execGradleCmd(execOperations, workingDir, "wrapper", "--gradle-version", gradleVersion.get());
-            execGradleCmd(execOperations, workingDir, "wrapper", "--gradle-version", gradleVersion.get());
-        }
+    private void upgradeWrapper(Directory workingDir) {
+        execGradleCmd(execOperations, workingDir, "wrapper", "--gradle-version", gradleVersion.get());
+        execGradleCmd(execOperations, workingDir, "wrapper", "--gradle-version", gradleVersion.get());
     }
 
     private boolean gitCommit(Directory gitDir, String branch, String message) {

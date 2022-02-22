@@ -26,20 +26,6 @@ class GradleUtils {
         }
     }
 
-    static void replaceInProperties(Path workingDir, String gradleVersion) {
-        var replaceRegExp = new ReplaceRegExp();
-        var project = new Project();
-        replaceRegExp.setProject(new Project());
-        replaceRegExp.setMatch(GRADLE_VERSION_REGEXP);
-        replaceRegExp.setReplace("distributions/gradle-" + gradleVersion + "-\\2.zip");
-        var fileSet = new FileSet();
-        fileSet.setProject(project);
-        fileSet.setDir(workingDir.toFile());
-        fileSet.setIncludes("**/gradle-wrapper.properties");
-        replaceRegExp.addFileset(fileSet);
-        replaceRegExp.execute();
-    }
-
     private GradleUtils() {
     }
 
