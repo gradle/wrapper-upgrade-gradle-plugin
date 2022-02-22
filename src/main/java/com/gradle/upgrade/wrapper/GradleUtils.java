@@ -10,10 +10,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class GradleUtils {
-    private static final String GRADLE_VERSION_REGEXP = "distributions/gradle-(.*)-(bin|all).zip";
+class GradleUtils {
 
-    private GradleUtils() {}
+    private static final String GRADLE_VERSION_REGEXP = "distributions/gradle-(.*)-(bin|all).zip";
 
     static Optional<String> getCurrentGradleVersion(Path workingDir) {
         try (var is = Files.newInputStream(workingDir.resolve("gradle/wrapper/gradle-wrapper.properties"))) {
@@ -43,4 +42,8 @@ public class GradleUtils {
         replaceRegExp.addFileset(fileSet);
         replaceRegExp.execute();
     }
+
+    private GradleUtils() {
+    }
+
 }
