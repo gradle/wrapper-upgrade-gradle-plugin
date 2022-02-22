@@ -9,14 +9,9 @@ import javax.inject.Inject;
 public abstract class UpgradeWrapperDomainObject {
 
     final String name;
-
-    public final Property<String> repo;
-
-    @Optional
-    public final Property<String> dir;
-
-    @Optional
-    public final Property<String> baseBranch;
+    private final Property<String> repo;
+    private final Property<String> dir;
+    private final Property<String> baseBranch;
 
     @Inject
     public UpgradeWrapperDomainObject(String name, ObjectFactory objects) {
