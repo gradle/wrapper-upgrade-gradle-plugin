@@ -29,9 +29,7 @@ import static com.gradle.upgrade.wrapper.GradleUtils.getCurrentGradleVersion;
 abstract class UpgradeWrapper extends DefaultTask {
 
     private final ExecOperations execOperations;
-
-    @Input
-    abstract Property<UpgradeWrapperDomainObject> getUpgrade();
+    private final UpgradeWrapperDomainObject upgrade;
 
     @Input
     final Property<String> gradleVersion;
@@ -39,8 +37,9 @@ abstract class UpgradeWrapper extends DefaultTask {
     final Property<PasswordCredentials> githubToken;
 
     @Inject
-    public UpgradeWrapper(ProviderFactory providers, ObjectFactory objects, ExecOperations execOperations) {
+    public UpgradeWrapper(ProviderFactory providers, ObjectFactory objects, ExecOperations execOperations, UpgradeWrapperDomainObject upgrade) {
         this.execOperations = execOperations;
+        this.upgrade = upgrade;
         this.gradleVersion = objects.property(String.class).convention(providers.provider(UpgradeWrapper::latestGradleRelease));
         this.githubToken = objects.property(PasswordCredentials.class);
         this.githubToken.set(providers.credentials(PasswordCredentials.class, "github"));
@@ -53,7 +52,6 @@ abstract class UpgradeWrapper extends DefaultTask {
     @TaskAction
     void upgrade() throws IOException {
         var github = new GitHubBuilder().withOAuthToken(githubToken.get().getPassword()).build();
-        var upgrade = getUpgrade().get();
         var upgradeName = upgrade.name;
         var gitDir = getProject().getLayout().getBuildDirectory().dir("gitClones/" + upgradeName).get();
         var workingDir = upgrade.getDir().isPresent() ? gitDir.dir(upgrade.getDir().get()) : gitDir;
