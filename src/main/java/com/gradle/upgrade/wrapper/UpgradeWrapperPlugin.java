@@ -4,7 +4,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 @SuppressWarnings("unused")
-public class UpgradeWrapperPlugin implements Plugin<Project> {
+public abstract class UpgradeWrapperPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
