@@ -80,11 +80,11 @@ class GradleUtilsTest extends Specification {
         prop.text == standard('7.4', 'all')
     }
 
-    private static String standard(String gradleVersion, String gradleDistrib) {
+    private static String standard(String gradleVersion, String gradleDistro) {
         """
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-distributionUrl=https\\://services.gradle.org/distributions/gradle-${gradleVersion}-${gradleDistrib}.zip
+distributionUrl=https\\://services.gradle.org/distributions/gradle-${gradleVersion}-${gradleDistro}.zip
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
 """
