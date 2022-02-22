@@ -35,7 +35,7 @@ public class UpgradeWrapperPlugin implements Plugin<Project> {
         abstract Property<String> getRepo();
 
         @Optional
-        Property<String> subfolder;
+        Property<String> dir;
 
         @Optional
         Property<String> baseBranch;
@@ -46,7 +46,7 @@ public class UpgradeWrapperPlugin implements Plugin<Project> {
         @Inject
         public Upgrade(final String name, ObjectFactory objects) {
             this.name = name;
-            this.subfolder = objects.property(String.class).convention(".");
+            this.dir = objects.property(String.class).convention(".");
             this.baseBranch = objects.property(String.class).convention("main");
             this.noBuild = objects.property(Boolean.class).convention(false);
         }
@@ -59,8 +59,8 @@ public class UpgradeWrapperPlugin implements Plugin<Project> {
             return baseBranch;
         }
 
-        public Property<String> getSubfolder() {
-            return subfolder;
+        public Property<String> getDir() {
+            return dir;
         }
 
     }
