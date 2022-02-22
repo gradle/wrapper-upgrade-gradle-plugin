@@ -29,7 +29,7 @@ import static com.gradle.upgrade.wrapper.GradleUtils.replaceInProperties;
 @DisableCachingByDefault(because = "Produces no cacheable output")
 abstract class UpgradeWrapper extends DefaultTask {
 
-    final ExecOperations execOperations;
+    private final ExecOperations execOperations;
 
     @Input
     abstract Property<UpgradeWrapperPlugin.Upgrade> getUpgrade();
