@@ -3,6 +3,7 @@ package com.gradle.upgrade.wrapper;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
+@SuppressWarnings("unused")
 public class UpgradeWrapperPlugin implements Plugin<Project> {
 
     @Override
