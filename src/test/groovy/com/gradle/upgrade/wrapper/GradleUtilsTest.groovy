@@ -59,18 +59,6 @@ class GradleUtilsTest extends Specification {
     def "replace gradle version all"() {
         given:
         def prop = createGradleWrapperProperties()
-        prop.text = 'unexpected'
-
-        when:
-        GradleUtils.replaceInProperties(workingDir, '7.4')
-
-        then:
-        prop.text == 'unexpected'
-    }
-
-    def "replace gradle version unknown"() {
-        given:
-        def prop = createGradleWrapperProperties()
         prop.text = standard('7.2', 'all')
 
         when:
@@ -78,6 +66,18 @@ class GradleUtilsTest extends Specification {
 
         then:
         prop.text == standard('7.4', 'all')
+    }
+
+    def "replace gradle version unknown"() {
+        given:
+        def prop = createGradleWrapperProperties()
+        prop.text = 'unexpected'
+
+        when:
+        GradleUtils.replaceInProperties(workingDir, '7.4')
+
+        then:
+        prop.text == 'unexpected'
     }
 
     private static String standard(String gradleVersion, String gradleDistro) {
