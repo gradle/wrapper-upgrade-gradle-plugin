@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 public abstract class UpgradeWrapperDomainObject {
 
-    String name;
+    final String name;
 
     abstract Property<String> getRepo();
 
@@ -19,7 +19,7 @@ public abstract class UpgradeWrapperDomainObject {
     Property<String> baseBranch;
 
     @Inject
-    public UpgradeWrapperDomainObject(final String name, ObjectFactory objects) {
+    public UpgradeWrapperDomainObject(String name, ObjectFactory objects) {
         this.name = name;
         this.dir = objects.property(String.class).convention(".");
         this.baseBranch = objects.property(String.class).convention("main");
