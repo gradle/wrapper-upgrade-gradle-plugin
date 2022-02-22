@@ -33,7 +33,7 @@ class GradleUtilsTest extends Specification {
         version == Optional.of('7.2')
     }
 
-    def "get current gradle version unknown"() {
+    def "get current gradle distributionUrl not found"() {
         given:
         createGradleWrapperProperties().text = 'unexpected'
 
@@ -42,7 +42,19 @@ class GradleUtilsTest extends Specification {
 
         then:
         def e = thrown(IOException)
-        e.message == 'Could not find distributionUrl property'
+        e.message == 'Could not detect Gradle version from distributionUrl property'
+    }
+
+    def "get current gradle version unknown"() {
+        given:
+        createGradleWrapperProperties().text = 'distributionUrl=unknown'
+
+        when:
+        GradleUtils.getCurrentGradleVersion(workingDir)
+
+        then:
+        def e = thrown(IOException)
+        e.message == 'Could not detect Gradle version from distributionUrl property'
     }
 
     private static String standard(String gradleVersion, String gradleDistro) {

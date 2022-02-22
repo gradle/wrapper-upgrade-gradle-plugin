@@ -19,10 +19,11 @@ final class GradleUtils {
             var distributionUrl = props.getProperty(DISTRIBUTION_URL);
             if (distributionUrl != null) {
                 var matcher = Pattern.compile(GRADLE_VERSION_REGEXP).matcher(distributionUrl);
-                return matcher.find() ? Optional.of(matcher.group(1)) : Optional.empty();
-            } else {
-                throw new IOException("Could not find " + DISTRIBUTION_URL + " property");
+                if (matcher.find()) {
+                    return Optional.of(matcher.group(1));
+                }
             }
+            throw new IOException("Could not detect Gradle version from " + DISTRIBUTION_URL + " property");
         }
     }
 
