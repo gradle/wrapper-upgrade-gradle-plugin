@@ -27,7 +27,7 @@ import static com.gradle.upgrade.wrapper.ExecUtils.execGradleCmd;
 import static com.gradle.upgrade.wrapper.GradleUtils.getCurrentGradleVersion;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")
-abstract class UpgradeWrapper extends DefaultTask {
+public abstract class UpgradeWrapper extends DefaultTask {
 
     private final UpgradeWrapperDomainObject upgrade;
     private final ExecOperations execOperations;
