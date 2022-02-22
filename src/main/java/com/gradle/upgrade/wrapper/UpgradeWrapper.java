@@ -100,6 +100,7 @@ abstract class UpgradeWrapper extends DefaultTask {
 
     private boolean hasChanges(Directory gitDir) {
         try {
+            // `git diff --exit-code` returns exit code 0 when there's no diff, 1 when there's a diff
             execGitCmd(execOperations, gitDir, "diff", "--quiet", "--exit-code");
             return false;
         } catch (ExecException e) {
