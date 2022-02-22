@@ -44,42 +44,6 @@ class GradleUtilsTest extends Specification {
         version == Optional.empty()
     }
 
-    def "replace gradle version bin"() {
-        given:
-        def prop = createGradleWrapperProperties()
-        prop.text = standard('7.3.3', 'bin')
-
-        when:
-        GradleUtils.replaceInProperties(workingDir, '7.4')
-
-        then:
-        prop.text == standard('7.4', 'bin')
-    }
-
-    def "replace gradle version all"() {
-        given:
-        def prop = createGradleWrapperProperties()
-        prop.text = standard('7.2', 'all')
-
-        when:
-        GradleUtils.replaceInProperties(workingDir, '7.4')
-
-        then:
-        prop.text == standard('7.4', 'all')
-    }
-
-    def "replace gradle version unknown"() {
-        given:
-        def prop = createGradleWrapperProperties()
-        prop.text = 'unexpected'
-
-        when:
-        GradleUtils.replaceInProperties(workingDir, '7.4')
-
-        then:
-        prop.text == 'unexpected'
-    }
-
     private static String standard(String gradleVersion, String gradleDistro) {
         """
 distributionBase=GRADLE_USER_HOME
