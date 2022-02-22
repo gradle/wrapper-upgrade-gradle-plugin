@@ -20,7 +20,7 @@ class ExecUtils {
         execCmd(execOperations, null, "git", args);
     }
 
-    static private void execCmd(ExecOperations execOperations, Directory workingDir, String cmd, Object... args) {
+    private static void execCmd(ExecOperations execOperations, Directory workingDir, String cmd, Object... args) {
         var cmdLine = new LinkedList<>();
         cmdLine.add(0, cmd);
         cmdLine.addAll(Arrays.asList(args));
