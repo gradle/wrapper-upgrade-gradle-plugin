@@ -85,9 +85,9 @@ abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private boolean gitCommit(Directory gitDir, String branch, String message) {
-        var changes = getProject().fileTree(gitDir);
-        changes.include("**/gradle/wrapper/**", "**/gradlew", "**/gradlew.bat");
         if (hasChanges(gitDir)) {
+            var changes = getProject().fileTree(gitDir);
+            changes.include("**/gradle/wrapper/**", "**/gradlew", "**/gradlew.bat");
             changes.forEach(c -> execGitCmd(execOperations, gitDir, "add", c.toPath().toString()));
             execGitCmd(execOperations, gitDir, "checkout", "-b", branch);
             execGitCmd(execOperations, gitDir, "commit", "-m", message);
