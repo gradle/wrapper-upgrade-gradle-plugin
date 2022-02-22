@@ -22,7 +22,7 @@ class ExecUtils {
 
     private static void execCmd(ExecOperations execOperations, Directory workingDir, String cmd, Object... args) {
         var cmdLine = new LinkedList<>();
-        cmdLine.add(0, cmd);
+        cmdLine.add(cmd);
         cmdLine.addAll(Arrays.asList(args));
         execOperations.exec(
             execSpec -> {
