@@ -72,9 +72,8 @@ abstract class UpgradeWrapper extends DefaultTask {
             } else {
                 getLogger().warn("::warning ::PR already exists for " + upgradeName);
             }
-        } catch (GradleException e) {
-            getLogger().warn("::error ::Failed to upgrade " + upgradeName);
-            throw e;
+        } catch (GradleException | IOException e) {
+            getLogger().warn("::error ::Failed to upgrade " + upgradeName, e);
         }
     }
 
