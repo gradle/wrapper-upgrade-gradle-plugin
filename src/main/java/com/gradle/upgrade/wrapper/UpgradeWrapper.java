@@ -7,6 +7,7 @@ import org.gradle.api.credentials.PasswordCredentials;
 import org.gradle.api.file.Directory;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -30,19 +31,17 @@ abstract class UpgradeWrapper extends DefaultTask {
 
     private final ExecOperations execOperations;
     private final UpgradeWrapperDomainObject upgrade;
+    private final Provider<PasswordCredentials> githubToken;
 
     @Input
-    final Property<String> gradleVersion;
-
-    final Property<PasswordCredentials> githubToken;
+    private final Property<String> gradleVersion;
 
     @Inject
     public UpgradeWrapper(ProviderFactory providers, ObjectFactory objects, ExecOperations execOperations, UpgradeWrapperDomainObject upgrade) {
         this.execOperations = execOperations;
         this.upgrade = upgrade;
         this.gradleVersion = objects.property(String.class).convention(providers.provider(UpgradeWrapper::latestGradleRelease));
-        this.githubToken = objects.property(PasswordCredentials.class);
-        this.githubToken.set(providers.credentials(PasswordCredentials.class, "github"));
+        this.githubToken = providers.credentials(PasswordCredentials.class, "github");
     }
 
     public Property<String> getGradleVersion() {
