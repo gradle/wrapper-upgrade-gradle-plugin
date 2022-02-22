@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-class GradleUtils {
+final class GradleUtils {
 
     private static final String GRADLE_VERSION_REGEXP = "distributions/gradle-(.*)-(bin|all).zip";
     private static final String DISTRIBUTION_URL = "distributionUrl";
