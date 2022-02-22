@@ -29,19 +29,19 @@ import static com.gradle.upgrade.wrapper.GradleUtils.getCurrentGradleVersion;
 @DisableCachingByDefault(because = "Produces no cacheable output")
 abstract class UpgradeWrapper extends DefaultTask {
 
-    private final ExecOperations execOperations;
     private final UpgradeWrapperDomainObject upgrade;
+    private final ExecOperations execOperations;
     private final Provider<PasswordCredentials> githubToken;
 
     @Input
     private final Property<String> gradleVersion;
 
     @Inject
-    public UpgradeWrapper(ProviderFactory providers, ObjectFactory objects, ExecOperations execOperations, UpgradeWrapperDomainObject upgrade) {
-        this.execOperations = execOperations;
+    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ExecOperations execOperations, ProviderFactory providers, ObjectFactory objects) {
         this.upgrade = upgrade;
-        this.gradleVersion = objects.property(String.class).convention(providers.provider(UpgradeWrapper::latestGradleRelease));
+        this.execOperations = execOperations;
         this.githubToken = providers.credentials(PasswordCredentials.class, "github");
+        this.gradleVersion = objects.property(String.class).convention(providers.provider(UpgradeWrapper::latestGradleRelease));
     }
 
     public Property<String> getGradleVersion() {
