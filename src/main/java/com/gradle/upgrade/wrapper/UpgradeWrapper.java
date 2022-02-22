@@ -31,7 +31,7 @@ abstract class UpgradeWrapper extends DefaultTask {
     private final ExecOperations execOperations;
 
     @Input
-    abstract Property<UpgradeWrapperPlugin.Upgrade> getUpgrade();
+    abstract Property<UpgradeWrapperDomainObject> getUpgrade();
 
     @Input
     final Property<String> gradleVersion;
