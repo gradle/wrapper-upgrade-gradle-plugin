@@ -20,13 +20,10 @@ class GradleUtils {
             props.load(is);
             var distributionUrl = props.getProperty("distributionUrl");
             var matcher = Pattern.compile(GRADLE_VERSION_REGEXP).matcher(distributionUrl);
-            if (matcher.find()) {
-                return Optional.of(matcher.group(1));
-            }
+            return matcher.find() ? Optional.of(matcher.group(1)) : Optional.empty();
         } catch (Exception e) {
             return Optional.empty();
         }
-        return Optional.empty();
     }
 
     static void replaceInProperties(Path workingDir, String gradleVersion) {
