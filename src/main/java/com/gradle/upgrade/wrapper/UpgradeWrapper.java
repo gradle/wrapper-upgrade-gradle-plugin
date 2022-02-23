@@ -30,18 +30,18 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private final UpgradeWrapperDomainObject upgrade;
     private final ProjectLayout layout;
+    private final ObjectFactory objects;
     private final ExecOperations execOperations;
     private final Provider<PasswordCredentials> githubToken;
-    private final ObjectFactory objects;
     private final boolean dryRun;
 
     @Inject
-    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ProjectLayout layout, ExecOperations execOperations, ProviderFactory providers, ObjectFactory objects) {
+    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
         this.upgrade = upgrade;
         this.layout = layout;
+        this.objects = objects;
         this.execOperations = execOperations;
         this.githubToken = providers.credentials(PasswordCredentials.class, "github");
-        this.objects = objects;
         this.dryRun = providers.gradleProperty("dryRun").map(p -> true).orElse(false).get();
     }
 
