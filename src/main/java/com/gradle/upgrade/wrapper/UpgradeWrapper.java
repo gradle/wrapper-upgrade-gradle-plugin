@@ -33,6 +33,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final ExecOperations execOperations;
     private final Provider<PasswordCredentials> githubToken;
     private final ObjectFactory objects;
+    private final boolean dryRun;
 
     @Inject
     public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ProjectLayout layout, ExecOperations execOperations, ProviderFactory providers, ObjectFactory objects) {
@@ -41,6 +42,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.execOperations = execOperations;
         this.githubToken = providers.credentials(PasswordCredentials.class, "github");
         this.objects = objects;
+        this.dryRun = providers.gradleProperty("dryRun").map(p -> true).orElse(false).get();
     }
 
     @TaskAction
@@ -52,12 +54,19 @@ public abstract class UpgradeWrapper extends DefaultTask {
         var gradleVersion = latestGradleRelease();
         try {
             var branch = String.format("bot/upgrade-gw-%s-to-%s", upgradeName, gradleVersion);
-            if (!prExists(github, branch, upgrade.getRepo().get())) {
-                clone(layout.getProjectDirectory(), upgrade.getRepo().get(), gitDir);
-                var currentGradleVersion = getCurrentGradleVersion(workingDir.getAsFile().toPath());
-                upgradeWrapper(workingDir, gradleVersion);
-                var message = String.format("Bump Gradle Wrapper from %s to %s in %s", currentGradleVersion, gradleVersion, upgradeName);
-                if (gitCommit(gitDir, branch, message)) {
+            if (dryRun) {
+                getLogger().lifecycle("::notice ::Running dry run mode");
+                var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, gradleVersion);
+                var message = commitMessage(upgradeName, gradleVersion, currentGradleVersion);
+                if (gitCommit(gitDir, branch, message, false)) {
+                    getLogger().lifecycle("::notice ::Dry run - No PR created");
+                } else {
+                    getLogger().lifecycle("::notice ::No changes detected on " + upgradeName);
+                }
+            } else if (!prExists(github, branch, upgrade.getRepo().get())) {
+                var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, gradleVersion);
+                var message = commitMessage(upgradeName, gradleVersion, currentGradleVersion);
+                if (gitCommit(gitDir, branch, message, true)) {
                     createPullRequest(github, branch, upgrade.getBaseBranch().get(), upgrade.getRepo().get(), message);
                 } else {
                     getLogger().lifecycle("::notice ::No changes detected on " + upgradeName);
@@ -70,9 +79,21 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
+    private String cloneAndUpgrade(Directory gitDir, Directory workingDir, String gradleVersion) throws IOException {
+        clone(layout.getProjectDirectory(), upgrade.getRepo().get(), gitDir);
+        var currentGradleVersion = getCurrentGradleVersion(workingDir.getAsFile().toPath());
+        upgradeWrapper(workingDir, gradleVersion);
+        return currentGradleVersion;
+    }
+
+    private String commitMessage(String upgradeName, String gradleVersion, String currentGradleVersion) {
+        return String.format("Bump Gradle Wrapper from %s to %s in %s", currentGradleVersion, gradleVersion, upgradeName);
+    }
+
     private void clone(Directory workingDir, String repo, Directory checkoutDir) {
+        var baseBranch = upgrade.getBaseBranch().get();
         var gitUrl = "https://github.com/" + repo + ".git";
-        execGitCmd(execOperations, workingDir, "clone", "--depth", "1", gitUrl, checkoutDir);
+        execGitCmd(execOperations, workingDir, "clone", "--depth", "1", "-b", baseBranch, gitUrl, checkoutDir);
     }
 
     private void upgradeWrapper(Directory workingDir, String gradleVersion) {
@@ -80,14 +101,16 @@ public abstract class UpgradeWrapper extends DefaultTask {
         execGradleCmd(execOperations, workingDir, "wrapper", "--gradle-version", gradleVersion);
     }
 
-    private boolean gitCommit(Directory gitDir, String branch, String message) {
+    private boolean gitCommit(Directory gitDir, String branch, String message, boolean push) {
         if (hasChanges(gitDir)) {
             var changes = objects.fileTree().from(gitDir);
             changes.include("**/gradle/wrapper/**", "**/gradlew", "**/gradlew.bat");
             changes.forEach(c -> execGitCmd(execOperations, gitDir, "add", c.toPath().toString()));
             execGitCmd(execOperations, gitDir, "checkout", "-b", branch);
             execGitCmd(execOperations, gitDir, "commit", "-m", message);
-            execGitCmd(execOperations, gitDir, "push", "-u", "origin", branch);
+            if (push) {
+                execGitCmd(execOperations, gitDir, "push", "-u", "origin", branch);
+            }
             return true;
         } else {
             return false;
