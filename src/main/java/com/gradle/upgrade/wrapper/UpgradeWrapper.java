@@ -57,7 +57,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         try {
             var branch = String.format("bot/upgrade-gw-%s-to-%s", upgradeName, gradleVersion.get());
             if (!prExists(github, branch, upgrade.getRepo().get())) {
-                clone(gitDir, upgrade.getRepo().get());
+                clone(getProject().getLayout().getProjectDirectory(), upgrade.getRepo().get(), gitDir);
                 var currentGradleVersion = getCurrentGradleVersion(workingDir.getAsFile().toPath());
                 upgradeWrapper(workingDir);
                 var message = "Bump Gradle wrapper " + currentGradleVersion.map(v -> "from " + v).orElse("") + " to " + gradleVersion.get() + " in " + upgradeName;
@@ -74,9 +74,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private void clone(Directory gitDir, String repo) {
+    private void clone(Directory workingDir, String repo, Directory checkoutDir) {
         var gitUrl = "https://github.com/" + repo + ".git";
-        execGitCmd(execOperations, getProject().getLayout().getProjectDirectory(), "clone", "--depth", "1", gitUrl, gitDir);
+        execGitCmd(execOperations, workingDir, "clone", "--depth", "1", gitUrl, checkoutDir);
     }
 
     private void upgradeWrapper(Directory workingDir) {
