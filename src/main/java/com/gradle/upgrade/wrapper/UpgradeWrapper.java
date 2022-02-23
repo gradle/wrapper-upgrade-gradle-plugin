@@ -6,6 +6,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.credentials.PasswordCredentials;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskAction;
@@ -31,13 +32,15 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final ProjectLayout layout;
     private final ExecOperations execOperations;
     private final Provider<PasswordCredentials> githubToken;
+    private final ObjectFactory objects;
 
     @Inject
-    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ProjectLayout layout, ExecOperations execOperations, ProviderFactory providers) {
+    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ProjectLayout layout, ExecOperations execOperations, ProviderFactory providers, ObjectFactory objects) {
         this.upgrade = upgrade;
         this.layout = layout;
         this.execOperations = execOperations;
         this.githubToken = providers.credentials(PasswordCredentials.class, "github");
+        this.objects = objects;
     }
 
     @TaskAction
@@ -79,7 +82,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private boolean gitCommit(Directory gitDir, String branch, String message) {
         if (hasChanges(gitDir)) {
-            var changes = getProject().fileTree(gitDir);
+            var changes = objects.fileTree().from(gitDir);
             changes.include("**/gradle/wrapper/**", "**/gradlew", "**/gradlew.bat");
             changes.forEach(c -> execGitCmd(execOperations, gitDir, "add", c.toPath().toString()));
             execGitCmd(execOperations, gitDir, "checkout", "-b", branch);
