@@ -41,8 +41,8 @@ class GradleUtilsTest extends Specification {
         GradleUtils.getCurrentGradleVersion(workingDir)
 
         then:
-        def e = thrown(IOException)
-        e.message == 'Could not detect Gradle version from distributionUrl property'
+        def e = thrown(IllegalStateException)
+        e.message == "Could not find property 'distributionUrl' in file gradle/wrapper/gradle-wrapper.properties"
     }
 
     def "get current gradle version unknown"() {
@@ -53,8 +53,8 @@ class GradleUtilsTest extends Specification {
         GradleUtils.getCurrentGradleVersion(workingDir)
 
         then:
-        def e = thrown(IOException)
-        e.message == 'Could not detect Gradle version from distributionUrl property'
+        def e = thrown(IllegalStateException)
+        e.message == "Could not extract Gradle version from property 'distributionUrl': unknown"
     }
 
     private static String standard(String gradleVersion, String gradleDistro) {
