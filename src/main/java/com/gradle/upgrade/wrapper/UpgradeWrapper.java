@@ -6,11 +6,8 @@ import org.gradle.api.GradleException;
 import org.gradle.api.credentials.PasswordCredentials;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.process.internal.ExecException;
@@ -35,20 +32,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final ExecOperations execOperations;
     private final Provider<PasswordCredentials> githubToken;
 
-    @Input
-    private final Property<String> gradleVersion;
-
     @Inject
-    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ProjectLayout layout, ExecOperations execOperations, ProviderFactory providers, ObjectFactory objects) {
+    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ProjectLayout layout, ExecOperations execOperations, ProviderFactory providers) {
         this.upgrade = upgrade;
         this.layout = layout;
         this.execOperations = execOperations;
         this.githubToken = providers.credentials(PasswordCredentials.class, "github");
-        this.gradleVersion = objects.property(String.class).convention(providers.provider(UpgradeWrapper::latestGradleRelease));
-    }
-
-    public Property<String> getGradleVersion() {
-        return gradleVersion;
     }
 
     @TaskAction
@@ -57,13 +46,14 @@ public abstract class UpgradeWrapper extends DefaultTask {
         var upgradeName = upgrade.name;
         var gitDir = layout.getBuildDirectory().dir("gitClones/" + upgradeName).get();
         var workingDir = upgrade.getDir().map(gitDir::dir).orElse(gitDir).get();
+        var gradleVersion = latestGradleRelease();
         try {
-            var branch = String.format("bot/upgrade-gw-%s-to-%s", upgradeName, gradleVersion.get());
+            var branch = String.format("bot/upgrade-gw-%s-to-%s", upgradeName, gradleVersion);
             if (!prExists(github, branch, upgrade.getRepo().get())) {
                 clone(layout.getProjectDirectory(), upgrade.getRepo().get(), gitDir);
                 var currentGradleVersion = getCurrentGradleVersion(workingDir.getAsFile().toPath());
-                upgradeWrapper(workingDir);
-                var message = String.format("Bump Gradle Wrapper from %s to %s in %s", currentGradleVersion, gradleVersion.get(), upgradeName);
+                upgradeWrapper(workingDir, gradleVersion);
+                var message = String.format("Bump Gradle Wrapper from %s to %s in %s", currentGradleVersion, gradleVersion, upgradeName);
                 if (gitCommit(gitDir, branch, message)) {
                     createPullRequest(github, branch, upgrade.getBaseBranch().get(), upgrade.getRepo().get(), message);
                 } else {
@@ -82,9 +72,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
         execGitCmd(execOperations, workingDir, "clone", "--depth", "1", gitUrl, checkoutDir);
     }
 
-    private void upgradeWrapper(Directory workingDir) {
-        execGradleCmd(execOperations, workingDir, "wrapper", "--gradle-version", gradleVersion.get());
-        execGradleCmd(execOperations, workingDir, "wrapper", "--gradle-version", gradleVersion.get());
+    private void upgradeWrapper(Directory workingDir, String gradleVersion) {
+        execGradleCmd(execOperations, workingDir, "wrapper", "--gradle-version", gradleVersion);
+        execGradleCmd(execOperations, workingDir, "wrapper", "--gradle-version", gradleVersion);
     }
 
     private boolean gitCommit(Directory gitDir, String branch, String message) {
