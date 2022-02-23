@@ -60,7 +60,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
                 clone(getProject().getLayout().getProjectDirectory(), upgrade.getRepo().get(), gitDir);
                 var currentGradleVersion = getCurrentGradleVersion(workingDir.getAsFile().toPath());
                 upgradeWrapper(workingDir);
-                var message = "Bump Gradle wrapper " + currentGradleVersion.map(v -> "from " + v).orElse("") + " to " + gradleVersion.get() + " in " + upgradeName;
+                var message = String.format("Bump Gradle Wrapper from %s to %s in %s", currentGradleVersion, gradleVersion.get(), upgradeName);
                 if (gitCommit(gitDir, branch, message)) {
                     createPullRequest(github, branch, upgrade.getBaseBranch().get(), upgrade.getRepo().get(), message);
                 } else {

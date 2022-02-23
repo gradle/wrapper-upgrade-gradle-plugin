@@ -19,7 +19,7 @@ class GradleUtilsTest extends Specification {
         def version = GradleUtils.getCurrentGradleVersion(workingDir)
 
         then:
-        version == Optional.of('7.3.3')
+        version == '7.3.3'
     }
 
     def "get current gradle version all"() {
@@ -30,7 +30,7 @@ class GradleUtilsTest extends Specification {
         def version = GradleUtils.getCurrentGradleVersion(workingDir)
 
         then:
-        version == Optional.of('7.2')
+        version == '7.2'
     }
 
     def "get current gradle distributionUrl not found"() {
