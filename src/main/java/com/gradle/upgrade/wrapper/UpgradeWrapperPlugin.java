@@ -13,7 +13,11 @@ public abstract class UpgradeWrapperPlugin implements Plugin<Project> {
             objects.domainObjectContainer(UpgradeWrapperDomainObject.class, name -> objects.newInstance(UpgradeWrapperDomainObject.class, name));
         project.getExtensions().add("wrapperUpgrades", upgradeContainer);
 
-        var upgradeAllTask = project.getTasks().register("upgradeWrapperAll");
+        var upgradeAllTask = project.getTasks().register("upgradeWrapperAll",
+            t -> {
+                t.setGroup("Gradle Wrapper Upgrade");
+                t.setDescription("Updates the Gradle Wrapper on all configured projects.");
+            });
 
         upgradeContainer.configureEach(upgrade -> {
             var taskNameSuffix = upgrade.name.substring(0, 1).toUpperCase() + upgrade.name.substring(1);
