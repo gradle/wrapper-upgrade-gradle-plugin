@@ -66,7 +66,7 @@ wrapperUpgrades {
         then:
         result.output.contains('Dry run - No PR created')
         result.task(':upgradeWrapperAll').outcome == SUCCESS
-        !result.output.contains('problems were found storing the configuration cache')
+        result.output.contains('Configuration cache entry stored.')
 
         when:
         result = GradleRunner.create()

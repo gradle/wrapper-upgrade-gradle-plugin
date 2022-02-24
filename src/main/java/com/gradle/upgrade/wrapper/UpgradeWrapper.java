@@ -2,8 +2,6 @@ package com.gradle.upgrade.wrapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.GradleException;
-import org.gradle.api.credentials.PasswordCredentials;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
@@ -28,11 +26,12 @@ import static com.gradle.upgrade.wrapper.GradleUtils.getCurrentGradleVersion;
 @DisableCachingByDefault(because = "Produces no cacheable output")
 public abstract class UpgradeWrapper extends DefaultTask {
 
+    private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADER_GIT_TOKEN";
     private final UpgradeWrapperDomainObject upgrade;
     private final ProjectLayout layout;
     private final ObjectFactory objects;
     private final ExecOperations execOperations;
-    private final Provider<PasswordCredentials> githubToken;
+    private final Provider<String> githubToken;
     private final boolean dryRun;
 
     @Inject
@@ -41,41 +40,28 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.layout = layout;
         this.objects = objects;
         this.execOperations = execOperations;
-        this.githubToken = providers.credentials(PasswordCredentials.class, "github");
+        this.githubToken = providers.environmentVariable(GIT_TOKEN_ENV_VAR);
         this.dryRun = providers.gradleProperty("dryRun").map(p -> true).orElse(false).get();
     }
 
     @TaskAction
     void upgrade() throws IOException {
-        var github = new GitHubBuilder().withOAuthToken(githubToken.get().getPassword()).build();
+        var github = githubToken.isPresent() ? new GitHubBuilder().withOAuthToken(githubToken.get()).build() : new GitHubBuilder().build();
         var upgradeName = upgrade.name;
         var gitDir = layout.getBuildDirectory().dir("gitClones/" + upgradeName).get();
         var workingDir = upgrade.getDir().map(gitDir::dir).orElse(gitDir).get();
         var gradleVersion = latestGradleRelease();
-        try {
-            var branch = String.format("bot/upgrade-gw-%s-to-%s", upgradeName, gradleVersion);
-            if (dryRun) {
-                getLogger().lifecycle("::notice ::Running dry run mode");
-                var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, gradleVersion);
-                var message = commitMessage(upgradeName, gradleVersion, currentGradleVersion);
-                if (gitCommit(gitDir, branch, message, false)) {
-                    getLogger().lifecycle("::notice ::Dry run - No PR created");
-                } else {
-                    getLogger().lifecycle("::notice ::No changes detected on " + upgradeName);
-                }
-            } else if (!prExists(github, branch, upgrade.getRepo().get())) {
-                var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, gradleVersion);
-                var message = commitMessage(upgradeName, gradleVersion, currentGradleVersion);
-                if (gitCommit(gitDir, branch, message, true)) {
-                    createPullRequest(github, branch, upgrade.getBaseBranch().get(), upgrade.getRepo().get(), message);
-                } else {
-                    getLogger().lifecycle("::notice ::No changes detected on " + upgradeName);
-                }
+        var branch = String.format("bot/upgrade-gw-%s-to-%s", upgradeName, gradleVersion);
+        if (dryRun || !prExists(github, branch, upgrade.getRepo().get())) {
+            var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, gradleVersion);
+            var message = commitMessage(upgradeName, gradleVersion, currentGradleVersion);
+            if (gitCommit(gitDir, branch, message, !dryRun)) {
+                createPullRequest(github, branch, upgrade.getBaseBranch().get(), upgrade.getRepo().get(), message, dryRun);
             } else {
-                getLogger().warn("::warning ::PR already exists for " + upgradeName);
+                getLogger().lifecycle("No changes detected on " + upgradeName);
             }
-        } catch (GradleException | IOException e) {
-            getLogger().warn("::error ::Failed to upgrade " + upgradeName, e);
+        } else {
+            getLogger().lifecycle("PR already exists for " + upgradeName);
         }
     }
 
@@ -140,10 +126,14 @@ public abstract class UpgradeWrapper extends DefaultTask {
         return github.getRepository(repoName).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(branch));
     }
 
-    private void createPullRequest(GitHub github, String branch, String baseBranch, String repoName, String title) throws IOException {
-        var pr = github.getRepository(repoName).createPullRequest(title,
-            branch, baseBranch != null ? baseBranch : "main", null);
-        getLogger().lifecycle("::notice ::Pull request created " + pr.getHtmlUrl());
+    private void createPullRequest(GitHub github, String branch, String baseBranch, String repoName, String title, boolean dryRun) throws IOException {
+        if (dryRun) {
+            getLogger().lifecycle("Dry run - No PR created");
+        } else {
+            var pr = github.getRepository(repoName).createPullRequest(title,
+                branch, baseBranch != null ? baseBranch : "main", null);
+            getLogger().lifecycle("Pull request created " + pr.getHtmlUrl());
+        }
     }
 
 }
