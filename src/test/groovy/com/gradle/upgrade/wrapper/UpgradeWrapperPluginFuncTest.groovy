@@ -6,7 +6,7 @@ import spock.lang.TempDir
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-class UpgradeWrapperPluginTest extends Specification {
+class UpgradeWrapperPluginFuncTest extends Specification {
 
     @TempDir
     File testProjectDir
