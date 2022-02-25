@@ -114,7 +114,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void createPr(Params params, String usedGradleVersion, GitHub gitHub) throws IOException {
         var message = String.format("Bump Gradle Wrapper from %s to %s in %s", usedGradleVersion, params.latestGradleVersion, params.gradleProjectDir);
         gitCommit(params, message);
-        createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message, dryRun);
+        createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message);
         getLogger().lifecycle(String.format("PR created TODO to upgrade Gradle Wrapper to %s since already on latest version for project '%s'", params.latestGradleVersion, params.project));
     }
 
@@ -131,7 +131,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private void createPullRequest(GitHub github, String branch, String baseBranch, String repoName, String title, boolean dryRun) throws IOException {
+    private void createPullRequest(GitHub github, String branch, String baseBranch, String repoName, String title) throws IOException {
         if (dryRun) {
             getLogger().lifecycle("Dry run - No PR created");
         } else {
