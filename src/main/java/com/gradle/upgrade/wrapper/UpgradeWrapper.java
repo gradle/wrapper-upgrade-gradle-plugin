@@ -22,11 +22,13 @@ import java.net.URL;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGradleCmd;
 import static com.gradle.upgrade.wrapper.GradleUtils.getCurrentGradleVersion;
+import static java.lang.Boolean.parseBoolean;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")
 public abstract class UpgradeWrapper extends DefaultTask {
 
     private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADER_GIT_TOKEN";
+
     private final UpgradeWrapperDomainObject upgrade;
     private final ProjectLayout layout;
     private final ObjectFactory objects;
@@ -41,7 +43,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.objects = objects;
         this.execOperations = execOperations;
         this.githubToken = providers.environmentVariable(GIT_TOKEN_ENV_VAR);
-        this.dryRun = providers.gradleProperty("dryRun").map(p -> true).orElse(false).get();
+        this.dryRun = providers.gradleProperty("dryRun").map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
     }
 
     @TaskAction
