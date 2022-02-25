@@ -73,7 +73,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void tryUpgradeGradleWrapper(Params params, GitHub gitHub) throws IOException {
-        var currentGradleVersion = cloneAndUpgrade(params.gitDir, params.workingDir, params.latestGradleVersion);
+        clone(params, layout.getProjectDirectory());
+        var currentGradleVersion = getCurrentGradleVersion(params.workingDir.getAsFile().toPath());
+        upgradeWrapper(params.workingDir, params.latestGradleVersion);
+
         var message = commitMessage(params.project, params.latestGradleVersion, currentGradleVersion);
         if (gitCommit(params.gitDir, params.prBranch, message, !dryRun)) {
             createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message, dryRun);
@@ -82,21 +85,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private String cloneAndUpgrade(Directory gitDir, Directory workingDir, String gradleVersion) throws IOException {
-        clone(layout.getProjectDirectory(), upgrade.getRepo().get(), gitDir);
-        var currentGradleVersion = getCurrentGradleVersion(workingDir.getAsFile().toPath());
-        upgradeWrapper(workingDir, gradleVersion);
-        return currentGradleVersion;
+    private void clone(Params params, Directory workingDir) {
+        var gitUrl = "https://github.com/" + params.repository + ".git";
+        execGitCmd(execOperations, workingDir, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitDir);
     }
 
     private String commitMessage(String upgradeName, String gradleVersion, String currentGradleVersion) {
         return String.format("Bump Gradle Wrapper from %s to %s in %s", currentGradleVersion, gradleVersion, upgradeName);
-    }
-
-    private void clone(Directory workingDir, String repo, Directory checkoutDir) {
-        var baseBranch = upgrade.getBaseBranch().get();
-        var gitUrl = "https://github.com/" + repo + ".git";
-        execGitCmd(execOperations, workingDir, "clone", "--depth", "1", "-b", baseBranch, gitUrl, checkoutDir);
     }
 
     private void upgradeWrapper(Directory workingDir, String gradleVersion) {
@@ -144,14 +139,16 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
         private final String project;
         private final String repository;
+        private final String baseBranch;
         private final String prBranch;
         private final Directory gitDir;
         private final Directory workingDir;
         private final String latestGradleVersion;
 
-        private Params(String project, String repository, String prBranch, Directory gitDir, Directory workingDir, String latestGradleVersion) {
+        private Params(String project, String repository, String baseBranch, String prBranch, Directory gitDir, Directory workingDir, String latestGradleVersion) {
             this.project = project;
             this.repository = repository;
+            this.baseBranch = baseBranch;
             this.prBranch = prBranch;
             this.gitDir = gitDir;
             this.workingDir = workingDir;
@@ -161,11 +158,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private static Params create(UpgradeWrapperDomainObject upgrade, String latestGradleVersion, DirectoryProperty buildDirectory) {
             var project = upgrade.name;
             var repository = upgrade.getRepo().get();
+            var baseBranch = upgrade.getBaseBranch().get();
             var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
             var gitDir = buildDirectory.dir("gitClones/" + project).get();
             var workingDir = gitDir.dir(upgrade.getDir().get());
 
-            return new Params(project, repository, prBranch, gitDir, workingDir, latestGradleVersion);
+            return new Params(project, repository, baseBranch, prBranch, gitDir, workingDir, latestGradleVersion);
         }
 
     }
