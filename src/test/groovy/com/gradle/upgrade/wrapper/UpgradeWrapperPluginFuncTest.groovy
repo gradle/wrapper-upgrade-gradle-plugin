@@ -43,8 +43,10 @@ wrapperUpgrades {
             .build()
 
         then:
-        result.output.contains('Dry run: Not creating PR')
         result.task(':upgradeWrapperAll').outcome == SUCCESS
+
+        and:
+        result.output.contains('Dry run: Not creating PR')
 
         def gitDir = testProjectDir.toPath().resolve('build/gitClones/common-custom-user-data-gradle-plugin').toFile()
         def proc = 'git show --oneline HEAD'.execute(null, gitDir)
@@ -60,24 +62,28 @@ wrapperUpgrades {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
-            .withArguments('clean', 'upgradeWrapperAll', '-PdryRun', '-PunsignedCommits', '--configuration-cache')
+            .withArguments('clean', 'upgradeWrapperAll', '--configuration-cache', '-PdryRun', '-PunsignedCommits')
             .build()
 
         then:
-        result.output.contains('Dry run: Not creating PR')
         result.task(':upgradeWrapperAll').outcome == SUCCESS
+
+        and:
+        result.output.contains("Dry run: Not creating PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-")
         result.output.contains('Configuration cache entry stored.')
 
         when:
         result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
-            .withArguments('clean', 'upgradeWrapperAll', '-PdryRun', '-PunsignedCommits', '--configuration-cache')
+            .withArguments('clean', 'upgradeWrapperAll', '--configuration-cache', '-PdryRun', '-PunsignedCommits')
             .build()
 
         then:
-        result.output.contains("Dry run: Not creating PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-")
         result.task(':upgradeWrapperAll').outcome == SUCCESS
+
+        and:
+        result.output.contains("Dry run: Not creating PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-")
         result.output.contains('Reusing configuration cache.')
     }
 
