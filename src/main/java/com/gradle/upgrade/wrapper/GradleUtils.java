@@ -15,15 +15,15 @@ final class GradleUtils {
     private static final String GRADLE_WRAPPER_DISTRIBUTION_URL_PROP = "distributionUrl";
     private static final String GRADLE_WRAPPER_VERSION_REGEXP = "distributions/gradle-(.*)-(bin|all).zip";
 
-    static String getCurrentGradleVersion(Path workingDir) throws IOException {
-        try (var is = Files.newInputStream(workingDir.resolve(GRADLE_WRAPPER_PROPERTIES_FILE))) {
+    static String extractCurrentGradleVersion(Path gradleRootProjectDir) throws IOException {
+        try (var is = Files.newInputStream(gradleRootProjectDir.resolve(GRADLE_WRAPPER_PROPERTIES_FILE))) {
             var wrapperProperties = new Properties();
             wrapperProperties.load(is);
-            return getCurrentGradleVersion(wrapperProperties);
+            return extractCurrentGradleVersion(wrapperProperties);
         }
     }
 
-    private static String getCurrentGradleVersion(Properties props) {
+    private static String extractCurrentGradleVersion(Properties props) {
         var distributionUrl = props.getProperty(GRADLE_WRAPPER_DISTRIBUTION_URL_PROP);
         if (distributionUrl != null) {
             var matcher = Pattern.compile(GRADLE_WRAPPER_VERSION_REGEXP).matcher(distributionUrl);
