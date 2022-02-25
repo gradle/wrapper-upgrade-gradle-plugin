@@ -17,6 +17,7 @@ import org.kohsuke.github.GitHubBuilder;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static com.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGradleCmd;
@@ -55,7 +56,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         var gitHub = createGitHub(gitHubToken);
         var latestGradleVersion = lookupLatestGradleVersion();
-        var params = Params.create(upgrade, latestGradleVersion, layout.getBuildDirectory(), gitHub);
+        var params = Params.create(upgrade, latestGradleVersion, layout.getBuildDirectory(), layout.getProjectDirectory(), gitHub);
 
         if (!prExists(params)) {
             createPrIfGradleWrapperUpgradeAvailable(params);
@@ -119,9 +120,18 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void createPr(Params params, String usedGradleVersion) throws IOException {
-        var description = String.format("Bump Gradle Wrapper from %s to %s in %s", usedGradleVersion, params.latestGradleVersion, params.gradleProjectDir);
+        String description = createDescription(params, usedGradleVersion);
         gitCommitAndPush(params, description);
         gitPr(params, description);
+    }
+
+    private String createDescription(Params params, String usedGradleVersion) {
+        StringBuilder description = new StringBuilder();
+        description.append(String.format("Bump Gradle Wrapper from %s to %s", usedGradleVersion, params.latestGradleVersion));
+        if (!params.gradleProjectDirRelativePath.normalize().toString().isEmpty()) {
+            description.append(String.format(" in %s", params.gradleProjectDirRelativePath.normalize()));
+        }
+        return description.toString();
     }
 
     private void gitCommitAndPush(Params params, String message) {
@@ -150,31 +160,38 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final String repository;
         private final String baseBranch;
         private final String prBranch;
+        private final Directory rootDirectory;
         private final Directory gitCheckoutDir;
         private final Directory gradleProjectDir;
+        private final Path gradleProjectDirRelativePath;
         private final String latestGradleVersion;
         private final GitHub gitHub;
 
-        private Params(String project, String repository, String baseBranch, String prBranch, Directory gitCheckoutDir, Directory gradleProjectDir, String latestGradleVersion, GitHub gitHub) {
+        private Params(String project, String repository, String baseBranch, String prBranch,
+                       Directory rootDirectory, Directory gitCheckoutDir, Directory gradleProjectDir, Path gradleProjectDirRelativePath,
+                       String latestGradleVersion, GitHub gitHub) {
             this.project = project;
             this.repository = repository;
             this.baseBranch = baseBranch;
             this.prBranch = prBranch;
+            this.rootDirectory = rootDirectory;
             this.gitCheckoutDir = gitCheckoutDir;
             this.gradleProjectDir = gradleProjectDir;
+            this.gradleProjectDirRelativePath = gradleProjectDirRelativePath;
             this.latestGradleVersion = latestGradleVersion;
             this.gitHub = gitHub;
         }
 
-        private static Params create(UpgradeWrapperDomainObject upgrade, String latestGradleVersion, DirectoryProperty buildDirectory, GitHub gitHub) {
+        private static Params create(UpgradeWrapperDomainObject upgrade, String latestGradleVersion, DirectoryProperty buildDirectory, Directory rootDirectory, GitHub gitHub) {
             var project = upgrade.name;
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
             var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
             var gitCheckoutDir = buildDirectory.dir("gitClones/" + project).get();
             var gradleProjectDir = gitCheckoutDir.dir(upgrade.getDir().get());
+            var gradleProjectDirRelativePath = gitCheckoutDir.getAsFile().toPath().relativize(gradleProjectDir.getAsFile().toPath());
 
-            return new Params(project, repository, baseBranch, prBranch, gitCheckoutDir, gradleProjectDir, latestGradleVersion, gitHub);
+            return new Params(project, repository, baseBranch, prBranch, rootDirectory, gitCheckoutDir, gradleProjectDir, gradleProjectDirRelativePath, latestGradleVersion, gitHub);
         }
 
     }
