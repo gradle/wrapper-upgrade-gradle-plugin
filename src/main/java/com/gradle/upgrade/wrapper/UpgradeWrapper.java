@@ -65,7 +65,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
                 getLogger().lifecycle("No changes detected on " + project);
             }
         } else {
-            getLogger().lifecycle("PR already exists for " + project);
+            getLogger().lifecycle("PR to upgrade Gradle Wrapper already exists for " + project);
         }
     }
 
