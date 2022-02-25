@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import static com.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGradleCmd;
-import static com.gradle.upgrade.wrapper.GradleUtils.getCurrentGradleVersion;
+import static com.gradle.upgrade.wrapper.GradleUtils.extractCurrentGradleVersion;
 import static com.gradle.upgrade.wrapper.GradleUtils.lookupLatestGradleVersion;
 import static java.lang.Boolean.parseBoolean;
 
@@ -74,7 +74,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void tryUpgradeGradleWrapper(Params params, GitHub gitHub) throws IOException {
         clone(params, layout.getProjectDirectory());
-        var currentGradleVersion = getCurrentGradleVersion(params.workingDir.getAsFile().toPath());
+        var currentGradleVersion = extractCurrentGradleVersion(params.workingDir.getAsFile().toPath());
         upgradeWrapper(params.workingDir, params.latestGradleVersion);
 
         var message = commitMessage(params.project, params.latestGradleVersion, currentGradleVersion);

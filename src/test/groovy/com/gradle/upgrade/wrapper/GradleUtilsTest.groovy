@@ -11,46 +11,46 @@ class GradleUtilsTest extends Specification {
     @TempDir
     Path workingDir
 
-    def "get current gradle version bin"() {
+    def "extract current gradle version bin"() {
         given:
         createGradleWrapperProperties().text = standard('7.3.3', 'bin')
 
         when:
-        def version = GradleUtils.getCurrentGradleVersion(workingDir)
+        def version = GradleUtils.extractCurrentGradleVersion(workingDir)
 
         then:
         version == '7.3.3'
     }
 
-    def "get current gradle version all"() {
+    def "extract current gradle version all"() {
         given:
         createGradleWrapperProperties().text = standard('7.2', 'all')
 
         when:
-        def version = GradleUtils.getCurrentGradleVersion(workingDir)
+        def version = GradleUtils.extractCurrentGradleVersion(workingDir)
 
         then:
         version == '7.2'
     }
 
-    def "get current gradle distributionUrl not found"() {
+    def "extract current gradle distributionUrl not found"() {
         given:
         createGradleWrapperProperties().text = 'unexpected'
 
         when:
-        GradleUtils.getCurrentGradleVersion(workingDir)
+        GradleUtils.extractCurrentGradleVersion(workingDir)
 
         then:
         def e = thrown(IllegalStateException)
         e.message == "Could not find property 'distributionUrl' in file gradle/wrapper/gradle-wrapper.properties"
     }
 
-    def "get current gradle version unknown"() {
+    def "extract current gradle version unknown"() {
         given:
         createGradleWrapperProperties().text = 'distributionUrl=unknown'
 
         when:
-        GradleUtils.getCurrentGradleVersion(workingDir)
+        GradleUtils.extractCurrentGradleVersion(workingDir)
 
         then:
         def e = thrown(IllegalStateException)
