@@ -54,7 +54,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         var params = Params.create(upgrade, latestGradleVersion, layout.getBuildDirectory());
 
         if (!prExists(params, gitHub)) {
-            tryUpgradeGradleWrapper(params, gitHub);
+            createPrIfUpgradeAvailable(params, gitHub);
         } else {
             getLogger().lifecycle(String.format("PR '%s' to upgrade Gradle Wrapper to %s already exists for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
         }
@@ -72,16 +72,15 @@ public abstract class UpgradeWrapper extends DefaultTask {
         return gitHub.getRepository(params.repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(params.prBranch));
     }
 
-    private void tryUpgradeGradleWrapper(Params params, GitHub gitHub) throws IOException {
-        // clone the Git project and extract the Gradle version currently used by that project
-        cloneGitProject(params, layout.getProjectDirectory());
-        var usedGradleVersion = extractCurrentGradleVersion(params.gradleProjectDir.getAsFile().toPath());
-
-        // run the Gradle Wrapper on the project to update it to latest Gradle version available
-        runGradleWrapper(params);
-
-        // create a PR in case an upgrade was actually possible and done
+    private void createPrIfUpgradeAvailable(Params params, GitHub gitHub) throws IOException {
+        String usedGradleVersion = cloneGitProjectAndExtractCurrentGradleVersion(params);
+        runGradleWrapperWithLatestGradleVersion(params);
         createPr(params, gitHub, usedGradleVersion);
+    }
+
+    private String cloneGitProjectAndExtractCurrentGradleVersion(Params params) throws IOException {
+        cloneGitProject(params, layout.getProjectDirectory());
+        return extractCurrentGradleVersion(params.gradleProjectDir.getAsFile().toPath());
     }
 
     private void cloneGitProject(Params params, Directory workingDir) {
@@ -89,7 +88,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         execGitCmd(execOperations, workingDir, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
     }
 
-    private void runGradleWrapper(Params params) {
+    private void runGradleWrapperWithLatestGradleVersion(Params params) {
         execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
         execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
     }
