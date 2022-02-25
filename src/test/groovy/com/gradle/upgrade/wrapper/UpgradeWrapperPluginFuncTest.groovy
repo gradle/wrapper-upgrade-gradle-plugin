@@ -1,6 +1,7 @@
 package com.gradle.upgrade.wrapper
 
 import org.gradle.testkit.runner.GradleRunner
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.TempDir
 
@@ -12,6 +13,13 @@ class UpgradeWrapperPluginFuncTest extends Specification {
     File testProjectDir
     File settingsFile
     File buildFile
+
+    @Shared
+    String latestGradleVersion
+
+    def setupSpec() {
+        latestGradleVersion = GradleUtils.lookupLatestGradleVersion()
+    }
 
     def setup() {
         settingsFile = new File(testProjectDir, 'settings.gradle')
@@ -51,10 +59,10 @@ wrapperUpgrades {
         def gitDir = testProjectDir.toPath().resolve('build/gitClones/common-custom-user-data-gradle-plugin').toFile()
         def proc = 'git show --oneline HEAD'.execute(null, gitDir)
         def output = proc.in.text
-        output.contains 'Bump Gradle Wrapper from 7.3.3 to'
+        output.contains "Bump Gradle Wrapper from 7.3.3 to ${latestGradleVersion}"
         output.contains 'Binary files a/gradle/wrapper/gradle-wrapper.jar and b/gradle/wrapper/gradle-wrapper.jar differ'
         output.contains '-distributionUrl=https\\://services.gradle.org/distributions/gradle-7.3.3-bin.zip'
-        output.contains '+distributionUrl=https\\://services.gradle.org/distributions/gradle-'
+        output.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
     }
 
     def "upgrade wrapper on CCUD plugin with dry run and configuration cache"() {
@@ -83,7 +91,7 @@ wrapperUpgrades {
         result.task(':upgradeWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Not creating PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-")
+        result.output.contains("Dry run: Not creating PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
         result.output.contains('Reusing configuration cache.')
     }
 
