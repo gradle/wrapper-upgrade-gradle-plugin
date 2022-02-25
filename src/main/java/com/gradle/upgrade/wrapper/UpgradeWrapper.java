@@ -55,15 +55,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
 
         if (!prExists(prBranch, repository, gitHub)) {
-            var gitDir = layout.getBuildDirectory().dir("gitClones/" + project).get();
-            var workingDir = gitDir.dir(upgrade.getDir().get());
-            var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, latestGradleVersion);
-            var message = commitMessage(project, latestGradleVersion, currentGradleVersion);
-            if (gitCommit(gitDir, prBranch, message, !dryRun)) {
-                createPullRequest(gitHub, prBranch, upgrade.getBaseBranch().get(), repository, message, dryRun);
-            } else {
-                getLogger().lifecycle("No changes detected on " + project);
-            }
+            tryUpgradeGradleWrapper(gitHub, project, repository, latestGradleVersion, prBranch);
         } else {
             getLogger().lifecycle("PR to upgrade Gradle Wrapper already exists for " + project);
         }
@@ -79,6 +71,18 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private static boolean prExists(String prBranch, String repository, GitHub gitHub) throws IOException {
         return gitHub.getRepository(repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(prBranch));
+    }
+
+    private void tryUpgradeGradleWrapper(GitHub gitHub, String project, String repository, String latestGradleVersion, String prBranch) throws IOException {
+        var gitDir = layout.getBuildDirectory().dir("gitClones/" + project).get();
+        var workingDir = gitDir.dir(upgrade.getDir().get());
+        var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, latestGradleVersion);
+        var message = commitMessage(project, latestGradleVersion, currentGradleVersion);
+        if (gitCommit(gitDir, prBranch, message, !dryRun)) {
+            createPullRequest(gitHub, prBranch, upgrade.getBaseBranch().get(), repository, message, dryRun);
+        } else {
+            getLogger().lifecycle("No changes detected on " + project);
+        }
     }
 
     private String cloneAndUpgrade(Directory gitDir, Directory workingDir, String gradleVersion) throws IOException {
