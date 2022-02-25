@@ -150,7 +150,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var pr = params.gitHub.getRepository(params.repository).createPullRequest(title, params.prBranch, params.baseBranch, null);
             getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade Gradle Wrapper to %s for project '%s'", params.prBranch, pr.getHtmlUrl(), params.latestGradleVersion, params.project));
         } else {
-            getLogger().lifecycle(String.format("Dry run: Not creating PR '%s' to upgrade Gradle Wrapper to %s for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
+            getLogger().lifecycle(String.format("Dry run: Skipping creation of PR '%s' that would upgrade Gradle Wrapper to %s for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
         }
     }
 
