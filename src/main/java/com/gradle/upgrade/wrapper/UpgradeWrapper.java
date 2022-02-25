@@ -27,6 +27,7 @@ import static java.lang.Boolean.parseBoolean;
 @DisableCachingByDefault(because = "Produces no cacheable output")
 public abstract class UpgradeWrapper extends DefaultTask {
 
+    private static final String DRY_RUN_SYS_PROP = "dryRun";
     private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADER_GIT_TOKEN";
 
     private final UpgradeWrapperDomainObject upgrade;
@@ -43,7 +44,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.objects = objects;
         this.execOperations = execOperations;
         this.githubToken = providers.environmentVariable(GIT_TOKEN_ENV_VAR);
-        this.dryRun = providers.gradleProperty("dryRun").map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
+        this.dryRun = providers.gradleProperty(DRY_RUN_SYS_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
     }
 
     @TaskAction
