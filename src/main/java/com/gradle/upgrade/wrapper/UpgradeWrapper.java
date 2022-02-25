@@ -2,6 +2,7 @@ package com.gradle.upgrade.wrapper;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.Directory;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
@@ -49,15 +50,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
     @TaskAction
     void upgrade() throws IOException {
         var gitHub = createGitHub(gitHubToken);
-        var project = upgrade.name;
-        var repository = upgrade.getRepo().get();
         var latestGradleVersion = lookupLatestGradleVersion();
-        var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
+        var params = Params.create(upgrade, latestGradleVersion, layout.getBuildDirectory());
 
-        if (!prExists(prBranch, repository, gitHub)) {
-            tryUpgradeGradleWrapper(gitHub, project, repository, latestGradleVersion, prBranch);
+        if (!prExists(params, gitHub)) {
+            tryUpgradeGradleWrapper(params, gitHub);
         } else {
-            getLogger().lifecycle("PR to upgrade Gradle Wrapper already exists for " + project);
+            getLogger().lifecycle(String.format("PR '%s' to upgrade Gradle Wrapper to %s already exists for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
         }
     }
 
@@ -69,19 +68,17 @@ public abstract class UpgradeWrapper extends DefaultTask {
         return gitHub.build();
     }
 
-    private static boolean prExists(String prBranch, String repository, GitHub gitHub) throws IOException {
-        return gitHub.getRepository(repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(prBranch));
+    private static boolean prExists(Params params, GitHub gitHub) throws IOException {
+        return gitHub.getRepository(params.repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(params.prBranch));
     }
 
-    private void tryUpgradeGradleWrapper(GitHub gitHub, String project, String repository, String latestGradleVersion, String prBranch) throws IOException {
-        var gitDir = layout.getBuildDirectory().dir("gitClones/" + project).get();
-        var workingDir = gitDir.dir(upgrade.getDir().get());
-        var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, latestGradleVersion);
-        var message = commitMessage(project, latestGradleVersion, currentGradleVersion);
-        if (gitCommit(gitDir, prBranch, message, !dryRun)) {
-            createPullRequest(gitHub, prBranch, upgrade.getBaseBranch().get(), repository, message, dryRun);
+    private void tryUpgradeGradleWrapper(Params params, GitHub gitHub) throws IOException {
+        var currentGradleVersion = cloneAndUpgrade(params.gitDir, params.workingDir, params.latestGradleVersion);
+        var message = commitMessage(params.project, params.latestGradleVersion, currentGradleVersion);
+        if (gitCommit(params.gitDir, params.prBranch, message, !dryRun)) {
+            createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message, dryRun);
         } else {
-            getLogger().lifecycle("No changes detected on " + project);
+            getLogger().lifecycle("No changes detected on " + params.project);
         }
     }
 
@@ -141,6 +138,36 @@ public abstract class UpgradeWrapper extends DefaultTask {
                 branch, baseBranch != null ? baseBranch : "main", null);
             getLogger().lifecycle("Pull request created " + pr.getHtmlUrl());
         }
+    }
+
+    private static final class Params {
+
+        private final String project;
+        private final String repository;
+        private final String prBranch;
+        private final Directory gitDir;
+        private final Directory workingDir;
+        private final String latestGradleVersion;
+
+        private Params(String project, String repository, String prBranch, Directory gitDir, Directory workingDir, String latestGradleVersion) {
+            this.project = project;
+            this.repository = repository;
+            this.prBranch = prBranch;
+            this.gitDir = gitDir;
+            this.workingDir = workingDir;
+            this.latestGradleVersion = latestGradleVersion;
+        }
+
+        private static Params create(UpgradeWrapperDomainObject upgrade, String latestGradleVersion, DirectoryProperty buildDirectory) {
+            var project = upgrade.name;
+            var repository = upgrade.getRepo().get();
+            var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
+            var gitDir = buildDirectory.dir("gitClones/" + project).get();
+            var workingDir = gitDir.dir(upgrade.getDir().get());
+
+            return new Params(project, repository, prBranch, gitDir, workingDir, latestGradleVersion);
+        }
+
     }
 
 }
