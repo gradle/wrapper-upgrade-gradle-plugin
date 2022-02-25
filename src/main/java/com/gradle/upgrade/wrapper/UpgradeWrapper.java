@@ -51,11 +51,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         var github = createGitHub();
         var upgradeName = upgrade.name;
-        var gitDir = layout.getBuildDirectory().dir("gitClones/" + upgradeName).get();
-        var workingDir = upgrade.getDir().map(gitDir::dir).orElse(gitDir).get();
         var gradleVersion = latestGradleRelease();
-        var branch = String.format("bot/upgrade-gw-%s-to-%s", upgradeName, gradleVersion);
+        var branch = String.format("gwbot/%s/gradle-wrapper-%s", upgradeName, gradleVersion);
         if (dryRun || !prExists(github, branch, upgrade.getRepo().get())) {
+            var gitDir = layout.getBuildDirectory().dir("gitClones/" + upgradeName).get();
+            var workingDir = upgrade.getDir().map(gitDir::dir).orElse(gitDir).get();
             var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, gradleVersion);
             var message = commitMessage(upgradeName, gradleVersion, currentGradleVersion);
             if (gitCommit(gitDir, branch, message, !dryRun)) {
