@@ -28,6 +28,8 @@ import static java.lang.Boolean.parseBoolean;
 public abstract class UpgradeWrapper extends DefaultTask {
 
     private static final String DRY_RUN_GRADLE_PROP = "dryRun";
+    private static final String UNSIGNED_COMMITS_GRADLE_PROP = "unsignedCommits";
+
     private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADER_GIT_TOKEN";
 
     private final UpgradeWrapperDomainObject upgrade;
@@ -36,6 +38,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final ExecOperations execOperations;
     private final Provider<String> gitHubToken;
     private final boolean dryRun;
+    private final boolean unsignedCommits;
 
     @Inject
     public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
@@ -45,6 +48,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.execOperations = execOperations;
         this.gitHubToken = providers.environmentVariable(GIT_TOKEN_ENV_VAR);
         this.dryRun = providers.gradleProperty(DRY_RUN_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
+        this.unsignedCommits = providers.gradleProperty(UNSIGNED_COMMITS_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
     }
 
     @TaskAction
@@ -86,6 +90,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void cloneGitProject(Params params, Directory workingDir) {
         var gitUrl = "https://github.com/" + params.repository + ".git";
         execGitCmd(execOperations, workingDir, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
+        if (unsignedCommits) {
+            execGitCmd(execOperations, params.gitCheckoutDir, "config", "--local", "commit.gpgsign", "false");
+        }
     }
 
     private void runGradleWrapperWithLatestGradleVersion(Params params) {
