@@ -43,7 +43,7 @@ wrapperUpgrades {
             .build()
 
         then:
-        result.output.contains('Dry run - No PR created')
+        result.output.contains('Dry run: Not creating PR')
         result.task(':upgradeWrapperAll').outcome == SUCCESS
 
         def gitDir = testProjectDir.toPath().resolve('build/gitClones/common-custom-user-data-gradle-plugin').toFile()
@@ -64,7 +64,7 @@ wrapperUpgrades {
             .build()
 
         then:
-        result.output.contains('Dry run - No PR created')
+        result.output.contains('Dry run: Not creating PR')
         result.task(':upgradeWrapperAll').outcome == SUCCESS
         result.output.contains('Configuration cache entry stored.')
 

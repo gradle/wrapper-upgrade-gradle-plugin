@@ -51,10 +51,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         var gitHub = createGitHub(gitHubToken);
         var latestGradleVersion = lookupLatestGradleVersion();
-        var params = Params.create(upgrade, latestGradleVersion, layout.getBuildDirectory());
+        var params = Params.create(upgrade, latestGradleVersion, layout.getBuildDirectory(), gitHub);
 
-        if (!prExists(params, gitHub)) {
-            createPrIfGradleWrapperUpgradeAvailable(params, gitHub);
+        if (!prExists(params)) {
+            createPrIfGradleWrapperUpgradeAvailable(params);
         } else {
             getLogger().lifecycle(String.format("PR '%s' to upgrade Gradle Wrapper to %s already exists for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
         }
@@ -68,14 +68,14 @@ public abstract class UpgradeWrapper extends DefaultTask {
         return gitHub.build();
     }
 
-    private static boolean prExists(Params params, GitHub gitHub) throws IOException {
-        return gitHub.getRepository(params.repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(params.prBranch));
+    private static boolean prExists(Params params) throws IOException {
+        return params.gitHub.getRepository(params.repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(params.prBranch));
     }
 
-    private void createPrIfGradleWrapperUpgradeAvailable(Params params, GitHub gitHub) throws IOException {
+    private void createPrIfGradleWrapperUpgradeAvailable(Params params) throws IOException {
         var usedGradleVersion = cloneGitProjectAndExtractCurrentGradleVersion(params);
         runGradleWrapperWithLatestGradleVersion(params);
-        createPrIfGradleWrapperChanged(params, usedGradleVersion, gitHub);
+        createPrIfGradleWrapperChanged(params, usedGradleVersion);
     }
 
     private String cloneGitProjectAndExtractCurrentGradleVersion(Params params) throws IOException {
@@ -93,28 +93,28 @@ public abstract class UpgradeWrapper extends DefaultTask {
         execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
     }
 
-    private void createPrIfGradleWrapperChanged(Params params, String usedGradleVersion, GitHub gitHub) throws IOException {
-        if (hasChanges(params.gitCheckoutDir)) {
-            createPr(params, usedGradleVersion, gitHub);
+    private void createPrIfGradleWrapperChanged(Params params, String usedGradleVersion) throws IOException {
+        if (isGradleWrapperChanged(params.gitCheckoutDir)) {
+            createPr(params, usedGradleVersion);
         } else {
             getLogger().lifecycle(String.format("No PR created to upgrade Gradle Wrapper to %s since already on latest version for project '%s'", params.latestGradleVersion, params.project));
         }
     }
 
-    private boolean hasChanges(Directory gitDir) {
+    private boolean isGradleWrapperChanged(Directory gitCheckoutDir) {
         try {
             // `git diff --exit-code` returns exit code 0 when there's no diff, 1 when there's a diff (in which case execOperations throws an exception)
-            execGitCmd(execOperations, gitDir, "diff", "--quiet", "--exit-code");
+            execGitCmd(execOperations, gitCheckoutDir, "diff", "--quiet", "--exit-code");
             return false;
         } catch (ExecException e) {
             return true;
         }
     }
 
-    private void createPr(Params params, String usedGradleVersion, GitHub gitHub) throws IOException {
+    private void createPr(Params params, String usedGradleVersion) throws IOException {
         var description = String.format("Bump Gradle Wrapper from %s to %s in %s", usedGradleVersion, params.latestGradleVersion, params.gradleProjectDir);
         gitCommitAndPush(params, description);
-        gitPr(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, description);
+        gitPr(params, description);
     }
 
     private void gitCommitAndPush(Params params, String message) {
@@ -128,15 +128,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private void gitPr(GitHub github, String branch, String baseBranch, String repoName, String title) throws IOException {
+    private void gitPr(Params params, String title) throws IOException {
         if (!dryRun) {
-            var pr = github.getRepository(repoName).createPullRequest(title,
-                branch, baseBranch != null ? baseBranch : "main", null);
-            getLogger().lifecycle("Pull request created " + pr.getHtmlUrl());
-//            getLogger().lifecycle(String.format("PR created TODO to upgrade Gradle Wrapper to %s since already on latest version for project '%s'", params.latestGradleVersion, params.project));
-
+            var pr = params.gitHub.getRepository(params.repository).createPullRequest(title, params.prBranch, params.baseBranch, null);
+            getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade Gradle Wrapper to %s for project '%s'", params.prBranch, pr.getHtmlUrl(), params.latestGradleVersion, params.project));
         } else {
-            getLogger().lifecycle("Dry run - No PR created");
+            getLogger().lifecycle(String.format("Dry run: Not creating PR '%s' to upgrade Gradle Wrapper to %s for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
         }
     }
 
@@ -149,8 +146,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final Directory gitCheckoutDir;
         private final Directory gradleProjectDir;
         private final String latestGradleVersion;
+        private final GitHub gitHub;
 
-        private Params(String project, String repository, String baseBranch, String prBranch, Directory gitCheckoutDir, Directory gradleProjectDir, String latestGradleVersion) {
+        private Params(String project, String repository, String baseBranch, String prBranch, Directory gitCheckoutDir, Directory gradleProjectDir, String latestGradleVersion, GitHub gitHub) {
             this.project = project;
             this.repository = repository;
             this.baseBranch = baseBranch;
@@ -158,9 +156,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.gitCheckoutDir = gitCheckoutDir;
             this.gradleProjectDir = gradleProjectDir;
             this.latestGradleVersion = latestGradleVersion;
+            this.gitHub = gitHub;
         }
 
-        private static Params create(UpgradeWrapperDomainObject upgrade, String latestGradleVersion, DirectoryProperty buildDirectory) {
+        private static Params create(UpgradeWrapperDomainObject upgrade, String latestGradleVersion, DirectoryProperty buildDirectory, GitHub gitHub) {
             var project = upgrade.name;
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
@@ -168,7 +167,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var gitCheckoutDir = buildDirectory.dir("gitClones/" + project).get();
             var gradleProjectDir = gitCheckoutDir.dir(upgrade.getDir().get());
 
-            return new Params(project, repository, baseBranch, prBranch, gitCheckoutDir, gradleProjectDir, latestGradleVersion);
+            return new Params(project, repository, baseBranch, prBranch, gitCheckoutDir, gradleProjectDir, latestGradleVersion, gitHub);
         }
 
     }
