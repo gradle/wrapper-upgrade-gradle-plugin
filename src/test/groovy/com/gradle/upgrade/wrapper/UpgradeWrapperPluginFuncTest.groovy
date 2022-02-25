@@ -76,7 +76,7 @@ wrapperUpgrades {
             .build()
 
         then:
-        result.output.contains('Dry run - No PR created')
+        result.output.contains("Dry run: Not creating PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-")
         result.task(':upgradeWrapperAll').outcome == SUCCESS
         result.output.contains('Reusing configuration cache.')
     }
