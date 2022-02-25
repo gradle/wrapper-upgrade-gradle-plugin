@@ -33,7 +33,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final ProjectLayout layout;
     private final ObjectFactory objects;
     private final ExecOperations execOperations;
-    private final Provider<String> githubToken;
+    private final Provider<String> gitHubToken;
     private final boolean dryRun;
 
     @Inject
@@ -42,37 +42,43 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.layout = layout;
         this.objects = objects;
         this.execOperations = execOperations;
-        this.githubToken = providers.environmentVariable(GIT_TOKEN_ENV_VAR);
+        this.gitHubToken = providers.environmentVariable(GIT_TOKEN_ENV_VAR);
         this.dryRun = providers.gradleProperty(DRY_RUN_SYS_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
     }
 
     @TaskAction
     void upgrade() throws IOException {
-        var github = createGitHub();
-        var upgradeName = upgrade.name;
-        var gradleVersion = lookupLatestGradleVersion();
-        var branch = String.format("gwbot/%s/gradle-wrapper-%s", upgradeName, gradleVersion);
-        if (dryRun || !prExists(github, branch, upgrade.getRepo().get())) {
-            var gitDir = layout.getBuildDirectory().dir("gitClones/" + upgradeName).get();
+        var gitHub = createGitHub(gitHubToken);
+        var project = upgrade.name;
+        var repository = upgrade.getRepo().get();
+        var latestGradleVersion = lookupLatestGradleVersion();
+        var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
+
+        if (dryRun || !prExists(prBranch, repository, gitHub)) {
+            var gitDir = layout.getBuildDirectory().dir("gitClones/" + project).get();
             var workingDir = upgrade.getDir().map(gitDir::dir).orElse(gitDir).get();
-            var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, gradleVersion);
-            var message = commitMessage(upgradeName, gradleVersion, currentGradleVersion);
-            if (gitCommit(gitDir, branch, message, !dryRun)) {
-                createPullRequest(github, branch, upgrade.getBaseBranch().get(), upgrade.getRepo().get(), message, dryRun);
+            var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, latestGradleVersion);
+            var message = commitMessage(project, latestGradleVersion, currentGradleVersion);
+            if (gitCommit(gitDir, prBranch, message, !dryRun)) {
+                createPullRequest(gitHub, prBranch, upgrade.getBaseBranch().get(), repository, message, dryRun);
             } else {
-                getLogger().lifecycle("No changes detected on " + upgradeName);
+                getLogger().lifecycle("No changes detected on " + project);
             }
         } else {
-            getLogger().lifecycle("PR already exists for " + upgradeName);
+            getLogger().lifecycle("PR already exists for " + project);
         }
     }
 
-    private GitHub createGitHub() throws IOException {
+    private static GitHub createGitHub(Provider<String> gitHubToken) throws IOException {
         GitHubBuilder gitHub = new GitHubBuilder();
-        if (githubToken.isPresent()) {
-            gitHub.withOAuthToken(githubToken.get());
+        if (gitHubToken.isPresent()) {
+            gitHub.withOAuthToken(gitHubToken.get());
         }
         return gitHub.build();
+    }
+
+    private static boolean prExists(String prBranch, String repository, GitHub gitHub) throws IOException {
+        return gitHub.getRepository(repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(prBranch));
     }
 
     private String cloneAndUpgrade(Directory gitDir, Directory workingDir, String gradleVersion) throws IOException {
@@ -121,10 +127,6 @@ public abstract class UpgradeWrapper extends DefaultTask {
         } catch (ExecException e) {
             return true;
         }
-    }
-
-    private static boolean prExists(GitHub github, String branch, String repoName) throws IOException {
-        return github.getRepository(repoName).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(branch));
     }
 
     private void createPullRequest(GitHub github, String branch, String baseBranch, String repoName, String title, boolean dryRun) throws IOException {
