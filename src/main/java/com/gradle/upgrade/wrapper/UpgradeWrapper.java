@@ -94,16 +94,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void createPrIfGradleWrapperChanged(String usedGradleVersion, Params params, GitHub gitHub) throws IOException {
-        var message = commitMessage(params.project, params.latestGradleVersion, usedGradleVersion);
+        var message = String.format("Bump Gradle Wrapper from %s to %s in %s", usedGradleVersion, params.latestGradleVersion, params.gradleProjectDir);
         if (gitCommit(params.gitCheckoutDir, params.prBranch, message, !dryRun)) {
             createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message, dryRun);
         } else {
-            getLogger().lifecycle("No changes detected on " + params.project);
+            getLogger().lifecycle(String.format("No PR created to upgrade Gradle Wrapper to %s since already on latest version for project '%s'", params.latestGradleVersion, params.project));
         }
-    }
-
-    private String commitMessage(String upgradeName, String gradleVersion, String currentGradleVersion) {
-        return String.format("Bump Gradle Wrapper from %s to %s in %s", currentGradleVersion, gradleVersion, upgradeName);
     }
 
     private boolean gitCommit(Directory gitDir, String branch, String message, boolean push) {
