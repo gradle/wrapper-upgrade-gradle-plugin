@@ -54,7 +54,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         var params = Params.create(upgrade, latestGradleVersion, layout.getBuildDirectory());
 
         if (!prExists(params, gitHub)) {
-            createPrIfUpgradeAvailable(params, gitHub);
+            createPrIfGradleWrapperUpgradeAvailable(params, gitHub);
         } else {
             getLogger().lifecycle(String.format("PR '%s' to upgrade Gradle Wrapper to %s already exists for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
         }
@@ -72,10 +72,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
         return gitHub.getRepository(params.repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(params.prBranch));
     }
 
-    private void createPrIfUpgradeAvailable(Params params, GitHub gitHub) throws IOException {
+    private void createPrIfGradleWrapperUpgradeAvailable(Params params, GitHub gitHub) throws IOException {
         String usedGradleVersion = cloneGitProjectAndExtractCurrentGradleVersion(params);
         runGradleWrapperWithLatestGradleVersion(params);
-        createPr(params, gitHub, usedGradleVersion);
+        createPrIfGradleWrapperChanged(usedGradleVersion, params, gitHub);
     }
 
     private String cloneGitProjectAndExtractCurrentGradleVersion(Params params) throws IOException {
@@ -93,7 +93,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
     }
 
-    private void createPr(Params params, GitHub gitHub, String usedGradleVersion) throws IOException {
+    private void createPrIfGradleWrapperChanged(String usedGradleVersion, Params params, GitHub gitHub) throws IOException {
         var message = commitMessage(params.project, params.latestGradleVersion, usedGradleVersion);
         if (gitCommit(params.gitCheckoutDir, params.prBranch, message, !dryRun)) {
             createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message, dryRun);
