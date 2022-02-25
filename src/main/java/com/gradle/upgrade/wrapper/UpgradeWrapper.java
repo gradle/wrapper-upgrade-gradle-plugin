@@ -78,7 +78,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         runGradleWrapper(params);
 
         var message = commitMessage(params.project, params.latestGradleVersion, currentGradleVersion);
-        if (gitCommit(params.gitDir, params.prBranch, message, !dryRun)) {
+        if (gitCommit(params.gitCheckoutDir, params.prBranch, message, !dryRun)) {
             createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message, dryRun);
         } else {
             getLogger().lifecycle("No changes detected on " + params.project);
@@ -87,7 +87,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void cloneGitProject(Params params, Directory workingDir) {
         var gitUrl = "https://github.com/" + params.repository + ".git";
-        execGitCmd(execOperations, workingDir, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitDir);
+        execGitCmd(execOperations, workingDir, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
     }
 
     private void runGradleWrapper(Params params) {
@@ -141,16 +141,16 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final String repository;
         private final String baseBranch;
         private final String prBranch;
-        private final Directory gitDir;
+        private final Directory gitCheckoutDir;
         private final Directory gradleProjectDir;
         private final String latestGradleVersion;
 
-        private Params(String project, String repository, String baseBranch, String prBranch, Directory gitDir, Directory gradleProjectDir, String latestGradleVersion) {
+        private Params(String project, String repository, String baseBranch, String prBranch, Directory gitCheckoutDir, Directory gradleProjectDir, String latestGradleVersion) {
             this.project = project;
             this.repository = repository;
             this.baseBranch = baseBranch;
             this.prBranch = prBranch;
-            this.gitDir = gitDir;
+            this.gitCheckoutDir = gitCheckoutDir;
             this.gradleProjectDir = gradleProjectDir;
             this.latestGradleVersion = latestGradleVersion;
         }
@@ -160,10 +160,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
             var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
-            var gitDir = buildDirectory.dir("gitClones/" + project).get();
-            var gradleProjectDir = gitDir.dir(upgrade.getDir().get());
+            var gitCheckoutDir = buildDirectory.dir("gitClones/" + project).get();
+            var gradleProjectDir = gitCheckoutDir.dir(upgrade.getDir().get());
 
-            return new Params(project, repository, baseBranch, prBranch, gitDir, gradleProjectDir, latestGradleVersion);
+            return new Params(project, repository, baseBranch, prBranch, gitCheckoutDir, gradleProjectDir, latestGradleVersion);
         }
 
     }
