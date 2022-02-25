@@ -56,7 +56,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
         if (dryRun || !prExists(prBranch, repository, gitHub)) {
             var gitDir = layout.getBuildDirectory().dir("gitClones/" + project).get();
-            var workingDir = upgrade.getDir().map(gitDir::dir).orElse(gitDir).get();
+            var workingDir = gitDir.dir(upgrade.getDir().get());
             var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, latestGradleVersion);
             var message = commitMessage(project, latestGradleVersion, currentGradleVersion);
             if (gitCommit(gitDir, prBranch, message, !dryRun)) {
