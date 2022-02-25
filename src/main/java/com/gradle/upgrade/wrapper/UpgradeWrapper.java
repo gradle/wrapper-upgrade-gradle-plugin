@@ -61,7 +61,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private static GitHub createGitHub(Provider<String> gitHubToken) throws IOException {
-        GitHubBuilder gitHub = new GitHubBuilder();
+        var gitHub = new GitHubBuilder();
         if (gitHubToken.isPresent()) {
             gitHub.withOAuthToken(gitHubToken.get());
         }
@@ -73,7 +73,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void createPrIfGradleWrapperUpgradeAvailable(Params params, GitHub gitHub) throws IOException {
-        String usedGradleVersion = cloneGitProjectAndExtractCurrentGradleVersion(params);
+        var usedGradleVersion = cloneGitProjectAndExtractCurrentGradleVersion(params);
         runGradleWrapperWithLatestGradleVersion(params);
         createPrIfGradleWrapperChanged(params, usedGradleVersion, gitHub);
     }
@@ -103,7 +103,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private boolean hasChanges(Directory gitDir) {
         try {
-            // `git diff --exit-code` returns exit code 0 when there's no diff, 1 when there's a diff
+            // `git diff --exit-code` returns exit code 0 when there's no diff, 1 when there's a diff (in which case execOperations throws an exception)
             execGitCmd(execOperations, gitDir, "diff", "--quiet", "--exit-code");
             return false;
         } catch (ExecException e) {
@@ -112,26 +112,24 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void createPr(Params params, String usedGradleVersion, GitHub gitHub) throws IOException {
-        var message = String.format("Bump Gradle Wrapper from %s to %s in %s", usedGradleVersion, params.latestGradleVersion, params.gradleProjectDir);
-        gitCommit(params, message);
-        createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message);
+        var description = String.format("Bump Gradle Wrapper from %s to %s in %s", usedGradleVersion, params.latestGradleVersion, params.gradleProjectDir);
+        gitCommitAndPush(params, description);
+        gitPr(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, description, dryRun);
         getLogger().lifecycle(String.format("PR created TODO to upgrade Gradle Wrapper to %s since already on latest version for project '%s'", params.latestGradleVersion, params.project));
     }
 
-    private void gitCommit(Params params, String message) {
-        Directory gitCheckoutDir = params.gitCheckoutDir;
-        String prBranch = params.prBranch;
-        var changes = objects.fileTree().from(gitCheckoutDir);
+    private void gitCommitAndPush(Params params, String message) {
+        var changes = objects.fileTree().from(params.gitCheckoutDir);
         changes.include("**/gradle/wrapper/**", "**/gradlew", "**/gradlew.bat");
-        changes.forEach(c -> execGitCmd(execOperations, gitCheckoutDir, "add", c.toPath().toString()));
-        execGitCmd(execOperations, gitCheckoutDir, "checkout", "-b", prBranch);
-        execGitCmd(execOperations, gitCheckoutDir, "commit", "-m", message);
+        changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
+        execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "-b", params.prBranch);
+        execGitCmd(execOperations, params.gitCheckoutDir, "commit", "-m", message);
         if (!dryRun) {
-            execGitCmd(execOperations, gitCheckoutDir, "push", "-u", "origin", prBranch);
+            execGitCmd(execOperations, params.gitCheckoutDir, "push", "-u", "origin", params.prBranch);
         }
     }
 
-    private void createPullRequest(GitHub github, String branch, String baseBranch, String repoName, String title) throws IOException {
+    private void gitPr(GitHub github, String branch, String baseBranch, String repoName, String title, boolean dryRun) throws IOException {
         if (dryRun) {
             getLogger().lifecycle("Dry run - No PR created");
         } else {
