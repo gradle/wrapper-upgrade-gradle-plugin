@@ -73,16 +73,15 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void tryUpgradeGradleWrapper(Params params, GitHub gitHub) throws IOException {
+        // clone the Git project and extract the Gradle version currently used by that project
         cloneGitProject(params, layout.getProjectDirectory());
-        var currentGradleVersion = extractCurrentGradleVersion(params.gradleProjectDir.getAsFile().toPath());
+        var usedGradleVersion = extractCurrentGradleVersion(params.gradleProjectDir.getAsFile().toPath());
+
+        // run the Gradle Wrapper on the project to update it to latest Gradle version available
         runGradleWrapper(params);
 
-        var message = commitMessage(params.project, params.latestGradleVersion, currentGradleVersion);
-        if (gitCommit(params.gitCheckoutDir, params.prBranch, message, !dryRun)) {
-            createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message, dryRun);
-        } else {
-            getLogger().lifecycle("No changes detected on " + params.project);
-        }
+        // create a PR in case an upgrade was actually possible and done
+        createPr(params, gitHub, usedGradleVersion);
     }
 
     private void cloneGitProject(Params params, Directory workingDir) {
@@ -93,6 +92,15 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void runGradleWrapper(Params params) {
         execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
         execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
+    }
+
+    private void createPr(Params params, GitHub gitHub, String usedGradleVersion) throws IOException {
+        var message = commitMessage(params.project, params.latestGradleVersion, usedGradleVersion);
+        if (gitCommit(params.gitCheckoutDir, params.prBranch, message, !dryRun)) {
+            createPullRequest(gitHub, params.prBranch, upgrade.getBaseBranch().get(), params.repository, message, dryRun);
+        } else {
+            getLogger().lifecycle("No changes detected on " + params.project);
+        }
     }
 
     private String commitMessage(String upgradeName, String gradleVersion, String currentGradleVersion) {
