@@ -49,7 +49,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     @TaskAction
     void upgrade() throws IOException {
-        var github = githubToken.isPresent() ? new GitHubBuilder().withOAuthToken(githubToken.get()).build() : new GitHubBuilder().build();
+        var github = createGitHub();
         var upgradeName = upgrade.name;
         var gitDir = layout.getBuildDirectory().dir("gitClones/" + upgradeName).get();
         var workingDir = upgrade.getDir().map(gitDir::dir).orElse(gitDir).get();
@@ -66,6 +66,14 @@ public abstract class UpgradeWrapper extends DefaultTask {
         } else {
             getLogger().lifecycle("PR already exists for " + upgradeName);
         }
+    }
+
+    private GitHub createGitHub() throws IOException {
+        GitHubBuilder gitHub = new GitHubBuilder();
+        if (githubToken.isPresent()) {
+            gitHub.withOAuthToken(githubToken.get());
+        }
+        return gitHub.build();
     }
 
     private String cloneAndUpgrade(Directory gitDir, Directory workingDir, String gradleVersion) throws IOException {
