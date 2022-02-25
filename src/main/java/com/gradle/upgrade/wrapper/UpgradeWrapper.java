@@ -54,7 +54,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         var latestGradleVersion = lookupLatestGradleVersion();
         var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
 
-        if (dryRun || !prExists(prBranch, repository, gitHub)) {
+        if (!prExists(prBranch, repository, gitHub)) {
             var gitDir = layout.getBuildDirectory().dir("gitClones/" + project).get();
             var workingDir = gitDir.dir(upgrade.getDir().get());
             var currentGradleVersion = cloneAndUpgrade(gitDir, workingDir, latestGradleVersion);
