@@ -84,13 +84,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private String cloneGitProjectAndExtractCurrentGradleVersion(Params params) throws IOException {
-        cloneGitProject(params, layout.getProjectDirectory());
+        cloneGitProject(params);
         return extractCurrentGradleVersion(params.gradleProjectDir.getAsFile().toPath());
     }
 
-    private void cloneGitProject(Params params, Directory workingDir) {
+    private void cloneGitProject(Params params) {
         var gitUrl = "https://github.com/" + params.repository + ".git";
-        execGitCmd(execOperations, workingDir, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
+        execGitCmd(execOperations, params.rootDirectory, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
         if (unsignedCommits) {
             execGitCmd(execOperations, params.gitCheckoutDir, "config", "--local", "commit.gpgsign", "false");
         }
