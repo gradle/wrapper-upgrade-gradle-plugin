@@ -27,8 +27,8 @@ plugins {
 
 wrapperUpgrades {
     'common-custom-user-data-gradle-plugin' {
-        repo = 'alextu/common-custom-user-data-gradle-plugin'
-        baseBranch = 'gradle-7.3.3'
+        repo = 'gradle/common-custom-user-data-gradle-plugin'
+        baseBranch = 'gradle-wrapper-upgrader-func-test-do-not-delete'
     }
 }
         """
