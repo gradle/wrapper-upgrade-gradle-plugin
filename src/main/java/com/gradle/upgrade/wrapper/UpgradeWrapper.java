@@ -73,7 +73,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void tryUpgradeGradleWrapper(Params params, GitHub gitHub) throws IOException {
-        clone(params, layout.getProjectDirectory());
+        cloneGitProject(params, layout.getProjectDirectory());
         var currentGradleVersion = extractCurrentGradleVersion(params.workingDir.getAsFile().toPath());
         upgradeWrapper(params.workingDir, params.latestGradleVersion);
 
@@ -85,7 +85,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private void clone(Params params, Directory workingDir) {
+    private void cloneGitProject(Params params, Directory workingDir) {
         var gitUrl = "https://github.com/" + params.repository + ".git";
         execGitCmd(execOperations, workingDir, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitDir);
     }
