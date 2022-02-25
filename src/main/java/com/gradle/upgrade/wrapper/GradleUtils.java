@@ -1,6 +1,9 @@
 package com.gradle.upgrade.wrapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -31,6 +34,16 @@ final class GradleUtils {
             }
         } else {
             throw new IllegalStateException(String.format("Could not find property '%s' in file %s", GRADLE_WRAPPER_DISTRIBUTION_URL_PROP, GRADLE_WRAPPER_PROPERTIES_FILE));
+        }
+    }
+
+    static String lookupLatestGradleVersion() throws IOException {
+        var mapper = new ObjectMapper();
+        var version = mapper.readTree(new URL("https://services.gradle.org/versions/current")).get("version");
+        if (version != null) {
+            return version.asText();
+        } else {
+            throw new IllegalStateException("Could not determine latest Gradle version");
         }
     }
 

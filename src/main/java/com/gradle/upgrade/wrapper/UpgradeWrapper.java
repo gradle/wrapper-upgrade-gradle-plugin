@@ -1,6 +1,5 @@
 package com.gradle.upgrade.wrapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.ProjectLayout;
@@ -17,11 +16,11 @@ import org.kohsuke.github.GitHubBuilder;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.net.URL;
 
 import static com.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGradleCmd;
 import static com.gradle.upgrade.wrapper.GradleUtils.getCurrentGradleVersion;
+import static com.gradle.upgrade.wrapper.GradleUtils.lookupLatestGradleVersion;
 import static java.lang.Boolean.parseBoolean;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")
@@ -51,7 +50,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         var github = createGitHub();
         var upgradeName = upgrade.name;
-        var gradleVersion = latestGradleRelease();
+        var gradleVersion = lookupLatestGradleVersion();
         var branch = String.format("gwbot/%s/gradle-wrapper-%s", upgradeName, gradleVersion);
         if (dryRun || !prExists(github, branch, upgrade.getRepo().get())) {
             var gitDir = layout.getBuildDirectory().dir("gitClones/" + upgradeName).get();
@@ -122,15 +121,6 @@ public abstract class UpgradeWrapper extends DefaultTask {
         } catch (ExecException e) {
             return true;
         }
-    }
-
-    private static String latestGradleRelease() throws IOException {
-        var mapper = new ObjectMapper();
-        var version = mapper.readTree(new URL("https://services.gradle.org/versions/current")).get("version");
-        if (version == null) {
-            throw new RuntimeException("Cannot determine latest Gradle release");
-        }
-        return version.asText();
     }
 
     private static boolean prExists(GitHub github, String branch, String repoName) throws IOException {
