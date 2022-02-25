@@ -39,7 +39,7 @@ wrapperUpgrades {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
-            .withArguments('clean', 'upgradeWrapperAll', '-PdryRun')
+            .withArguments('clean', 'upgradeWrapperAll', '-PdryRun', '-PunsignedCommits')
             .build()
 
         then:
@@ -60,7 +60,7 @@ wrapperUpgrades {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
-            .withArguments('clean', 'upgradeWrapperAll', '-PdryRun', '--configuration-cache')
+            .withArguments('clean', 'upgradeWrapperAll', '-PdryRun', '-PunsignedCommits', '--configuration-cache')
             .build()
 
         then:
@@ -72,7 +72,7 @@ wrapperUpgrades {
         result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
-            .withArguments('clean', 'upgradeWrapperAll', '-PdryRun', '--configuration-cache')
+            .withArguments('clean', 'upgradeWrapperAll', '-PdryRun', '-PunsignedCommits', '--configuration-cache')
             .build()
 
         then:
