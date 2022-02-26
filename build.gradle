@@ -10,8 +10,10 @@ repositories {
 dependencies {
     implementation 'org.kohsuke:github-api:1.301'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
-    testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.1'
+
     testImplementation gradleTestKit()
+    testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
 }
 
 java {
