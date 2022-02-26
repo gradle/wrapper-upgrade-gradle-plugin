@@ -21,6 +21,12 @@ public abstract class UpgradeWrapperPlugin implements Plugin<Project> {
             var upgradeTask = project.getTasks().register("upgradeWrapper" + taskNameSuffix, UpgradeWrapper.class, upgrade, BuildToolStrategy.GRADLE);
             upgradeAllTask.configure(task -> task.dependsOn(upgradeTask));
         });
+
+        wrapperUpgrades.getMaven().configureEach(upgrade -> {
+            var taskNameSuffix = upgrade.name.substring(0, 1).toUpperCase() + upgrade.name.substring(1);
+            var upgradeTask = project.getTasks().register("upgradeWrapper" + taskNameSuffix, UpgradeWrapper.class, upgrade, BuildToolStrategy.MAVEN);
+            upgradeAllTask.configure(task -> task.dependsOn(upgradeTask));
+        });
     }
 
 }
