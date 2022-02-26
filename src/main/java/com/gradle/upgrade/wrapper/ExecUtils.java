@@ -8,9 +8,12 @@ import java.util.LinkedList;
 
 final class ExecUtils {
 
-    // todo (etst) make more generic
     static void execGradleCmd(ExecOperations execOperations, Path workingDir, Object... args) {
         execCmd(execOperations, workingDir, "./gradlew", args);
+    }
+
+    static void execMavenCmd(ExecOperations execOperations, Path workingDir, Object... args) {
+        execCmd(execOperations, workingDir, "./mvnw", args);
     }
 
     static void execGitCmd(ExecOperations execOperations, Path workingDir, Object... args) {
