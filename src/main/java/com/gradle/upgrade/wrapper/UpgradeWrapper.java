@@ -86,7 +86,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void cloneGitProject(Params params) {
         var gitUrl = "https://github.com/" + params.repository + ".git";
-        execGitCmd(execOperations, params.upgraderRootDirectory, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
+        execGitCmd(execOperations, params.upgraderRootDir, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
         if (unsignedCommits) {
             execGitCmd(execOperations, params.gitCheckoutDir, "config", "--local", "commit.gpgsign", "false");
         }
@@ -159,7 +159,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final String repository;
         private final String baseBranch;
         private final String prBranch;
-        private final Directory upgraderRootDirectory;
+        private final Path upgraderRootDir;
         private final Directory gitCheckoutDir;
         private final Path rootProjectDir;
         private final Path rootProjectDirRelativePath;
@@ -167,13 +167,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final GitHub gitHub;
 
         private Params(String project, String repository, String baseBranch, String prBranch,
-                       Directory upgraderRootDirectory, Directory gitCheckoutDir, Path rootProjectDir, Path rootProjectDirRelativePath,
+                       Path upgraderRootDir, Directory gitCheckoutDir, Path rootProjectDir, Path rootProjectDirRelativePath,
                        String latestGradleVersion, GitHub gitHub) {
             this.project = project;
             this.repository = repository;
             this.baseBranch = baseBranch;
             this.prBranch = prBranch;
-            this.upgraderRootDirectory = upgraderRootDirectory;
+            this.upgraderRootDir = upgraderRootDir;
             this.gitCheckoutDir = gitCheckoutDir;
             this.rootProjectDir = rootProjectDir;
             this.rootProjectDirRelativePath = rootProjectDirRelativePath;
@@ -186,11 +186,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
             var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
+            var upgraderRootDir = upgraderRootDirectory.getAsFile().toPath();
             var gitCheckoutDir = buildDirectory.dir("gitClones/" + project).get();
             var rootProjectDir = gitCheckoutDir.dir(upgrade.getDir().get()).getAsFile().toPath();
             var rootProjectDirRelativePath = gitCheckoutDir.getAsFile().toPath().relativize(rootProjectDir);
 
-            return new Params(project, repository, baseBranch, prBranch, upgraderRootDirectory, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestGradleVersion, gitHub);
+            return new Params(project, repository, baseBranch, prBranch, upgraderRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestGradleVersion, gitHub);
         }
 
     }
