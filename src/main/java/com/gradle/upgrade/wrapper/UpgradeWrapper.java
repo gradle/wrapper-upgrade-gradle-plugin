@@ -60,7 +60,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         var params = Params.create(upgrade, latestBuildToolVersion, layout.getBuildDirectory(), layout.getProjectDirectory(), gitHub);
 
         if (!prExists(params)) {
-            createPrIfGradleWrapperUpgradeAvailable(params);
+            createPrIfWrapperUpgradeAvailable(params);
         } else {
             getLogger().lifecycle(String.format("PR '%s' to upgrade Gradle Wrapper to %s already exists for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
         }
@@ -78,7 +78,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         return params.gitHub.getRepository(params.repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(params.prBranch));
     }
 
-    private void createPrIfGradleWrapperUpgradeAvailable(Params params) throws IOException {
+    private void createPrIfWrapperUpgradeAvailable(Params params) throws IOException {
         var usedGradleVersion = cloneGitProjectAndExtractCurrentGradleVersion(params);
         runGradleWrapperWithLatestGradleVersion(params);
         createPrIfGradleWrapperChanged(params, usedGradleVersion);
