@@ -34,6 +34,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADER_GIT_TOKEN";
 
     private final UpgradeWrapperDomainObject upgrade;
+    private final BuildToolStrategy buildToolStrategy;
     private final ProjectLayout layout;
     private final ObjectFactory objects;
     private final ExecOperations execOperations;
@@ -42,8 +43,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final boolean unsignedCommits;
 
     @Inject
-    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
+    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, BuildToolStrategy buildToolStrategy, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
         this.upgrade = upgrade;
+        this.buildToolStrategy = buildToolStrategy;
         this.layout = layout;
         this.objects = objects;
         this.execOperations = execOperations;
