@@ -5,7 +5,7 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-public class UpgradeWrapperExtension {
+public abstract class UpgradeWrapperExtension {
 
     private final NamedDomainObjectContainer<UpgradeWrapperDomainObject> gradle;
     private final NamedDomainObjectContainer<UpgradeWrapperDomainObject> maven;
