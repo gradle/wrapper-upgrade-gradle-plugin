@@ -1,5 +1,8 @@
 package com.gradle.upgrade.wrapper;
 
+import org.gradle.api.file.Directory;
+import org.gradle.process.ExecOperations;
+
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -11,6 +14,8 @@ public interface BuildToolStrategy {
     String lookupLatestVersion() throws IOException;
 
     String extractCurrentVersion(Path rootProjectDir) throws IOException;
+
+    void runWrapper(ExecOperations execOperations, Directory rootProjectDir, String version);
 
 }
 

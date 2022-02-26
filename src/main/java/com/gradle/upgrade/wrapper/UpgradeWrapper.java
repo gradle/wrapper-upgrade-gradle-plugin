@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import static com.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
-import static com.gradle.upgrade.wrapper.ExecUtils.execGradleCmd;
 import static java.lang.Boolean.parseBoolean;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")
@@ -93,8 +92,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void runWrapperWithLatestBuildToolVersion(Params params) {
-        execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
-        execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
+        buildToolStrategy.runWrapper(execOperations, params.gradleProjectDir, params.latestGradleVersion);
+        buildToolStrategy.runWrapper(execOperations, params.gradleProjectDir, params.latestGradleVersion);
     }
 
     private void createPrIfWrapperChanged(Params params, String usedBuildToolVersion) throws IOException {

@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 final class ExecUtils {
 
+    // todo (etst) make more generic
     static void execGradleCmd(ExecOperations execOperations, Directory workingDir, Object... args) {
         execCmd(execOperations, workingDir, "./gradlew", args);
     }
