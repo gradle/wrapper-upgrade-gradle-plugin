@@ -18,7 +18,8 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
     @Override
     public String lookupLatestVersion() throws IOException {
         var mapper = new ObjectMapper();
-        var version = mapper.readTree(new URL("https://services.gradle.org/versions/current")).get("version");
+        var gradleMetadata = mapper.readTree(new URL("https://services.gradle.org/versions/current"));
+        var version = gradleMetadata.get("version");
         if (version != null) {
             return version.asText();
         } else {
@@ -28,7 +29,11 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public String extractCurrentVersion(Path rootProjectDir) throws IOException {
-        return GradleUtils.extractCurrentGradleVersion(rootProjectDir);
+        return WrapperUtils.extractBuildToolVersion(rootProjectDir,
+            "gradle/wrapper/gradle-wrapper.properties",
+            "distributionUrl",
+            "distributions/gradle-(.*)-(bin|all).zip"
+        );
     }
 
     @Override
