@@ -10,22 +10,28 @@ public abstract class UpgradeWrapperPlugin implements Plugin<Project> {
     public void apply(Project project) {
         UpgradeWrapperExtension wrapperUpgrades = project.getExtensions().create("wrapperUpgrades", UpgradeWrapperExtension.class);
 
-        var upgradeAllTask = project.getTasks().register("upgradeWrapperAll",
+        var upgradeGradleWrapperAllTask = project.getTasks().register("upgradeGradleWrapperAll",
             t -> {
-                t.setGroup("Gradle Wrapper Upgrade");
+                t.setGroup("Wrapper Upgrades");
                 t.setDescription("Updates the Gradle Wrapper on all configured projects.");
             });
 
         wrapperUpgrades.getGradle().configureEach(upgrade -> {
             var taskNameSuffix = upgrade.name.substring(0, 1).toUpperCase() + upgrade.name.substring(1);
-            var upgradeTask = project.getTasks().register("upgradeWrapper" + taskNameSuffix, UpgradeWrapper.class, upgrade, BuildToolStrategy.GRADLE);
-            upgradeAllTask.configure(task -> task.dependsOn(upgradeTask));
+            var upgradeTask = project.getTasks().register("upgradeGradleWrapper" + taskNameSuffix, UpgradeWrapper.class, upgrade, BuildToolStrategy.GRADLE);
+            upgradeGradleWrapperAllTask.configure(task -> task.dependsOn(upgradeTask));
         });
+
+        var upgradeMavenWrapperAllTask = project.getTasks().register("upgradeMavenWrapperAll",
+            t -> {
+                t.setGroup("Wrapper Upgrades");
+                t.setDescription("Updates the Maven Wrapper on all configured projects.");
+            });
 
         wrapperUpgrades.getMaven().configureEach(upgrade -> {
             var taskNameSuffix = upgrade.name.substring(0, 1).toUpperCase() + upgrade.name.substring(1);
-            var upgradeTask = project.getTasks().register("upgradeWrapper" + taskNameSuffix, UpgradeWrapper.class, upgrade, BuildToolStrategy.MAVEN);
-            upgradeAllTask.configure(task -> task.dependsOn(upgradeTask));
+            var upgradeTask = project.getTasks().register("upgradeMavenWrapper" + taskNameSuffix, UpgradeWrapper.class, upgrade, BuildToolStrategy.MAVEN);
+            upgradeMavenWrapperAllTask.configure(task -> task.dependsOn(upgradeTask));
         });
     }
 
