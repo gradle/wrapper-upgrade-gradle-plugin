@@ -61,7 +61,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             createPrIfWrapperUpgradeAvailable(params);
         } else {
             getLogger().lifecycle(String.format("PR '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
-                params.prBranch, buildToolStrategy.buildToolName(), params.latestGradleVersion, params.project));
+                params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion, params.project));
         }
     }
 
@@ -93,8 +93,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void runWrapperWithLatestBuildToolVersion(Params params) {
-        buildToolStrategy.runWrapper(execOperations, params.rootProjectDir, params.latestGradleVersion);
-        buildToolStrategy.runWrapper(execOperations, params.rootProjectDir, params.latestGradleVersion);
+        buildToolStrategy.runWrapper(execOperations, params.rootProjectDir, params.latestBuildToolVersion);
+        buildToolStrategy.runWrapper(execOperations, params.rootProjectDir, params.latestBuildToolVersion);
     }
 
     private void createPrIfWrapperChanged(Params params, String usedBuildToolVersion) throws IOException {
@@ -102,7 +102,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             createPr(params, usedBuildToolVersion);
         } else {
             getLogger().lifecycle(String.format("No PR created to upgrade %s Wrapper to %s since already on latest version for project '%s'",
-                buildToolStrategy.buildToolName(), params.latestGradleVersion, params.project));
+                buildToolStrategy.buildToolName(), params.latestBuildToolVersion, params.project));
         }
     }
 
@@ -124,7 +124,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private String createDescription(Params params, String usedBuildToolVersion) {
         StringBuilder description = new StringBuilder();
-        description.append(String.format("Bump %s Wrapper from %s to %s", buildToolStrategy.buildToolName(), usedBuildToolVersion, params.latestGradleVersion));
+        description.append(String.format("Bump %s Wrapper from %s to %s", buildToolStrategy.buildToolName(), usedBuildToolVersion, params.latestBuildToolVersion));
         if (!params.rootProjectDirRelativePath.normalize().toString().isEmpty()) {
             description.append(String.format(" in %s", params.rootProjectDirRelativePath.normalize()));
         }
@@ -146,10 +146,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
         if (!dryRun) {
             var pr = params.gitHub.getRepository(params.repository).createPullRequest(title, params.prBranch, params.baseBranch, null);
             getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
-                params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestGradleVersion, params.project));
+                params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion, params.project));
         } else {
             getLogger().lifecycle(String.format("Dry run: Skipping creation of PR '%s' that would upgrade %s Wrapper to %s for project '%s'",
-                params.prBranch, buildToolStrategy.buildToolName(), params.latestGradleVersion, params.project));
+                params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion, params.project));
         }
     }
 
@@ -163,12 +163,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final Path gitCheckoutDir;
         private final Path rootProjectDir;
         private final Path rootProjectDirRelativePath;
-        private final String latestGradleVersion;
+        private final String latestBuildToolVersion;
         private final GitHub gitHub;
 
         private Params(String project, String repository, String baseBranch, String prBranch,
                        Path upgraderRootDir, Path gitCheckoutDir, Path rootProjectDir, Path rootProjectDirRelativePath,
-                       String latestGradleVersion, GitHub gitHub) {
+                       String latestBuildToolVersion, GitHub gitHub) {
             this.project = project;
             this.repository = repository;
             this.baseBranch = baseBranch;
@@ -177,21 +177,21 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.gitCheckoutDir = gitCheckoutDir;
             this.rootProjectDir = rootProjectDir;
             this.rootProjectDirRelativePath = rootProjectDirRelativePath;
-            this.latestGradleVersion = latestGradleVersion;
+            this.latestBuildToolVersion = latestBuildToolVersion;
             this.gitHub = gitHub;
         }
 
-        private static Params create(UpgradeWrapperDomainObject upgrade, String latestGradleVersion, DirectoryProperty buildDirectory, Directory upgraderRootDirectory, GitHub gitHub) {
+        private static Params create(UpgradeWrapperDomainObject upgrade, String latestBuildToolVersion, DirectoryProperty buildDirectory, Directory upgraderRootDirectory, GitHub gitHub) {
             var project = upgrade.name;
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
-            var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
+            var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestBuildToolVersion);
             var upgraderRootDir = upgraderRootDirectory.getAsFile().toPath();
             var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("gitClones", project));
             var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
             var rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
 
-            return new Params(project, repository, baseBranch, prBranch, upgraderRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestGradleVersion, gitHub);
+            return new Params(project, repository, baseBranch, prBranch, upgraderRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, gitHub);
         }
 
     }
