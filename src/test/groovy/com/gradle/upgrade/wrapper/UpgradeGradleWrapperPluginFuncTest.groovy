@@ -7,7 +7,7 @@ import spock.lang.TempDir
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-class UpgradeWrapperPluginFuncTest extends Specification {
+class UpgradeGradleWrapperPluginFuncTest extends Specification {
 
     @Shared
     String latestGradleVersion
