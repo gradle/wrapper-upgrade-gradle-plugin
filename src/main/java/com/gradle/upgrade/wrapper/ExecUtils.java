@@ -14,6 +14,10 @@ final class ExecUtils {
         execCmd(execOperations, workingDir, "./gradlew", args);
     }
 
+    static void execGitCmd(ExecOperations execOperations, Path workingDir, Object... args) {
+        execCmd(execOperations, workingDir, "git", args);
+    }
+
     static void execGitCmd(ExecOperations execOperations, Directory workingDir, Object... args) {
         execCmd(execOperations, workingDir, "git", args);
     }
