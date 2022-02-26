@@ -8,6 +8,11 @@ import java.nio.file.Path;
 public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
     @Override
+    public String buildToolName() {
+        return "Gradle";
+    }
+
+    @Override
     public String lookupLatestVersion() throws IOException {
         return GradleUtils.lookupLatestGradleVersion();
     }

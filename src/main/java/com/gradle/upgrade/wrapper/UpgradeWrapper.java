@@ -60,7 +60,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
         if (!prExists(params)) {
             createPrIfWrapperUpgradeAvailable(params);
         } else {
-            getLogger().lifecycle(String.format("PR '%s' to upgrade Gradle Wrapper to %s already exists for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
+            getLogger().lifecycle(String.format("PR '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
+                params.prBranch, buildToolStrategy.buildToolName(), params.latestGradleVersion, params.project));
         }
     }
 
@@ -100,7 +101,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
         if (isWrapperChanged(params.gitCheckoutDir)) {
             createPr(params, usedBuildToolVersion);
         } else {
-            getLogger().lifecycle(String.format("No PR created to upgrade Gradle Wrapper to %s since already on latest version for project '%s'", params.latestGradleVersion, params.project));
+            getLogger().lifecycle(String.format("No PR created to upgrade %s Wrapper to %s since already on latest version for project '%s'",
+                buildToolStrategy.buildToolName(), params.latestGradleVersion, params.project));
         }
     }
 
@@ -114,15 +116,15 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private void createPr(Params params, String usedGradleVersion) throws IOException {
-        String description = createDescription(params, usedGradleVersion);
+    private void createPr(Params params, String usedBuildToolVersion) throws IOException {
+        String description = createDescription(params, usedBuildToolVersion);
         gitCommitAndPush(params, description);
         gitPr(params, description);
     }
 
-    private String createDescription(Params params, String usedGradleVersion) {
+    private String createDescription(Params params, String usedBuildToolVersion) {
         StringBuilder description = new StringBuilder();
-        description.append(String.format("Bump Gradle Wrapper from %s to %s", usedGradleVersion, params.latestGradleVersion));
+        description.append(String.format("Bump %s Wrapper from %s to %s", buildToolStrategy.buildToolName(), usedBuildToolVersion, params.latestGradleVersion));
         if (!params.gradleProjectDirRelativePath.normalize().toString().isEmpty()) {
             description.append(String.format(" in %s", params.gradleProjectDirRelativePath.normalize()));
         }
@@ -143,9 +145,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void gitPr(Params params, String title) throws IOException {
         if (!dryRun) {
             var pr = params.gitHub.getRepository(params.repository).createPullRequest(title, params.prBranch, params.baseBranch, null);
-            getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade Gradle Wrapper to %s for project '%s'", params.prBranch, pr.getHtmlUrl(), params.latestGradleVersion, params.project));
+            getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
+                params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestGradleVersion, params.project));
         } else {
-            getLogger().lifecycle(String.format("Dry run: Skipping creation of PR '%s' that would upgrade Gradle Wrapper to %s for project '%s'", params.prBranch, params.latestGradleVersion, params.project));
+            getLogger().lifecycle(String.format("Dry run: Skipping creation of PR '%s' that would upgrade %s Wrapper to %s for project '%s'",
+                params.prBranch, buildToolStrategy.buildToolName(), params.latestGradleVersion, params.project));
         }
     }
 

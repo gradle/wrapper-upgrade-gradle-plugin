@@ -8,6 +8,11 @@ import java.nio.file.Path;
 public final class MavenBuildToolStrategy implements BuildToolStrategy {
 
     @Override
+    public String buildToolName() {
+        return "Maven";
+    }
+
+    @Override
     public String lookupLatestVersion() throws IOException {
         return null;
     }
