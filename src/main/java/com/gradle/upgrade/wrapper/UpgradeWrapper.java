@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGradleCmd;
 import static com.gradle.upgrade.wrapper.GradleUtils.extractCurrentGradleVersion;
-import static com.gradle.upgrade.wrapper.GradleUtils.lookupLatestGradleVersion;
 import static java.lang.Boolean.parseBoolean;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")
@@ -57,8 +56,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
     @TaskAction
     void upgrade() throws IOException {
         var gitHub = createGitHub(gitHubToken);
-        var latestGradleVersion = lookupLatestGradleVersion();
-        var params = Params.create(upgrade, latestGradleVersion, layout.getBuildDirectory(), layout.getProjectDirectory(), gitHub);
+        var latestBuildToolVersion = buildToolStrategy.lookupLatestVersion();
+        var params = Params.create(upgrade, latestBuildToolVersion, layout.getBuildDirectory(), layout.getProjectDirectory(), gitHub);
 
         if (!prExists(params)) {
             createPrIfGradleWrapperUpgradeAvailable(params);
