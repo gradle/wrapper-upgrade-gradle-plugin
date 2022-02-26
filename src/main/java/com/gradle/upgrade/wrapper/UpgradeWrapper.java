@@ -187,11 +187,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var baseBranch = upgrade.getBaseBranch().get();
             var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
             var upgraderRootDir = upgraderRootDirectory.getAsFile().toPath();
-            var gitCheckoutDir = buildDirectory.dir("gitClones/" + project).get();
-            var rootProjectDir = gitCheckoutDir.dir(upgrade.getDir().get()).getAsFile().toPath();
-            var rootProjectDirRelativePath = gitCheckoutDir.getAsFile().toPath().relativize(rootProjectDir);
+            var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("gitClones", project));
+            var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
+            var rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
 
-            return new Params(project, repository, baseBranch, prBranch, upgraderRootDir, gitCheckoutDir.getAsFile().toPath(), rootProjectDir, rootProjectDirRelativePath, latestGradleVersion, gitHub);
+            return new Params(project, repository, baseBranch, prBranch, upgraderRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestGradleVersion, gitHub);
         }
 
     }
