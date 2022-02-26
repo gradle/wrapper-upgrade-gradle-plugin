@@ -1,5 +1,6 @@
 package com.gradle.upgrade.wrapper;
 
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.process.ExecOperations;
 
 import java.io.IOException;
@@ -17,6 +18,8 @@ public interface BuildToolStrategy {
     String extractCurrentVersion(Path rootProjectDir) throws IOException;
 
     void runWrapper(ExecOperations execOperations, Path rootProjectDir, String version);
+
+    void includeWrapperFiles(ConfigurableFileTree tree);
 
 }
 
