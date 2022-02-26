@@ -106,7 +106,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private boolean isWrapperChanged(Directory gitCheckoutDir) {
+    private boolean isWrapperChanged(Path gitCheckoutDir) {
         try {
             // `git diff --exit-code` returns exit code 0 when there's no diff, 1 when there's a diff (in which case execOperations throws an exception)
             execGitCmd(execOperations, gitCheckoutDir, "diff", "--quiet", "--exit-code");
@@ -160,14 +160,14 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final String baseBranch;
         private final String prBranch;
         private final Path upgraderRootDir;
-        private final Directory gitCheckoutDir;
+        private final Path gitCheckoutDir;
         private final Path rootProjectDir;
         private final Path rootProjectDirRelativePath;
         private final String latestGradleVersion;
         private final GitHub gitHub;
 
         private Params(String project, String repository, String baseBranch, String prBranch,
-                       Path upgraderRootDir, Directory gitCheckoutDir, Path rootProjectDir, Path rootProjectDirRelativePath,
+                       Path upgraderRootDir, Path gitCheckoutDir, Path rootProjectDir, Path rootProjectDirRelativePath,
                        String latestGradleVersion, GitHub gitHub) {
             this.project = project;
             this.repository = repository;
@@ -191,7 +191,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var rootProjectDir = gitCheckoutDir.dir(upgrade.getDir().get()).getAsFile().toPath();
             var rootProjectDirRelativePath = gitCheckoutDir.getAsFile().toPath().relativize(rootProjectDir);
 
-            return new Params(project, repository, baseBranch, prBranch, upgraderRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestGradleVersion, gitHub);
+            return new Params(project, repository, baseBranch, prBranch, upgraderRootDir, gitCheckoutDir.getAsFile().toPath(), rootProjectDir, rootProjectDirRelativePath, latestGradleVersion, gitHub);
         }
 
     }
