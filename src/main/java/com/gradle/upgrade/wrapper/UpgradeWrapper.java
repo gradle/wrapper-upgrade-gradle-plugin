@@ -79,12 +79,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void createPrIfWrapperUpgradeAvailable(Params params) throws IOException {
-        var usedGradleVersion = cloneGitProjectAndExtractCurrentGradleVersion(params);
-        runGradleWrapperWithLatestGradleVersion(params);
-        createPrIfGradleWrapperChanged(params, usedGradleVersion);
+        var usedBuildToolVersion = cloneGitProjectAndExtractCurrentBuildToolVersion(params);
+        runWrapperWithLatestBuildToolVersion(params);
+        createPrIfWrapperChanged(params, usedBuildToolVersion);
     }
 
-    private String cloneGitProjectAndExtractCurrentGradleVersion(Params params) throws IOException {
+    private String cloneGitProjectAndExtractCurrentBuildToolVersion(Params params) throws IOException {
         cloneGitProject(params);
         return extractCurrentGradleVersion(params.gradleProjectDir.getAsFile().toPath());
     }
@@ -97,20 +97,20 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private void runGradleWrapperWithLatestGradleVersion(Params params) {
+    private void runWrapperWithLatestBuildToolVersion(Params params) {
         execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
         execGradleCmd(execOperations, params.gradleProjectDir, "wrapper", "--gradle-version", params.latestGradleVersion);
     }
 
-    private void createPrIfGradleWrapperChanged(Params params, String usedGradleVersion) throws IOException {
-        if (isGradleWrapperChanged(params.gitCheckoutDir)) {
-            createPr(params, usedGradleVersion);
+    private void createPrIfWrapperChanged(Params params, String usedBuildToolVersion) throws IOException {
+        if (isWrapperChanged(params.gitCheckoutDir)) {
+            createPr(params, usedBuildToolVersion);
         } else {
             getLogger().lifecycle(String.format("No PR created to upgrade Gradle Wrapper to %s since already on latest version for project '%s'", params.latestGradleVersion, params.project));
         }
     }
 
-    private boolean isGradleWrapperChanged(Directory gitCheckoutDir) {
+    private boolean isWrapperChanged(Directory gitCheckoutDir) {
         try {
             // `git diff --exit-code` returns exit code 0 when there's no diff, 1 when there's a diff (in which case execOperations throws an exception)
             execGitCmd(execOperations, gitCheckoutDir, "diff", "--quiet", "--exit-code");
