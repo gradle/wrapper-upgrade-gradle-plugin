@@ -18,7 +18,7 @@ class UpgradeWrapperPluginFuncTest extends Specification {
     File buildFile
 
     def setupSpec() {
-        latestGradleVersion = GradleUtils.lookupLatestGradleVersion()
+        latestGradleVersion = BuildToolStrategy.GRADLE.lookupLatestVersion()
     }
 
     def setup() {
