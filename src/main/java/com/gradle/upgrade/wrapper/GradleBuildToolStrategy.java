@@ -1,9 +1,11 @@
 package com.gradle.upgrade.wrapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.process.ExecOperations;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 
 public final class GradleBuildToolStrategy implements BuildToolStrategy {
@@ -15,7 +17,13 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public String lookupLatestVersion() throws IOException {
-        return GradleUtils.lookupLatestGradleVersion();
+        var mapper = new ObjectMapper();
+        var version = mapper.readTree(new URL("https://services.gradle.org/versions/current")).get("version");
+        if (version != null) {
+            return version.asText();
+        } else {
+            throw new IllegalStateException("Could not determine latest Gradle version");
+        }
     }
 
     @Override
