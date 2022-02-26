@@ -133,7 +133,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void gitCommitAndPush(Params params, String message) {
         var changes = objects.fileTree().from(params.gitCheckoutDir);
-        changes.include("**/gradle/wrapper/**", "**/gradlew", "**/gradlew.bat");
+        buildToolStrategy.includeWrapperFiles(changes);
         changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "-b", params.prBranch);
         execGitCmd(execOperations, params.gitCheckoutDir, "commit", "-m", message);
