@@ -49,16 +49,16 @@ wrapperUpgrades {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
-            .withArguments('clean', 'upgradeWrapperAll', '-PdryRun', '-PunsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-PdryRun', '-PunsignedCommits')
             .build()
 
         then:
-        result.task(':upgradeWrapperAll').outcome == SUCCESS
+        result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
         result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
 
-        def gitDir = testProjectDir.toPath().resolve('build/gitClones/common-custom-user-data-gradle-plugin').toFile()
+        def gitDir = testProjectDir.toPath().resolve('build/git-clones/common-custom-user-data-gradle-plugin').toFile()
         def proc = 'git show --oneline HEAD'.execute(null, gitDir)
         def output = proc.in.text
         output.contains "Bump Gradle Wrapper from 7.3.3 to ${latestGradleVersion}"
@@ -72,11 +72,11 @@ wrapperUpgrades {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
-            .withArguments('clean', 'upgradeWrapperAll', '--configuration-cache', '-PdryRun', '-PunsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-PdryRun', '-PunsignedCommits')
             .build()
 
         then:
-        result.task(':upgradeWrapperAll').outcome == SUCCESS
+        result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
         result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
@@ -86,11 +86,11 @@ wrapperUpgrades {
         result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
-            .withArguments('clean', 'upgradeWrapperAll', '--configuration-cache', '-PdryRun', '-PunsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-PdryRun', '-PunsignedCommits')
             .build()
 
         then:
-        result.task(':upgradeWrapperAll').outcome == SUCCESS
+        result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
         result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
