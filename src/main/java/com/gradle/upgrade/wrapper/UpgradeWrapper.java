@@ -21,7 +21,6 @@ import java.nio.file.Path;
 
 import static com.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
 import static com.gradle.upgrade.wrapper.ExecUtils.execGradleCmd;
-import static com.gradle.upgrade.wrapper.GradleUtils.extractCurrentGradleVersion;
 import static java.lang.Boolean.parseBoolean;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")
@@ -86,7 +85,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private String cloneGitProjectAndExtractCurrentBuildToolVersion(Params params) throws IOException {
         cloneGitProject(params);
-        return extractCurrentGradleVersion(params.gradleProjectDir.getAsFile().toPath());
+        return buildToolStrategy.extractCurrentVersion(params.gradleProjectDir.getAsFile().toPath());
     }
 
     private void cloneGitProject(Params params) {

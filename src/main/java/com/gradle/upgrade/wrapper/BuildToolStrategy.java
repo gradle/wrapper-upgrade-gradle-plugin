@@ -1,6 +1,7 @@
 package com.gradle.upgrade.wrapper;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public interface BuildToolStrategy {
 
@@ -8,6 +9,8 @@ public interface BuildToolStrategy {
     BuildToolStrategy MAVEN = new MavenBuildToolStrategy();
 
     String lookupLatestVersion() throws IOException;
+
+    String extractCurrentVersion(Path rootProjectDir) throws IOException;
 
 }
 
