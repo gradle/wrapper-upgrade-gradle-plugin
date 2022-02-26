@@ -56,7 +56,7 @@ wrapperUpgrades {
         result.task(':upgradeWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains('Dry run: Skipping creation of PR')
+        result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
 
         def gitDir = testProjectDir.toPath().resolve('build/gitClones/common-custom-user-data-gradle-plugin').toFile()
         def proc = 'git show --oneline HEAD'.execute(null, gitDir)
@@ -79,7 +79,7 @@ wrapperUpgrades {
         result.task(':upgradeWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-")
+        result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
         result.output.contains('Configuration cache entry stored.')
 
         when:
