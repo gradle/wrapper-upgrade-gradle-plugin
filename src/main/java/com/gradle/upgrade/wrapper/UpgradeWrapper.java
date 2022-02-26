@@ -78,7 +78,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void createPrIfWrapperUpgradeAvailable(Params params) throws IOException {
         cloneGitProject(params);
-        var usedBuildToolVersion = buildToolStrategy.extractCurrentVersion(params.gradleProjectDir.getAsFile().toPath());
+        var usedBuildToolVersion = buildToolStrategy.extractCurrentVersion(params.gradleProjectDir);
         runWrapperWithLatestBuildToolVersion(params);
         createPrIfWrapperChanged(params, usedBuildToolVersion);
     }
@@ -157,13 +157,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final String prBranch;
         private final Directory rootDirectory;
         private final Directory gitCheckoutDir;
-        private final Directory gradleProjectDir;
+        private final Path gradleProjectDir;
         private final Path gradleProjectDirRelativePath;
         private final String latestGradleVersion;
         private final GitHub gitHub;
 
         private Params(String project, String repository, String baseBranch, String prBranch,
-                       Directory rootDirectory, Directory gitCheckoutDir, Directory gradleProjectDir, Path gradleProjectDirRelativePath,
+                       Directory rootDirectory, Directory gitCheckoutDir, Path gradleProjectDir, Path gradleProjectDirRelativePath,
                        String latestGradleVersion, GitHub gitHub) {
             this.project = project;
             this.repository = repository;
@@ -183,8 +183,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var baseBranch = upgrade.getBaseBranch().get();
             var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestGradleVersion);
             var gitCheckoutDir = buildDirectory.dir("gitClones/" + project).get();
-            var gradleProjectDir = gitCheckoutDir.dir(upgrade.getDir().get());
-            var gradleProjectDirRelativePath = gitCheckoutDir.getAsFile().toPath().relativize(gradleProjectDir.getAsFile().toPath());
+            var gradleProjectDir = gitCheckoutDir.dir(upgrade.getDir().get()).getAsFile().toPath();
+            var gradleProjectDirRelativePath = gitCheckoutDir.getAsFile().toPath().relativize(gradleProjectDir);
 
             return new Params(project, repository, baseBranch, prBranch, rootDirectory, gitCheckoutDir, gradleProjectDir, gradleProjectDirRelativePath, latestGradleVersion, gitHub);
         }

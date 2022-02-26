@@ -1,6 +1,5 @@
 package com.gradle.upgrade.wrapper;
 
-import org.gradle.api.file.Directory;
 import org.gradle.process.ExecOperations;
 
 import java.io.IOException;
@@ -19,7 +18,7 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
     }
 
     @Override
-    public void runWrapper(ExecOperations execOperations, Directory rootProjectDir, String version) {
+    public void runWrapper(ExecOperations execOperations, Path rootProjectDir, String version) {
     }
 
 }
