@@ -78,14 +78,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void createPrIfWrapperUpgradeAvailable(Params params) throws IOException {
-        var usedBuildToolVersion = cloneGitProjectAndExtractCurrentBuildToolVersion(params);
+        cloneGitProject(params);
+        var usedBuildToolVersion = buildToolStrategy.extractCurrentVersion(params.gradleProjectDir.getAsFile().toPath());
         runWrapperWithLatestBuildToolVersion(params);
         createPrIfWrapperChanged(params, usedBuildToolVersion);
-    }
-
-    private String cloneGitProjectAndExtractCurrentBuildToolVersion(Params params) throws IOException {
-        cloneGitProject(params);
-        return buildToolStrategy.extractCurrentVersion(params.gradleProjectDir.getAsFile().toPath());
     }
 
     private void cloneGitProject(Params params) {
