@@ -187,7 +187,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var baseBranch = upgrade.getBaseBranch().get();
             var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestBuildToolVersion); // todo (etst) remove gradle from branch name
             var upgraderRootDir = upgraderRootDirectory.getAsFile().toPath();
-            var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("gitClones", project));
+            var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("git-clones", project));
             var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
             var rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
 
