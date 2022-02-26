@@ -10,6 +10,8 @@ public interface BuildToolStrategy {
     BuildToolStrategy GRADLE = new GradleBuildToolStrategy();
     BuildToolStrategy MAVEN = new MavenBuildToolStrategy();
 
+    String buildToolName();
+
     String lookupLatestVersion() throws IOException;
 
     String extractCurrentVersion(Path rootProjectDir) throws IOException;
