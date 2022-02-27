@@ -55,7 +55,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         var gitHub = createGitHub(gitHubToken);
         var latestBuildToolVersion = buildToolStrategy.lookupLatestVersion();
-        var params = Params.create(upgrade, latestBuildToolVersion, layout.getBuildDirectory(), layout.getProjectDirectory(), gitHub);
+        var params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getBuildDirectory(), layout.getProjectDirectory(), gitHub);
 
         if (!prExists(params)) {
             createPrIfWrapperUpgradeAvailable(params);
@@ -181,11 +181,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.gitHub = gitHub;
         }
 
-        private static Params create(UpgradeWrapperDomainObject upgrade, String latestBuildToolVersion, DirectoryProperty buildDirectory, Directory upgraderRootDirectory, GitHub gitHub) {
+        private static Params create(UpgradeWrapperDomainObject upgrade, BuildToolStrategy buildToolStrategy, String latestBuildToolVersion, DirectoryProperty buildDirectory, Directory upgraderRootDirectory, GitHub gitHub) {
             var project = upgrade.name;
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
-            var prBranch = String.format("gwbot/%s/gradle-wrapper-%s", project, latestBuildToolVersion); // todo (etst) remove gradle from branch name
+            var prBranch = String.format("gwbot/%s/%s-wrapper-%s", project, buildToolStrategy.buildToolName().toLowerCase(),latestBuildToolVersion);
             var upgraderRootDir = upgraderRootDirectory.getAsFile().toPath();
             var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("git-clones", project));
             var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
