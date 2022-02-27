@@ -58,7 +58,7 @@ wrapperUpgrades {
         and:
         result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
 
-        def gitDir = testProjectDir.toPath().resolve('build/git-clones/common-custom-user-data-gradle-plugin').toFile()
+        def gitDir = new File(testProjectDir, 'build/git-clones/common-custom-user-data-gradle-plugin')
         def proc = 'git show --oneline HEAD'.execute(null, gitDir)
         def output = proc.in.text
         output.contains "Bump Gradle Wrapper from 7.3.3 to ${latestGradleVersion}"
