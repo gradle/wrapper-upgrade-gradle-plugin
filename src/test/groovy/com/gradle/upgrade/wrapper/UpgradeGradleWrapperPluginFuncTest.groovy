@@ -25,7 +25,7 @@ class UpgradeGradleWrapperPluginFuncTest extends Specification {
         settingsFile = new File(testProjectDir, 'settings.gradle')
         buildFile = new File(testProjectDir, 'build.gradle')
 
-        settingsFile << "rootProject.name = 'gradle-wrapper-upgrader-example'"
+        settingsFile << "rootProject.name = 'wrapper-upgrade-gradle-plugin-example'"
         buildFile << """
 
 plugins {
