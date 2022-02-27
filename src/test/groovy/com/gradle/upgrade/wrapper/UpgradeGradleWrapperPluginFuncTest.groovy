@@ -58,13 +58,21 @@ wrapperUpgrades {
         and:
         result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
 
+        and:
         def gitDir = new File(testProjectDir, 'build/git-clones/common-custom-user-data-gradle-plugin')
-        def proc = 'git show --oneline HEAD'.execute(null, gitDir)
+        def proc = 'git show --oneline --name-only HEAD'.execute(null, gitDir)
         def output = proc.in.text
-        output.contains "Bump Gradle Wrapper from 7.3.3 to ${latestGradleVersion}"
-        output.contains 'Binary files a/gradle/wrapper/gradle-wrapper.jar and b/gradle/wrapper/gradle-wrapper.jar differ'
-        output.contains '-distributionUrl=https\\://services.gradle.org/distributions/gradle-7.3.3-bin.zip'
-        output.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
+        output.contains "gradle/wrapper/gradle-wrapper.jar"
+        output.contains "gradle/wrapper/gradle-wrapper.properties"
+        output.contains "gradlew"
+
+        and:
+        def proc2 = 'git show --oneline HEAD'.execute(null, gitDir)
+        def output2 = proc2.in.text
+        output2.contains "Bump Gradle Wrapper from 7.0.2 to ${latestGradleVersion}"
+        output2.contains "Binary files a/gradle/wrapper/gradle-wrapper.jar and b/gradle/wrapper/gradle-wrapper.jar differ"
+        output2.contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-7.0.2-bin.zip"
+        output2.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
     }
 
     def "upgrade wrapper on CCUD plugin with dry run and configuration cache"() {
