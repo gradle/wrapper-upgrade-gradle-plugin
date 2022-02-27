@@ -28,7 +28,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private static final String DRY_RUN_GRADLE_PROP = "dryRun";
     private static final String UNSIGNED_COMMITS_GRADLE_PROP = "unsignedCommits";
 
-    private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADER_GIT_TOKEN";
+    private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADE_GIT_TOKEN";
 
     private final UpgradeWrapperDomainObject upgrade;
     private final BuildToolStrategy buildToolStrategy;
