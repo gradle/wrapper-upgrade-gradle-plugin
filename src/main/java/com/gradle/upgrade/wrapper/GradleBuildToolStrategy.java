@@ -38,7 +38,7 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public void runWrapper(ExecOperations execOperations, Path rootProjectDir, String version) {
-        ExecUtils.execGradleCmd(execOperations, rootProjectDir, "wrapper", "--gradle-version", version);
+        ExecUtils.execGradleCmd(execOperations, rootProjectDir, "--console=plain", "wrapper", "--gradle-version", version);
     }
 
     @Override
