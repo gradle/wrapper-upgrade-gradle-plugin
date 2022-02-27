@@ -38,7 +38,7 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public void runWrapper(ExecOperations execOperations, Path rootProjectDir, String version) {
-        ExecUtils.execMavenCmd(execOperations, rootProjectDir, "-N", "wrapper:wrapper", "-Dmaven=" + version);
+        ExecUtils.execMavenCmd(execOperations, rootProjectDir, "-B", "-N", "wrapper:wrapper", "-Dmaven=" + version);
     }
 
     @Override
