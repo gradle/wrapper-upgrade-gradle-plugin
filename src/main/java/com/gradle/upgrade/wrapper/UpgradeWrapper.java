@@ -86,7 +86,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void cloneGitProject(Params params) {
         var gitUrl = "https://github.com/" + params.repository + ".git";
-        execGitCmd(execOperations, params.upgraderRootDir, "clone", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
+        execGitCmd(execOperations, params.upgraderRootDir, "clone", "--quiet", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
         if (unsignedCommits) {
             execGitCmd(execOperations, params.gitCheckoutDir, "config", "--local", "commit.gpgsign", "false");
         }
@@ -135,10 +135,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
         var changes = objects.fileTree().from(params.gitCheckoutDir);
         buildToolStrategy.includeWrapperFiles(changes);
         changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
-        execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "-b", params.prBranch);
-        execGitCmd(execOperations, params.gitCheckoutDir, "commit", "-m", message);
+        execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
+        execGitCmd(execOperations, params.gitCheckoutDir, "commit", "--quiet", "-m", message);
         if (!dryRun) {
-            execGitCmd(execOperations, params.gitCheckoutDir, "push", "-u", "origin", params.prBranch);
+            execGitCmd(execOperations, params.gitCheckoutDir, "push", "--quiet", "-u", "origin", params.prBranch);
         }
     }
 
@@ -185,7 +185,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var project = upgrade.name;
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
-            var prBranch = String.format("gwbot/%s/%s-wrapper-%s", project, buildToolStrategy.buildToolName().toLowerCase(),latestBuildToolVersion);
+            var prBranch = String.format("gwbot/%s/%s-wrapper-%s", project, buildToolStrategy.buildToolName().toLowerCase(), latestBuildToolVersion);
             var upgraderRootDir = upgraderRootDirectory.getAsFile().toPath();
             var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("git-clones", project));
             var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
