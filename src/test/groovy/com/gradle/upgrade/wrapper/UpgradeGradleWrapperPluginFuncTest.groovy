@@ -30,10 +30,10 @@ class UpgradeGradleWrapperPluginFuncTest extends Specification {
 
 plugins {
     id 'base'
-    id 'com.gradle.upgrade.wrapper'
+    id 'com.gradle.wrapper-upgrade'
 }
 
-wrapperUpgrades {
+wrapperUpgrade {
     gradle {
         'common-custom-user-data-gradle-plugin' {
             repo = 'gradle/common-custom-user-data-gradle-plugin'
