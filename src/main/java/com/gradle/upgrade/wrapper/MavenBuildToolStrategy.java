@@ -43,6 +43,7 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public void includeWrapperFiles(ConfigurableFileTree tree) {
+        tree.include("**/.mvn/wrapper/**", "**/mvnw", "**/mvnw.bat");
     }
 
 }
