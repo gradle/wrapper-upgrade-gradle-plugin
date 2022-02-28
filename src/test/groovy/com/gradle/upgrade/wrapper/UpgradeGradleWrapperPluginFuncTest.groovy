@@ -37,7 +37,7 @@ wrapperUpgrade {
     gradle {
         'common-custom-user-data-gradle-plugin' {
             repo = 'gradle/common-custom-user-data-gradle-plugin'
-            baseBranch = 'gradle-wrapper-upgrader-func-test-do-not-delete'
+            baseBranch = 'wrapper-upgrade-gradle-plugin-func-test-do-not-delete'
         }
     }
 }
