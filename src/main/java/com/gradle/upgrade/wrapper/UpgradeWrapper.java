@@ -30,7 +30,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADE_GIT_TOKEN";
 
-    private final UpgradeWrapperDomainObject upgrade;
+    private final WrapperUpgradeDomainObject upgrade;
     private final BuildToolStrategy buildToolStrategy;
     private final ProjectLayout layout;
     private final ObjectFactory objects;
@@ -40,7 +40,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final boolean unsignedCommits;
 
     @Inject
-    public UpgradeWrapper(UpgradeWrapperDomainObject upgrade, BuildToolStrategy buildToolStrategy, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
+    public UpgradeWrapper(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
         this.upgrade = upgrade;
         this.buildToolStrategy = buildToolStrategy;
         this.layout = layout;
@@ -181,7 +181,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.gitHub = gitHub;
         }
 
-        private static Params create(UpgradeWrapperDomainObject upgrade, BuildToolStrategy buildToolStrategy, String latestBuildToolVersion, DirectoryProperty buildDirectory, Directory executionRootDirectory, GitHub gitHub) {
+        private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, String latestBuildToolVersion, DirectoryProperty buildDirectory, Directory executionRootDirectory, GitHub gitHub) {
             var project = upgrade.name;
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
