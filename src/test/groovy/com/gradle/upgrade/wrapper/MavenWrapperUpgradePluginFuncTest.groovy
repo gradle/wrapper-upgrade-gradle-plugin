@@ -7,7 +7,7 @@ import spock.lang.TempDir
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-class UpgradeMavenWrapperPluginFuncTest extends Specification {
+class MavenWrapperUpgradePluginFuncTest extends Specification {
 
     @Shared
     String latestMavenVersion

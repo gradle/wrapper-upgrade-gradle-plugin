@@ -7,20 +7,20 @@ import javax.inject.Inject;
 
 public abstract class UpgradeWrapperExtension {
 
-    private final NamedDomainObjectContainer<UpgradeWrapperDomainObject> gradle;
-    private final NamedDomainObjectContainer<UpgradeWrapperDomainObject> maven;
+    private final NamedDomainObjectContainer<WrapperUpgradeDomainObject> gradle;
+    private final NamedDomainObjectContainer<WrapperUpgradeDomainObject> maven;
 
     @Inject
     public UpgradeWrapperExtension(ObjectFactory objects) {
-        this.gradle = objects.domainObjectContainer(UpgradeWrapperDomainObject.class, name -> objects.newInstance(UpgradeWrapperDomainObject.class, name));
-        this.maven = objects.domainObjectContainer(UpgradeWrapperDomainObject.class, name -> objects.newInstance(UpgradeWrapperDomainObject.class, name));
+        this.gradle = objects.domainObjectContainer(WrapperUpgradeDomainObject.class, name -> objects.newInstance(WrapperUpgradeDomainObject.class, name));
+        this.maven = objects.domainObjectContainer(WrapperUpgradeDomainObject.class, name -> objects.newInstance(WrapperUpgradeDomainObject.class, name));
     }
 
-    public NamedDomainObjectContainer<UpgradeWrapperDomainObject> getGradle() {
+    public NamedDomainObjectContainer<WrapperUpgradeDomainObject> getGradle() {
         return gradle;
     }
 
-    public NamedDomainObjectContainer<UpgradeWrapperDomainObject> getMaven() {
+    public NamedDomainObjectContainer<WrapperUpgradeDomainObject> getMaven() {
         return maven;
     }
 
