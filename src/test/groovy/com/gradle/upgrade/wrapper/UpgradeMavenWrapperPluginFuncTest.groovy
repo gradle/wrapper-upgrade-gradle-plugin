@@ -25,7 +25,7 @@ class UpgradeMavenWrapperPluginFuncTest extends Specification {
         settingsFile = new File(testProjectDir, 'settings.gradle')
         buildFile = new File(testProjectDir, 'build.gradle')
 
-        settingsFile << "rootProject.name = 'gradle-wrapper-upgrader-example'"
+        settingsFile << "rootProject.name = 'wrapper-upgrade-gradle-plugin-example'"
         buildFile << """
 
 plugins {
@@ -37,7 +37,7 @@ wrapperUpgrade {
     maven {
         'common-custom-user-data-maven-extension' {
             repo = 'gradle/common-custom-user-data-maven-extension'
-            baseBranch = 'maven-wrapper-upgrader-func-test-do-not-delete'
+            baseBranch = 'wrapper-upgrade-gradle-plugin-func-test-do-not-delete'
         }
     }
 }
