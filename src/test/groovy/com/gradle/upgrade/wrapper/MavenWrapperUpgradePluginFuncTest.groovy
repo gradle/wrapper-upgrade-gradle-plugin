@@ -18,7 +18,7 @@ class MavenWrapperUpgradePluginFuncTest extends Specification {
     File buildFile
 
     def setupSpec() {
-        latestMavenVersion = BuildToolStrategy.MAVEN.lookupLatestVersion()
+        latestMavenVersion = BuildToolStrategy.MAVEN.lookupLatestVersion().version
     }
 
     def setup() {
