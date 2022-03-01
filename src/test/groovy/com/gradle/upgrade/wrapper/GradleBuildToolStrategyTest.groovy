@@ -23,7 +23,7 @@ class GradleBuildToolStrategyTest extends Specification {
         def version = gradleBuildToolStrategy.extractCurrentVersion(workingDir)
 
         then:
-        version == '7.3.3'
+        version.version == '7.3.3'
     }
 
     def "extract current Gradle version all"() {
@@ -34,7 +34,7 @@ class GradleBuildToolStrategyTest extends Specification {
         def version = gradleBuildToolStrategy.extractCurrentVersion(workingDir)
 
         then:
-        version == '7.2'
+        version.version == '7.2'
     }
 
     def "extract current Gradle distributionUrl not found"() {

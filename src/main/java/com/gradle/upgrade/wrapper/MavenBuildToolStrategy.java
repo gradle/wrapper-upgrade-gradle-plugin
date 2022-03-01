@@ -30,7 +30,7 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
     }
 
     @Override
-    public String extractCurrentVersion(Path rootProjectDir) throws IOException {
+    public VersionInfo extractCurrentVersion(Path rootProjectDir) throws IOException {
         return extractBuildToolVersion(rootProjectDir,
             ".mvn/wrapper/maven-wrapper.properties",
             "distributionUrl",

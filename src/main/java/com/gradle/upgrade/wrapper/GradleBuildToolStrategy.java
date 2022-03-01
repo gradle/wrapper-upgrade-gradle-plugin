@@ -38,7 +38,7 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
     }
 
     @Override
-    public String extractCurrentVersion(Path rootProjectDir) throws IOException {
+    public VersionInfo extractCurrentVersion(Path rootProjectDir) throws IOException {
         return extractBuildToolVersion(rootProjectDir,
             "gradle/wrapper/gradle-wrapper.properties",
             "distributionUrl",
