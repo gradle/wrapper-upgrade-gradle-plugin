@@ -33,7 +33,7 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
     public VersionInfo extractCurrentVersion(Path rootProjectDir) throws IOException {
         return extractBuildToolVersion(rootProjectDir,
             ".mvn/wrapper/maven-wrapper.properties",
-            "distributionUrl",
+            "distributionUrl", null,
             "apache-maven-(.*)-bin.zip"
         );
     }

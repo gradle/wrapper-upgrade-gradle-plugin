@@ -41,7 +41,7 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
     public VersionInfo extractCurrentVersion(Path rootProjectDir) throws IOException {
         return extractBuildToolVersion(rootProjectDir,
             "gradle/wrapper/gradle-wrapper.properties",
-            "distributionUrl",
+            "distributionUrl", "distributionSha256Sum",
             "distributions/gradle-(.*)-(bin|all).zip"
         );
     }

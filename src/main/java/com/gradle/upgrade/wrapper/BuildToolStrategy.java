@@ -26,20 +26,24 @@ public interface BuildToolStrategy {
 
     void includeWrapperFiles(ConfigurableFileTree tree);
 
-    static VersionInfo extractBuildToolVersion(Path rootProjectDir, String wrapperPropertiesFile, String distributionUrlProperty, String regExp) throws IOException {
+    static VersionInfo extractBuildToolVersion(Path rootProjectDir, String wrapperPropertiesFile,
+                                               String distributionUrlProperty, String distributionChecksumProperty,
+                                               String versionRegExp) throws IOException {
         try (var is = Files.newInputStream(rootProjectDir.resolve(wrapperPropertiesFile))) {
             var wrapperProperties = new Properties();
             wrapperProperties.load(is);
-            return extractBuildToolVersion(wrapperProperties, wrapperPropertiesFile, distributionUrlProperty, regExp);
+            return extractBuildToolVersion(wrapperProperties, wrapperPropertiesFile, distributionUrlProperty, distributionChecksumProperty, versionRegExp);
         }
     }
 
-    private static VersionInfo extractBuildToolVersion(Properties props, String wrapperPropertiesFile, String distributionUrlProperty, String regExp) {
+    private static VersionInfo extractBuildToolVersion(Properties props, String wrapperPropertiesFile,
+                                                       String distributionUrlProperty, String distributionChecksumProperty,
+                                                       String versionRegExp) {
         var distributionUrl = props.getProperty(distributionUrlProperty);
         if (distributionUrl != null) {
-            var matcher = Pattern.compile(regExp).matcher(distributionUrl);
+            var matcher = Pattern.compile(versionRegExp).matcher(distributionUrl);
             if (matcher.find()) {
-                return new VersionInfo(matcher.group(1), null);
+                return new VersionInfo(matcher.group(1), distributionChecksumProperty != null ? props.getProperty(distributionChecksumProperty) : null);
             } else {
                 throw new IllegalStateException(String.format("Could not extract version from property '%s': %s", distributionUrlProperty, distributionUrl));
             }
