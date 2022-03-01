@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 
+import static com.gradle.upgrade.wrapper.BuildToolStrategy.extractBuildToolVersion;
+
 public final class MavenBuildToolStrategy implements BuildToolStrategy {
 
     @Override
@@ -29,7 +31,7 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public String extractCurrentVersion(Path rootProjectDir) throws IOException {
-        return WrapperUtils.extractBuildToolVersion(rootProjectDir,
+        return extractBuildToolVersion(rootProjectDir,
             ".mvn/wrapper/maven-wrapper.properties",
             "distributionUrl",
             "apache-maven-(.*)-bin.zip"

@@ -9,6 +9,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Scanner;
 
+import static com.gradle.upgrade.wrapper.BuildToolStrategy.extractBuildToolVersion;
+
 public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
     @Override
@@ -37,7 +39,7 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public String extractCurrentVersion(Path rootProjectDir) throws IOException {
-        return WrapperUtils.extractBuildToolVersion(rootProjectDir,
+        return extractBuildToolVersion(rootProjectDir,
             "gradle/wrapper/gradle-wrapper.properties",
             "distributionUrl",
             "distributions/gradle-(.*)-(bin|all).zip"
