@@ -22,11 +22,11 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
         var gradleMetadata = mapper.readTree(new URL("https://services.gradle.org/versions/current"));
         var version = gradleMetadata.get("version");
         if (version != null) {
-            var wrapperChecksumUrl = gradleMetadata.get("wrapperChecksumUrl");
-            if (wrapperChecksumUrl != null) {
-                URL url = new URL(wrapperChecksumUrl.asText());
-                String wrapperChecksum = new Scanner(url.openStream()).useDelimiter("\\A").next();
-                return new VersionInfo(version.asText(), wrapperChecksum);
+            var checksumUrl = gradleMetadata.get("checksumUrl");
+            if (checksumUrl != null) {
+                URL url = new URL(checksumUrl.asText());
+                String checksum = new Scanner(url.openStream()).useDelimiter("\\A").next();
+                return new VersionInfo(version.asText(), checksum);
             } else {
                 return new VersionInfo(version.asText(), null);
             }
