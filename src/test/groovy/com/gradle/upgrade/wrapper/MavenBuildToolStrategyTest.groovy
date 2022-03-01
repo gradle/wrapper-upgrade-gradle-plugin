@@ -24,6 +24,7 @@ class MavenBuildToolStrategyTest extends Specification {
 
         then:
         version.version == '3.8.2'
+        version.checksum == Optional.empty()
     }
 
     def "extract current Maven distributionUrl not found"() {

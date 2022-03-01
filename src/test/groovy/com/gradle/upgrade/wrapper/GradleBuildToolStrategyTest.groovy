@@ -17,24 +17,26 @@ class GradleBuildToolStrategyTest extends Specification {
 
     def "extract current Gradle version bin"() {
         given:
-        createGradleWrapperProperties().text = standard('7.3.3', 'bin')
+        createGradleWrapperProperties().text = standard('7.3.3', 'bin', '123')
 
         when:
         def version = gradleBuildToolStrategy.extractCurrentVersion(workingDir)
 
         then:
         version.version == '7.3.3'
+        version.checksum == Optional.of('123')
     }
 
     def "extract current Gradle version all"() {
         given:
-        createGradleWrapperProperties().text = standard('7.2', 'all')
+        createGradleWrapperProperties().text = standard('7.2', 'all', '456')
 
         when:
         def version = gradleBuildToolStrategy.extractCurrentVersion(workingDir)
 
         then:
         version.version == '7.2'
+        version.checksum == Optional.of('456')
     }
 
     def "extract current Gradle distributionUrl not found"() {
@@ -61,10 +63,11 @@ class GradleBuildToolStrategyTest extends Specification {
         e.message == "Could not extract version from property 'distributionUrl': unknown"
     }
 
-    private static String standard(String gradleVersion, String gradleDistro) {
+    private static String standard(String gradleVersion, String gradleDistro, String distributionChecksum) {
         """
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
+distributionSha256Sum=${distributionChecksum}
 distributionUrl=https\\://services.gradle.org/distributions/gradle-${gradleVersion}-${gradleDistro}.zip
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
