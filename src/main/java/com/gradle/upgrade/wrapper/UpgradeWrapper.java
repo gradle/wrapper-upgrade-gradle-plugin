@@ -82,7 +82,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         cloneGitProject(params);
         var usedBuildToolVersion = buildToolStrategy.extractCurrentVersion(params.rootProjectDir);
         runWrapperWithLatestBuildToolVersion(params);
-        createPrIfWrapperChanged(params, usedBuildToolVersion);
+        createPrIfWrapperChanged(params, usedBuildToolVersion.version);
     }
 
     private void cloneGitProject(Params params) {

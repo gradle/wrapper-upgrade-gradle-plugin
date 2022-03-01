@@ -23,7 +23,7 @@ class MavenBuildToolStrategyTest extends Specification {
         def version = mavenBuildToolStrategy.extractCurrentVersion(workingDir)
 
         then:
-        version == '3.8.2'
+        version.version == '3.8.2'
     }
 
     def "extract current Maven distributionUrl not found"() {
