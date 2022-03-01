@@ -3,8 +3,10 @@ package com.gradle.upgrade.wrapper;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.process.ExecOperations;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public interface BuildToolStrategy {
 
@@ -13,13 +15,25 @@ public interface BuildToolStrategy {
 
     String buildToolName();
 
-    String lookupLatestVersion() throws IOException;
+    VersionInfo lookupLatestVersion() throws IOException;
 
     String extractCurrentVersion(Path rootProjectDir) throws IOException;
 
-    void runWrapper(ExecOperations execOperations, Path rootProjectDir, String version);
+    void runWrapper(ExecOperations execOperations, Path rootProjectDir, VersionInfo version);
 
     void includeWrapperFiles(ConfigurableFileTree tree);
+
+    final class VersionInfo {
+
+        public String version;
+        public Optional<String> checksum;
+
+        public VersionInfo(String version, @Nullable String checksum) {
+            this.version = version;
+            this.checksum = Optional.ofNullable(checksum);
+        }
+
+    }
 
 }
 

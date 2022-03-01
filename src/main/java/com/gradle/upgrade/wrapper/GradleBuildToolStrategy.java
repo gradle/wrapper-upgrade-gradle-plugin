@@ -7,6 +7,7 @@ import org.gradle.process.ExecOperations;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Scanner;
 
 public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
@@ -16,12 +17,19 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
     }
 
     @Override
-    public String lookupLatestVersion() throws IOException {
+    public VersionInfo lookupLatestVersion() throws IOException {
         var mapper = new ObjectMapper();
         var gradleMetadata = mapper.readTree(new URL("https://services.gradle.org/versions/current"));
         var version = gradleMetadata.get("version");
         if (version != null) {
-            return version.asText();
+            var wrapperChecksumUrl = gradleMetadata.get("wrapperChecksumUrl");
+            if (wrapperChecksumUrl != null) {
+                URL url = new URL(wrapperChecksumUrl.asText());
+                String wrapperChecksum = new Scanner(url.openStream()).useDelimiter("\\A").next();
+                return new VersionInfo(version.asText(), wrapperChecksum);
+            } else {
+                return new VersionInfo(version.asText(), null);
+            }
         } else {
             throw new IllegalStateException("Could not determine latest Gradle version");
         }
@@ -37,8 +45,13 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
     }
 
     @Override
-    public void runWrapper(ExecOperations execOperations, Path rootProjectDir, String version) {
-        ExecUtils.execGradleCmd(execOperations, rootProjectDir, "--console=plain", "wrapper", "--gradle-version", version);
+    public void runWrapper(ExecOperations execOperations, Path rootProjectDir, VersionInfo version) {
+        if (version.checksum.isPresent()) {
+            ExecUtils.execGradleCmd(execOperations, rootProjectDir, "--console=plain", "wrapper", "--gradle-version", version.version,
+                "--gradle-distribution-sha256-sum", version.checksum.get());
+        } else {
+            ExecUtils.execGradleCmd(execOperations, rootProjectDir, "--console=plain", "wrapper", "--gradle-version", version.version);
+        }
     }
 
     @Override
