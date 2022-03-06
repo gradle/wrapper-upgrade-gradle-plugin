@@ -1,4 +1,4 @@
-package com.gradle.upgrade.wrapper;
+package org.gradle.upgrade.wrapper;
 
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.model.ObjectFactory;

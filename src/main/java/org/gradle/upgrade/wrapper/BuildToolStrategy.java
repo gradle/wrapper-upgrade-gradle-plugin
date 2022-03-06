@@ -1,4 +1,4 @@
-package com.gradle.upgrade.wrapper;
+package org.gradle.upgrade.wrapper;
 
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.process.ExecOperations;
@@ -65,4 +65,3 @@ public interface BuildToolStrategy {
     }
 
 }
-
