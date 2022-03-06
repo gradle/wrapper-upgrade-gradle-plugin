@@ -30,7 +30,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
 
 plugins {
     id 'base'
-    id 'com.gradle.wrapper-upgrade'
+    id 'org.gradle.wrapper-upgrade'
 }
 
 wrapperUpgrade {

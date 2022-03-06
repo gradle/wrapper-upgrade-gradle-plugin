@@ -29,7 +29,7 @@ test {
 gradlePlugin {
     plugins {
         upgradeWrapper {
-            id = 'com.gradle.wrapper-upgrade'
+            id = 'org.gradle.wrapper-upgrade'
             implementationClass = 'org.gradle.upgrade.wrapper.WrapperUpgradePlugin'
         }
     }
