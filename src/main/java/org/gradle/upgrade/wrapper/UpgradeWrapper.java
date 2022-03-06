@@ -1,6 +1,6 @@
-package com.gradle.upgrade.wrapper;
+package org.gradle.upgrade.wrapper;
 
-import com.gradle.upgrade.wrapper.BuildToolStrategy.VersionInfo;
+import org.gradle.upgrade.wrapper.BuildToolStrategy.VersionInfo;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static com.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
+import static org.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
 import static java.lang.Boolean.parseBoolean;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")

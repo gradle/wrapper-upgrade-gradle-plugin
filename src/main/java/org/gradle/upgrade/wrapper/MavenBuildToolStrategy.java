@@ -1,4 +1,4 @@
-package com.gradle.upgrade.wrapper;
+package org.gradle.upgrade.wrapper;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.gradle.api.file.ConfigurableFileTree;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 
-import static com.gradle.upgrade.wrapper.BuildToolStrategy.extractBuildToolVersion;
+import static org.gradle.upgrade.wrapper.BuildToolStrategy.extractBuildToolVersion;
 
 public final class MavenBuildToolStrategy implements BuildToolStrategy {
 

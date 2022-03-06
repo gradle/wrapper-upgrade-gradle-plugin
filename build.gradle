@@ -30,7 +30,7 @@ gradlePlugin {
     plugins {
         upgradeWrapper {
             id = 'com.gradle.wrapper-upgrade'
-            implementationClass = 'com.gradle.upgrade.wrapper.WrapperUpgradePlugin'
+            implementationClass = 'org.gradle.upgrade.wrapper.WrapperUpgradePlugin'
         }
     }
 }
