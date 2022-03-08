@@ -55,7 +55,7 @@ signing {
 }
 
 githubRelease {
-   token = System.getenv('WRAPPER_UPGRADE_GIT_TOKEN') ?: ''
+   token = System.getenv('WRAPPER_UPGRADE_GRADLE_PLUGIN_GIT_TOKEN') ?: ''
    owner = 'gradle'
    repo = 'wrapper-upgrade-gradle-plugin'
    targetCommitish = 'main'
