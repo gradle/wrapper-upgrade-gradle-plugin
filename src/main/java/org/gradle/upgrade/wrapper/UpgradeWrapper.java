@@ -137,7 +137,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         buildToolStrategy.includeWrapperFiles(changes);
         changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
-        execGitCmd(execOperations, params.gitCheckoutDir, "commit", "--quiet", "-m", message);
+        execGitCmd(execOperations, params.gitCheckoutDir, "commit", "--quiet", "-s", "-m", message);
         if (!dryRun) {
             execGitCmd(execOperations, params.gitCheckoutDir, "push", "--quiet", "-u", "origin", params.prBranch);
         }
