@@ -8,7 +8,7 @@ public abstract class WrapperUpgradePlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        UpgradeWrapperExtension wrapperUpgrades = project.getExtensions().create("wrapperUpgrade", UpgradeWrapperExtension.class);
+        WrapperUpgradeExtension wrapperUpgrades = project.getExtensions().create("wrapperUpgrade", WrapperUpgradeExtension.class);
 
         var upgradeGradleWrapperAllTask = project.getTasks().register("upgradeGradleWrapperAll",
             t -> {

@@ -5,13 +5,13 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-public abstract class UpgradeWrapperExtension {
+public abstract class WrapperUpgradeExtension {
 
     private final NamedDomainObjectContainer<WrapperUpgradeDomainObject> gradle;
     private final NamedDomainObjectContainer<WrapperUpgradeDomainObject> maven;
 
     @Inject
-    public UpgradeWrapperExtension(ObjectFactory objects) {
+    public WrapperUpgradeExtension(ObjectFactory objects) {
         this.gradle = objects.domainObjectContainer(WrapperUpgradeDomainObject.class, name -> objects.newInstance(WrapperUpgradeDomainObject.class, name));
         this.maven = objects.domainObjectContainer(WrapperUpgradeDomainObject.class, name -> objects.newInstance(WrapperUpgradeDomainObject.class, name));
     }
