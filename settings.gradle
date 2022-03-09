@@ -11,6 +11,7 @@ gradleEnterprise {
         capture { taskInputFiles = true }
         uploadInBackground = !isCI
         publishAlways()
+        publishIfAuthenticated()
     }
 }
 
