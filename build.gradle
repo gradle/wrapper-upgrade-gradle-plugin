@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.kohsuke:github-api:1.301'
+    implementation 'org.kohsuke:github-api:1.303'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.2'
 
