@@ -1,0 +1,83 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'maven-publish'
+    id 'signing'
+    id 'com.gradle.plugin-publish' version '0.20.0'
+    id 'com.github.breadmoirai.github-release' version '2.2.12'
+}
+
+group = 'org.gradle'
+version = layout.projectDirectory.file('release/version.txt').asFile.text.trim()
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.kohsuke:github-api:1.301'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.1'
+
+    testImplementation gradleTestKit()
+    testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+gradlePlugin {
+    plugins {
+        upgradeWrapper {
+            id = 'org.gradle.wrapper-upgrade'
+            implementationClass = 'org.gradle.upgrade.wrapper.WrapperUpgradePlugin'
+        }
+    }
+}
+
+signing {
+    // Require publications to be signed on CI. Otherwise, publication will be signed only if keys are provided.
+    required providers.environmentVariable('CI').isPresent()
+
+    useInMemoryPgpKeys(
+        providers.environmentVariable('PGP_SIGNING_KEY').orNull,
+        providers.environmentVariable('PGP_SIGNING_KEY_PASSPHRASE').orNull
+    )
+    sign(configurations.archives)
+}
+
+githubRelease {
+   token = System.getenv('WRAPPER_UPGRADE_GRADLE_PLUGIN_GIT_TOKEN') ?: ''
+   owner = 'gradle'
+   repo = 'wrapper-upgrade-gradle-plugin'
+   targetCommitish = 'main'
+   releaseName = gitHubReleaseName()
+   tagName = gitReleaseTag()
+   prerelease = false
+   overwrite = false
+   body = layout.projectDirectory.file('release/changes.md').asFile.text.trim()
+}
+
+tasks.register('createReleaseTag', CreateGitTag) {
+    tagName = gitReleaseTag()
+}
+
+tasks.named("githubRelease") {
+    dependsOn("createReleaseTag")
+}
+
+def gitHubReleaseName() {
+    return version.toString()
+}
+
+def gitReleaseTag() {
+    return "v${version}"
+}
