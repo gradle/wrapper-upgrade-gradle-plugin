@@ -56,7 +56,7 @@ wrapperUpgrade {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
 
         and:
         def gitDir = new File(testProjectDir, 'build/git-clones/common-custom-user-data-gradle-plugin')
@@ -87,7 +87,7 @@ wrapperUpgrade {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
         result.output.contains('Configuration cache entry stored.')
 
         when:
@@ -101,7 +101,7 @@ wrapperUpgrade {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
         result.output.contains('Reusing configuration cache.')
     }
 

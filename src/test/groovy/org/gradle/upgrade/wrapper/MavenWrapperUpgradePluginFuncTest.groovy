@@ -56,7 +56,7 @@ wrapperUpgrade {
         result.task(':upgradeMavenWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'gwbot/common-custom-user-data-maven-extension/maven-wrapper-${latestMavenVersion}")
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/common-custom-user-data-maven-extension/maven-wrapper-${latestMavenVersion}")
 
         and:
         def gitDir = new File(testProjectDir, 'build/git-clones/common-custom-user-data-maven-extension')

@@ -186,7 +186,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var project = upgrade.name;
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
-            var prBranch = String.format("gwbot/%s/%s-wrapper-%s", project, buildToolStrategy.buildToolName().toLowerCase(), latestBuildToolVersion.version);
+            var prBranch = String.format("wrapperbot/%s/%s-wrapper-%s", project, buildToolStrategy.buildToolName().toLowerCase(), latestBuildToolVersion.version);
             var executionRootDir = executionRootDirectory.getAsFile().toPath();
             var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("git-clones", project));
             var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
