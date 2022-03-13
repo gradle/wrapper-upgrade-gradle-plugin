@@ -1,6 +1,6 @@
 plugins {
-    id 'java-gradle-plugin'
     id 'groovy'
+    id 'java-gradle-plugin'
     id 'maven-publish'
     id 'signing'
     id 'com.gradle.plugin-publish' version '0.20.0'
@@ -64,7 +64,7 @@ signing {
         providers.environmentVariable('PGP_SIGNING_KEY').orNull,
         providers.environmentVariable('PGP_SIGNING_KEY_PASSPHRASE').orNull
     )
-    
+
     sign(configurations.archives)
 }
 
