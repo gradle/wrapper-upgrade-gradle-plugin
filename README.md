@@ -79,4 +79,7 @@ wrapperUpgrade {
 | `dir`        | The directory inside the project base directory to run the gradle or maven upgrade in                                                                            |
 | `baseBranch` | The git branch to checkout and that the pull request will target                                                                                                 |
 
+## License
+
+The Wrapper Upgrade Gradle plugin is open-source software released under the [Apache 2.0 License][apache-license].
 
