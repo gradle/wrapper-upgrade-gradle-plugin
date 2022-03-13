@@ -83,3 +83,4 @@ wrapperUpgrade {
 
 The Wrapper Upgrade Gradle plugin is open-source software released under the [Apache 2.0 License][apache-license].
 
+[apache-license]: https://www.apache.org/licenses/LICENSE-2.0.html
