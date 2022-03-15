@@ -40,7 +40,7 @@ gradlePlugin {
             id = 'org.gradle.wrapper-upgrade'
             displayName = 'Wrapper Upgrade Gradle Plugin'
             description = 'A Gradle plugin that detects and updates Gradle and Maven wrappers to the latest Gradle and Maven version.'
-            implementationClass = 'org.gradle.upgrade.wrapper.WrapperUpgradePlugin'
+            implementationClass = 'org.gradle.wrapperupgrade.WrapperUpgradePlugin'
         }
     }
 }

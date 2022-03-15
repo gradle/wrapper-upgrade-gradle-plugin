@@ -1,6 +1,5 @@
-package org.gradle.upgrade.wrapper;
+package org.gradle.wrapperupgrade;
 
-import org.gradle.upgrade.wrapper.BuildToolStrategy.VersionInfo;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
@@ -12,6 +11,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.process.internal.ExecException;
 import org.gradle.work.DisableCachingByDefault;
+import org.gradle.wrapperupgrade.BuildToolStrategy.VersionInfo;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
@@ -20,8 +20,8 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.gradle.upgrade.wrapper.ExecUtils.execGitCmd;
 import static java.lang.Boolean.parseBoolean;
+import static org.gradle.wrapperupgrade.ExecUtils.execGitCmd;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")
 public abstract class UpgradeWrapper extends DefaultTask {

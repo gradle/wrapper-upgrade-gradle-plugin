@@ -1,4 +1,4 @@
-package org.gradle.upgrade.wrapper;
+package org.gradle.wrapperupgrade;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

@@ -1,4 +1,4 @@
-package org.gradle.upgrade.wrapper
+package org.gradle.wrapperupgrade
 
 import spock.lang.Shared
 import spock.lang.Specification

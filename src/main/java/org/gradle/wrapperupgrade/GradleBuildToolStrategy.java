@@ -1,4 +1,4 @@
-package org.gradle.upgrade.wrapper;
+package org.gradle.wrapperupgrade;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gradle.api.file.ConfigurableFileTree;
@@ -9,7 +9,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Scanner;
 
-import static org.gradle.upgrade.wrapper.BuildToolStrategy.extractBuildToolVersion;
+import static org.gradle.wrapperupgrade.BuildToolStrategy.extractBuildToolVersion;
 
 public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
