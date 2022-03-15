@@ -35,9 +35,10 @@ plugins {
 
 wrapperUpgrade {
     maven {
-        'common-custom-user-data-maven-extension' {
-            repo = 'gradle/common-custom-user-data-maven-extension'
-            baseBranch = 'wrapper-upgrade-gradle-plugin-func-test-do-not-delete'
+        'wrapper-upgrade-gradle-plugin-for-func-tests' {
+            repo = 'gradle/wrapper-upgrade-gradle-plugin'
+            baseBranch = 'func-test-do-not-delete'
+            dir = 'samples/maven'
         }
     }
 }
@@ -56,10 +57,10 @@ wrapperUpgrade {
         result.task(':upgradeMavenWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/common-custom-user-data-maven-extension/maven-wrapper-${latestMavenVersion}")
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/maven-wrapper-${latestMavenVersion}")
 
         and:
-        def gitDir = new File(testProjectDir, 'build/git-clones/common-custom-user-data-maven-extension')
+        def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/maven')
         def proc = 'git show --oneline --name-only HEAD'.execute(null, gitDir)
         def output = proc.in.text
         output.contains ".mvn/wrapper/maven-wrapper.jar"
@@ -71,7 +72,7 @@ wrapperUpgrade {
         def proc2 = 'git show --oneline HEAD'.execute(null, gitDir)
         def output2 = proc2.in.text
         output2.contains "Bump Maven Wrapper from 3.6.3 to ${latestMavenVersion}"
-        output2.contains 'Binary files a/.mvn/wrapper/maven-wrapper.jar and b/.mvn/wrapper/maven-wrapper.jar differ'
+        output2.contains 'Binary files a/samples/maven/.mvn/wrapper/maven-wrapper.jar and b/samples/maven/.mvn/wrapper/maven-wrapper.jar differ'
         output2.contains "-distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.zip"
         output2.contains "+distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${latestMavenVersion}/apache-maven-${latestMavenVersion}-bin.zip"
         output2.contains "-wrapperUrl=https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"

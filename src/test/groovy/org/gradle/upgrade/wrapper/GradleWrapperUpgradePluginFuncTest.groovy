@@ -35,16 +35,17 @@ plugins {
 
 wrapperUpgrade {
     gradle {
-        'common-custom-user-data-gradle-plugin' {
-            repo = 'gradle/common-custom-user-data-gradle-plugin'
-            baseBranch = 'wrapper-upgrade-gradle-plugin-func-test-do-not-delete'
+        'wrapper-upgrade-gradle-plugin-for-func-tests' {
+            repo = 'gradle/wrapper-upgrade-gradle-plugin'
+            baseBranch = 'func-test-do-not-delete'
+            dir = 'samples/gradle'
         }
     }
 }
         """
     }
 
-    def "upgrade wrapper on CCUD plugin with dry run"() {
+    def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run"() {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
@@ -56,10 +57,10 @@ wrapperUpgrade {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
 
         and:
-        def gitDir = new File(testProjectDir, 'build/git-clones/common-custom-user-data-gradle-plugin')
+        def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/gradle')
         def proc = 'git show --oneline --name-only HEAD'.execute(null, gitDir)
         def output = proc.in.text
         output.contains "gradle/wrapper/gradle-wrapper.jar"
@@ -69,13 +70,13 @@ wrapperUpgrade {
         and:
         def proc2 = 'git show --oneline HEAD'.execute(null, gitDir)
         def output2 = proc2.in.text
-        output2.contains "Bump Gradle Wrapper from 7.0.2 to ${latestGradleVersion}"
-        output2.contains "Binary files a/gradle/wrapper/gradle-wrapper.jar and b/gradle/wrapper/gradle-wrapper.jar differ"
-        output2.contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-7.0.2-bin.zip"
+        output2.contains "Bump Gradle Wrapper from 6.9 to ${latestGradleVersion}"
+        output2.contains "Binary files a/samples/gradle/gradle/wrapper/gradle-wrapper.jar and b/samples/gradle/gradle/wrapper/gradle-wrapper.jar differ"
+        output2.contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-6.9-bin.zip"
         output2.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
     }
 
-    def "upgrade wrapper on CCUD plugin with dry run and configuration cache"() {
+    def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run and configuration cache"() {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
@@ -87,7 +88,7 @@ wrapperUpgrade {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
         result.output.contains('Configuration cache entry stored.')
 
         when:
@@ -101,7 +102,7 @@ wrapperUpgrade {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/common-custom-user-data-gradle-plugin/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
         result.output.contains('Reusing configuration cache.')
     }
 
