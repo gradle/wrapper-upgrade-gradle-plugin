@@ -35,6 +35,8 @@ test {
 }
 
 gradlePlugin {
+    automatedPublishing = false
+
     plugins {
         wrapperUpgrade {
             id = 'org.gradle.wrapper-upgrade'
@@ -54,6 +56,11 @@ pluginBundle {
     website = "https://github.com/gradle/wrapper-upgrade-gradle-plugin/"
     vcsUrl = "https://github.com/gradle/wrapper-upgrade-gradle-plugin.git"
     tags = ["gradle", "maven", "wrapper"]
+
+    mavenCoordinates {
+        groupId = 'org.gradle'
+        artifactId = 'wrapper-upgrade-gradle-plugin'
+    }
 }
 
 signing {
