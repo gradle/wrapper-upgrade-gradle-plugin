@@ -61,4 +61,9 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
         tree.include("**/gradle/wrapper/**", "**/gradlew", "**/gradlew.bat");
     }
 
+    @Override
+    public String releaseNotesLink() {
+        return "https://docs.gradle.org/$VERSION/release-notes.html";
+    }
+
 }

@@ -48,4 +48,9 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
         tree.include("**/.mvn/wrapper/**", "**/mvnw", "**/mvnw.cmd");
     }
 
+    @Override
+    public String releaseNotesLink() {
+        return "https://maven.apache.org/docs/$VERSION/release-notes.html";
+    }
+
 }
