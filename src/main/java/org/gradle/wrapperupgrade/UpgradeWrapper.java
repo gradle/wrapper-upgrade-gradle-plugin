@@ -118,12 +118,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void createPr(Params params, String usedBuildToolVersion) throws IOException {
-        var description = createDescription(params, usedBuildToolVersion);
-        gitCommitAndPush(params, description);
-        gitPr(params, description);
+        var shortDesc = createShortDescription(params, usedBuildToolVersion);
+        var longDesc = createLongDescription(params, usedBuildToolVersion);
+        gitCommitAndPush(params, shortDesc);
+        gitPr(params, shortDesc);
     }
 
-    private String createDescription(Params params, String usedBuildToolVersion) {
+    private String createShortDescription(Params params, String usedBuildToolVersion) {
         var buildToolName = buildToolStrategy.buildToolName();
         var latestBuildToolVersion = params.latestBuildToolVersion.version;
         var relativePath = params.rootProjectDirRelativePath.normalize().toString();
@@ -137,20 +138,34 @@ public abstract class UpgradeWrapper extends DefaultTask {
         return description.toString();
     }
 
-    private void gitCommitAndPush(Params params, String message) {
+    private String createLongDescription(Params params, String usedBuildToolVersion) {
+        var buildToolName = buildToolStrategy.buildToolName();
+        var latestBuildToolVersion = params.latestBuildToolVersion.version;
+        var releaseNotesLink = buildToolStrategy.releaseNotesLink();
+
+        var description = new StringBuilder();
+        description.append(String.format("Bumps %s Wrapper from %s to %s.", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
+        description.append("\n\n");
+        description.append(String.format("Release notes of %s %s can be found here:", buildToolName, latestBuildToolVersion));
+        description.append("\n");
+        description.append(releaseNotesLink.replace("$VERSION", latestBuildToolVersion));
+        return description.toString();
+    }
+
+    private void gitCommitAndPush(Params params, String commitMessage) {
         var changes = objects.fileTree().from(params.gitCheckoutDir);
         buildToolStrategy.includeWrapperFiles(changes);
         changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
-        execGitCmd(execOperations, params.gitCheckoutDir, "commit", "--quiet", "-s", "-m", message);
+        execGitCmd(execOperations, params.gitCheckoutDir, "commit", "--quiet", "-s", "-m", commitMessage);
         if (!dryRun) {
             execGitCmd(execOperations, params.gitCheckoutDir, "push", "--quiet", "-u", "origin", params.prBranch);
         }
     }
 
-    private void gitPr(Params params, String title) throws IOException {
+    private void gitPr(Params params, String prTitle) throws IOException {
         if (!dryRun) {
-            var pr = params.gitHub.getRepository(params.repository).createPullRequest(title, params.prBranch, params.baseBranch, null);
+            var pr = params.gitHub.getRepository(params.repository).createPullRequest(prTitle, params.prBranch, params.baseBranch, null);
             getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         } else {
