@@ -141,14 +141,14 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private String createLongDescription(Params params, String usedBuildToolVersion) {
         var buildToolName = buildToolStrategy.buildToolName();
         var latestBuildToolVersion = params.latestBuildToolVersion.version;
-        var releaseNotesLink = buildToolStrategy.releaseNotesLink();
+        var releaseNotesLink = buildToolStrategy.releaseNotesLink(latestBuildToolVersion);
 
         var description = new StringBuilder();
         description.append(String.format("Bumps %s Wrapper from %s to %s.", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
         description.append("\n\n");
         description.append(String.format("Release notes of %s %s can be found here:", buildToolName, latestBuildToolVersion));
         description.append("\n");
-        description.append(releaseNotesLink.replace("$VERSION", latestBuildToolVersion));
+        description.append(releaseNotesLink);
         return description.toString();
     }
 

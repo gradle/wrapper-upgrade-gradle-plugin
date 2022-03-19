@@ -63,6 +63,17 @@ class GradleBuildToolStrategyTest extends Specification {
         e.message == "Could not extract version from property 'distributionUrl': unknown"
     }
 
+    def "resolve release notes links"() {
+        given:
+        def version = '7.4.1'
+
+        when:
+        def releaseNotesLink = gradleBuildToolStrategy.releaseNotesLink(version)
+
+        then:
+        releaseNotesLink == 'https://docs.gradle.org/7.4.1/release-notes.html'
+    }
+
     private static String standard(String gradleVersion, String gradleDistro, String distributionChecksum) {
         """
 distributionBase=GRADLE_USER_HOME

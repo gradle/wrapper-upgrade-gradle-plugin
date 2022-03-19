@@ -49,8 +49,8 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
     }
 
     @Override
-    public String releaseNotesLink() {
-        return "https://maven.apache.org/docs/$VERSION/release-notes.html";
+    public String releaseNotesLink(String buildToolVersion) {
+        return "https://maven.apache.org/docs/$VERSION/release-notes.html".replace("$VERSION", buildToolVersion);
     }
 
 }

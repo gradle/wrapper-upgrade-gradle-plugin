@@ -62,8 +62,8 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
     }
 
     @Override
-    public String releaseNotesLink() {
-        return "https://docs.gradle.org/$VERSION/release-notes.html";
+    public String releaseNotesLink(String buildToolVersion) {
+        return "https://docs.gradle.org/$VERSION/release-notes.html".replace("$VERSION", buildToolVersion);
     }
 
 }

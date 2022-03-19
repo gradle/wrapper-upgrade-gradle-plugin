@@ -51,6 +51,17 @@ class MavenBuildToolStrategyTest extends Specification {
         e.message == "Could not extract version from property 'distributionUrl': unknown"
     }
 
+    def "resolve release notes links"() {
+        given:
+        def version = '3.8.5'
+
+        when:
+        def releaseNotesLink = mavenBuildToolStrategy.releaseNotesLink(version)
+
+        then:
+        releaseNotesLink == 'https://maven.apache.org/docs/3.8.5/release-notes.html'
+    }
+
     private static String standard(String mavenVersion) {
         """
 distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${mavenVersion}/apache-maven-${mavenVersion}-bin.zip

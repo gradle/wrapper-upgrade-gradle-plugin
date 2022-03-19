@@ -26,7 +26,7 @@ public interface BuildToolStrategy {
 
     void includeWrapperFiles(ConfigurableFileTree tree);
 
-    String releaseNotesLink();
+    String releaseNotesLink(String buildToolVersion);
 
     static VersionInfo extractBuildToolVersion(Path rootProjectDir, String wrapperPropertiesFile,
                                                String distributionUrlProperty, String distributionChecksumProperty,
