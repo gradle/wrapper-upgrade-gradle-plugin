@@ -56,7 +56,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         var gitHub = createGitHub(gitHubToken);
         var latestBuildToolVersion = buildToolStrategy.lookupLatestVersion();
-        var params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getBuildDirectory(), layout.getProjectDirectory(), gitHub);
+        var params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getProjectDirectory(), layout.getBuildDirectory(), gitHub);
 
         if (!prExists(params)) {
             createPrIfWrapperUpgradeAvailable(params);
@@ -202,7 +202,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.gitHub = gitHub;
         }
 
-        private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, VersionInfo latestBuildToolVersion, DirectoryProperty buildDirectory, Directory executionRootDirectory, GitHub gitHub) {
+        private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, VersionInfo latestBuildToolVersion, Directory executionRootDirectory, DirectoryProperty buildDirectory, GitHub gitHub) {
             var project = upgrade.name;
             var repository = upgrade.getRepo().get();
             var baseBranch = upgrade.getBaseBranch().get();
