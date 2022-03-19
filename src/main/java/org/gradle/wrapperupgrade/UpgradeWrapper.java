@@ -118,16 +118,21 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void createPr(Params params, String usedBuildToolVersion) throws IOException {
-        String description = createDescription(params, usedBuildToolVersion);
+        var description = createDescription(params, usedBuildToolVersion);
         gitCommitAndPush(params, description);
         gitPr(params, description);
     }
 
     private String createDescription(Params params, String usedBuildToolVersion) {
-        StringBuilder description = new StringBuilder();
-        description.append(String.format("Bump %s Wrapper from %s to %s", buildToolStrategy.buildToolName(), usedBuildToolVersion, params.latestBuildToolVersion.version));
-        if (!params.rootProjectDirRelativePath.normalize().toString().isEmpty()) {
-            description.append(String.format(" in %s", params.rootProjectDirRelativePath.normalize()));
+        var buildToolName = buildToolStrategy.buildToolName();
+        var latestBuildToolVersion = params.latestBuildToolVersion.version;
+        var relativePath = params.rootProjectDirRelativePath.normalize().toString();
+
+        var description = new StringBuilder();
+        description.append(String.format("Bump %s Wrapper from %s to %s", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
+        if (!relativePath.isEmpty()) {
+            String path = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
+            description.append(String.format(" in %s", path));
         }
         return description.toString();
     }
