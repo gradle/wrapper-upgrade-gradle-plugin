@@ -121,7 +121,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         var shortDesc = createShortDescription(params, usedBuildToolVersion);
         var longDesc = createLongDescription(params, usedBuildToolVersion);
         gitCommitAndPush(params, shortDesc);
-        gitPr(params, shortDesc);
+        gitCreatePr(params, shortDesc, longDesc);
     }
 
     private String createShortDescription(Params params, String usedBuildToolVersion) {
@@ -163,9 +163,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private void gitPr(Params params, String prTitle) throws IOException {
+    private void gitCreatePr(Params params, String prTitle, String prBody) throws IOException {
         if (!dryRun) {
-            var pr = params.gitHub.getRepository(params.repository).createPullRequest(prTitle, params.prBranch, params.baseBranch, null);
+            var pr = params.gitHub.getRepository(params.repository).createPullRequest(prTitle, params.prBranch, params.baseBranch, prBody);
             getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         } else {
