@@ -36,6 +36,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final ProjectLayout layout;
     private final ObjectFactory objects;
     private final ExecOperations execOperations;
+    private final ProviderFactory providers;
 
     @Inject
     public UpgradeWrapper(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
@@ -44,13 +45,15 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.layout = layout;
         this.objects = objects;
         this.execOperations = execOperations;
+        this.providers = providers;
     }
 
     @TaskAction
     void upgrade() throws IOException {
         var gitHub = createGitHub();
         var latestBuildToolVersion = buildToolStrategy.lookupLatestVersion();
-        var params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getProjectDirectory(), layout.getBuildDirectory(), gitHub);
+        var params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getProjectDirectory(),
+            layout.getBuildDirectory(), gitHub, execOperations, providers);
 
         if (!prExists(params)) {
             createPrIfWrapperUpgradeAvailable(params);
@@ -202,19 +205,26 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.gitHub = gitHub;
         }
 
-        private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, VersionInfo latestBuildToolVersion, Directory executionRootDirectory, DirectoryProperty buildDirectory, GitHub gitHub) {
+        private static Params create(WrapperUpgradeDomainObject upgrade,
+                                     BuildToolStrategy buildToolStrategy,
+                                     VersionInfo latestBuildToolVersion,
+                                     Directory executionRootDirectory,
+                                     DirectoryProperty buildDirectory,
+                                     GitHub gitHub,
+                                     ExecOperations exec,
+                                     ProviderFactory providers) {
             var project = upgrade.name;
-            var repository = upgrade.getRepo().get();
+            var executionRootDir = executionRootDirectory.getAsFile().toPath();
+            var repository = upgrade.getRepo().orElse(providers.provider(() -> GitUtils.detectGithubRepository(exec, executionRootDir)
+                .orElseThrow(() -> new IllegalStateException("'repo' is not set and could not detect a Github remote on " + executionRootDir)))).get();
             var baseBranch = upgrade.getBaseBranch().get();
             var prBranch = String.format("wrapperbot/%s/%s-wrapper-%s", project, buildToolStrategy.buildToolName().toLowerCase(), latestBuildToolVersion.version);
-            var executionRootDir = executionRootDirectory.getAsFile().toPath();
             var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("git-clones", project));
             var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
             var rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
 
             return new Params(project, repository, baseBranch, prBranch, executionRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, gitHub);
         }
-
     }
 
 }
