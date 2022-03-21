@@ -36,9 +36,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final ProjectLayout layout;
     private final ObjectFactory objects;
     private final ExecOperations execOperations;
-    private final Provider<String> gitHubToken;
-    private final boolean dryRun;
-    private final boolean unsignedCommits;
+    private final ProviderFactory providers;
 
     @Inject
     public UpgradeWrapper(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
@@ -47,14 +45,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.layout = layout;
         this.objects = objects;
         this.execOperations = execOperations;
-        this.gitHubToken = providers.environmentVariable(GIT_TOKEN_ENV_VAR);
-        this.dryRun = providers.gradleProperty(DRY_RUN_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
-        this.unsignedCommits = providers.gradleProperty(UNSIGNED_COMMITS_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
+        this.providers = providers;
     }
 
     @TaskAction
     void upgrade() throws IOException {
-        var gitHub = createGitHub(gitHubToken);
+        var gitHub = createGitHub(providers.environmentVariable(GIT_TOKEN_ENV_VAR));
         var latestBuildToolVersion = buildToolStrategy.lookupLatestVersion();
         var params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getProjectDirectory(), layout.getBuildDirectory(), gitHub);
 
@@ -64,6 +60,14 @@ public abstract class UpgradeWrapper extends DefaultTask {
             getLogger().lifecycle(String.format("PR '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         }
+    }
+
+    private boolean dryRun() {
+        return providers.gradleProperty(DRY_RUN_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
+    }
+
+    private boolean unsignedCommits() {
+        return providers.gradleProperty(UNSIGNED_COMMITS_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
     }
 
     private static GitHub createGitHub(Provider<String> gitHubToken) throws IOException {
@@ -88,7 +92,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void cloneGitProject(Params params) {
         var gitUrl = "https://github.com/" + params.repository + ".git";
         execGitCmd(execOperations, params.executionRootDir, "clone", "--quiet", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
-        if (unsignedCommits) {
+        if (unsignedCommits()) {
             execGitCmd(execOperations, params.gitCheckoutDir, "config", "--local", "commit.gpgsign", "false");
         }
     }
@@ -158,13 +162,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
         changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
         execGitCmd(execOperations, params.gitCheckoutDir, "commit", "--quiet", "-s", "-m", commitMessage);
-        if (!dryRun) {
+        if (!dryRun()) {
             execGitCmd(execOperations, params.gitCheckoutDir, "push", "--quiet", "-u", "origin", params.prBranch);
         }
     }
 
     private void gitCreatePr(Params params, String prTitle, String prBody) throws IOException {
-        if (!dryRun) {
+        if (!dryRun()) {
             var pr = params.gitHub.getRepository(params.repository).createPullRequest(prTitle, params.prBranch, params.baseBranch, prBody);
             getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));

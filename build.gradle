@@ -30,8 +30,12 @@ java {
     }
 }
 
-test {
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
+    def testGradleVersion = findProperty('testGradleVersion') ?: GradleVersion.current().version
+
+    systemProperty 'testContext.gradleVersion', testGradleVersion
+    buildScan.value(identityPath.path + "#gradleVersion", testGradleVersion)
 }
 
 gradlePlugin {
