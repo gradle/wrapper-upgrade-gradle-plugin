@@ -36,7 +36,6 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final ProjectLayout layout;
     private final ObjectFactory objects;
     private final ExecOperations execOperations;
-    private final ProviderFactory providers;
 
     @Inject
     public UpgradeWrapper(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
@@ -45,7 +44,6 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.layout = layout;
         this.objects = objects;
         this.execOperations = execOperations;
-        this.providers = providers;
     }
 
     @TaskAction
