@@ -26,10 +26,10 @@ import static org.gradle.wrapperupgrade.ExecUtils.execGitCmd;
 @DisableCachingByDefault(because = "Produces no cacheable output")
 public abstract class UpgradeWrapper extends DefaultTask {
 
-    private static final String DRY_RUN_GRADLE_PROP = "dryRun";
-    private static final String UNSIGNED_COMMITS_GRADLE_PROP = "unsignedCommits";
-
     private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADE_GIT_TOKEN";
+
+    private static final String UNSIGNED_COMMITS_GRADLE_PROP = "unsignedCommits";
+    private static final String DRY_RUN_GRADLE_PROP = "dryRun";
 
     private final WrapperUpgradeDomainObject upgrade;
     private final BuildToolStrategy buildToolStrategy;
@@ -60,14 +60,6 @@ public abstract class UpgradeWrapper extends DefaultTask {
             getLogger().lifecycle(String.format("PR '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         }
-    }
-
-    private boolean dryRun() {
-        return providers.gradleProperty(DRY_RUN_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
-    }
-
-    private boolean unsignedCommits() {
-        return providers.gradleProperty(UNSIGNED_COMMITS_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
     }
 
     private static GitHub createGitHub(Provider<String> gitHubToken) throws IOException {
@@ -176,6 +168,14 @@ public abstract class UpgradeWrapper extends DefaultTask {
             getLogger().lifecycle(String.format("Dry run: Skipping creation of PR '%s' that would upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         }
+    }
+
+    private boolean unsignedCommits() {
+        return providers.gradleProperty(UNSIGNED_COMMITS_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
+    }
+
+    private boolean dryRun() {
+        return providers.gradleProperty(DRY_RUN_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
     }
 
     private static final class Params {
