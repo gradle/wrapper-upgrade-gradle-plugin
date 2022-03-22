@@ -1,6 +1,8 @@
 package org.gradle.wrapperupgrade
 
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.util.GradleVersion
+import spock.lang.Requires
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.TempDir
@@ -50,6 +52,7 @@ wrapperUpgrade {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
+            .withGradleVersion(determineGradleVersion().version)
             .withArguments('clean', 'upgradeGradleWrapperAll', '-PdryRun', '-PunsignedCommits')
             .build()
 
@@ -76,11 +79,13 @@ wrapperUpgrade {
         output2.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
     }
 
+    @Requires({ determineGradleVersion().baseVersion >= GradleVersion.version('7.0') })
     def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run and configuration cache"() {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
+            .withGradleVersion(determineGradleVersion().version)
             .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-PdryRun', '-PunsignedCommits')
             .build()
 
@@ -95,6 +100,7 @@ wrapperUpgrade {
         result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
+            .withGradleVersion(determineGradleVersion().version)
             .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-PdryRun', '-PunsignedCommits')
             .build()
 
@@ -104,6 +110,11 @@ wrapperUpgrade {
         and:
         result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
         result.output.contains('Reusing configuration cache.')
+    }
+
+    private static GradleVersion determineGradleVersion() {
+        def injectedGradleVersionString = System.getProperty('testContext.gradleVersion')
+        injectedGradleVersionString ? GradleVersion.version(injectedGradleVersionString) : GradleVersion.current()
     }
 
 }

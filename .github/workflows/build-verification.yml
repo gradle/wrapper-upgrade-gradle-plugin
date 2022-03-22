@@ -6,6 +6,9 @@ jobs:
   verification:
     name: Verification
     runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            gradle-version: [ '6.2', '6.9.2', '7.0', '7.4.1' ]
     env:
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GE_ACCESS_TOKEN }}
     steps:
@@ -24,4 +27,4 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build -x signArchives -i
+          arguments: build -x signArchives -i -PtestGradleVersion=${{ matrix.gradle-version }}

@@ -2,12 +2,17 @@ package org.gradle.wrapperupgrade;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.util.GradleVersion;
 
 @SuppressWarnings("unused")
 public abstract class WrapperUpgradePlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        if (GradleVersion.current().getBaseVersion().compareTo(GradleVersion.version("6.2")) < 0) {
+            throw new IllegalStateException("This version of the Wrapper Upgrade Gradle plugin is not compatible with Gradle < 6.2");
+        }
+
         WrapperUpgradeExtension wrapperUpgrades = project.getExtensions().create("wrapperUpgrade", WrapperUpgradeExtension.class);
 
         var upgradeGradleWrapperAllTask = project.getTasks().register("upgradeGradleWrapperAll",
