@@ -47,6 +47,19 @@ wrapperUpgrade {
         """
     }
 
+    def "plugin requires at least Gradle 6.2"() {
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withPluginClasspath()
+            .withGradleVersion(GradleVersion.version('6.1').version)
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-PdryRun', '-PunsignedCommits', '-i')
+            .buildAndFail()
+
+        then:
+        result.output.contains('This version of the Wrapper Upgrade Gradle plugin is not compatible with Gradle < 6.2')
+    }
+
     def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run"() {
         when:
         def result = GradleRunner.create()
