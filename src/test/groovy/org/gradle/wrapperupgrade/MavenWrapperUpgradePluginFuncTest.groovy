@@ -50,7 +50,7 @@ wrapperUpgrade {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
-            .withArguments('clean', 'upgradeMavenWrapperAll', '-PdryRun', '-PunsignedCommits')
+            .withArguments('clean', 'upgradeMavenWrapperAll', '-PwrapperUpgrade.dryRun', '-PwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
