@@ -84,7 +84,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void cloneGitProject(Params params) {
         var gitUrl = "https://github.com/" + params.repository + ".git";
         execGitCmd(execOperations, params.executionRootDir, "clone", "--quiet", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
-        if (unsignedCommits()) {
+        if (isUnsignedCommits()) {
             execGitCmd(execOperations, params.gitCheckoutDir, "config", "--local", "commit.gpgsign", "false");
         }
     }
@@ -154,13 +154,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
         changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
         execGitCmd(execOperations, params.gitCheckoutDir, "commit", "--quiet", "-s", "-m", commitMessage);
-        if (!dryRun()) {
+        if (!isDryRun()) {
             execGitCmd(execOperations, params.gitCheckoutDir, "push", "--quiet", "-u", "origin", params.prBranch);
         }
     }
 
     private void gitCreatePr(Params params, String prTitle, String prBody) throws IOException {
-        if (!dryRun()) {
+        if (!isDryRun()) {
             var pr = params.gitHub.getRepository(params.repository).createPullRequest(prTitle, params.prBranch, params.baseBranch, prBody);
             getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
@@ -170,11 +170,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private boolean unsignedCommits() {
+    private boolean isUnsignedCommits() {
         return providers.gradleProperty(UNSIGNED_COMMITS_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
     }
 
-    private boolean dryRun() {
+    private boolean isDryRun() {
         return providers.gradleProperty(DRY_RUN_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
     }
 
