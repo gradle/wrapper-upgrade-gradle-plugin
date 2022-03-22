@@ -17,6 +17,8 @@ import org.kohsuke.github.GitHubBuilder;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -78,7 +80,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void cloneGitProject(Params params) {
-        var gitUrl = "https://github.com/" + params.repository + ".git";
+        var gitUrl = isUrl(params.repository) ? params.repository : "https://github.com/" + params.repository + ".git";
         execGitCmd(execOperations, params.executionRootDir, "clone", "--quiet", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
         if (isUnsignedCommits()) {
             execGitCmd(execOperations, params.gitCheckoutDir, "config", "--local", "commit.gpgsign", "false");
@@ -172,6 +174,15 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private static boolean isDryRun() {
         return Optional.ofNullable(System.getProperty(DRY_RUN_SYS_PROP)).map(p -> "".equals(p) || parseBoolean(p)).orElse(false);
+    }
+
+    private static boolean isUrl(String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
+        }
     }
 
     private static final class Params {
