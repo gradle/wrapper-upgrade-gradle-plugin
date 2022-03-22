@@ -19,6 +19,7 @@ import org.kohsuke.github.GitHubBuilder;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static java.lang.Boolean.parseBoolean;
 import static org.gradle.wrapperupgrade.ExecUtils.execGitCmd;
@@ -28,8 +29,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADE_GIT_TOKEN";
 
-    private static final String UNSIGNED_COMMITS_GRADLE_PROP = "wrapperUpgrade.unsignedCommits";
-    private static final String DRY_RUN_GRADLE_PROP = "wrapperUpgrade.dryRun";
+    private static final String UNSIGNED_COMMITS_SYS_PROP = "wrapperUpgrade.unsignedCommits";
+    private static final String DRY_RUN_SYS_PROP = "wrapperUpgrade.dryRun";
 
     private final WrapperUpgradeDomainObject upgrade;
     private final BuildToolStrategy buildToolStrategy;
@@ -171,11 +172,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private boolean isUnsignedCommits() {
-        return providers.gradleProperty(UNSIGNED_COMMITS_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
+        return Optional.ofNullable(System.getProperty(UNSIGNED_COMMITS_SYS_PROP)).map(p -> "".equals(p) || parseBoolean(p)).orElse(false);
     }
 
     private boolean isDryRun() {
-        return providers.gradleProperty(DRY_RUN_GRADLE_PROP).map(p -> "".equals(p) || parseBoolean(p)).orElse(false).get();
+        return Optional.ofNullable(System.getProperty(DRY_RUN_SYS_PROP)).map(p -> "".equals(p) || parseBoolean(p)).orElse(false);
     }
 
     private static final class Params {

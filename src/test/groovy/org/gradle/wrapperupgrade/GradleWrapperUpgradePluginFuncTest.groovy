@@ -53,7 +53,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(GradleVersion.version('6.1').version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '-PwrapperUpgrade.dryRun', '-PwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .buildAndFail()
 
         then:
@@ -66,7 +66,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '-PwrapperUpgrade.dryRun', '-PwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
@@ -99,7 +99,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-PwrapperUpgrade.dryRun', '-PwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
@@ -114,7 +114,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-PwrapperUpgrade.dryRun', '-PwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
