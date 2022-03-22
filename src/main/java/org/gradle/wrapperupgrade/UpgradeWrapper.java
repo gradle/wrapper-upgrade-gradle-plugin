@@ -5,7 +5,6 @@ import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
@@ -51,7 +50,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     @TaskAction
     void upgrade() throws IOException {
-        var gitHub = createGitHub(providers.environmentVariable(GIT_TOKEN_ENV_VAR));
+        var gitHub = createGitHub();
         var latestBuildToolVersion = buildToolStrategy.lookupLatestVersion();
         var params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getProjectDirectory(), layout.getBuildDirectory(), gitHub);
 
@@ -63,11 +62,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private static GitHub createGitHub(Provider<String> gitHubToken) throws IOException {
+    private static GitHub createGitHub() throws IOException {
         var gitHub = new GitHubBuilder();
-        if (gitHubToken.isPresent()) {
-            gitHub.withOAuthToken(gitHubToken.get());
-        }
+        Optional.ofNullable(System.getenv(GIT_TOKEN_ENV_VAR)).ifPresent(gitHub::withOAuthToken);
         return gitHub.build();
     }
 
@@ -171,11 +168,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
     }
 
-    private boolean isUnsignedCommits() {
+    private static boolean isUnsignedCommits() {
         return Optional.ofNullable(System.getProperty(UNSIGNED_COMMITS_SYS_PROP)).map(p -> "".equals(p) || parseBoolean(p)).orElse(false);
     }
 
-    private boolean isDryRun() {
+    private static boolean isDryRun() {
         return Optional.ofNullable(System.getProperty(DRY_RUN_SYS_PROP)).map(p -> "".equals(p) || parseBoolean(p)).orElse(false);
     }
 
