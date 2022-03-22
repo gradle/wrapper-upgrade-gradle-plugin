@@ -9,8 +9,8 @@ public abstract class WrapperUpgradePlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        if (GradleVersion.current().getBaseVersion().compareTo(GradleVersion.version("6.2")) < 0) {
-            throw new IllegalStateException("This version of the Wrapper Upgrade Gradle plugin is not compatible with Gradle < 6.2");
+        if (GradleVersion.current().getBaseVersion().compareTo(GradleVersion.version("6.0")) < 0) {
+            throw new IllegalStateException("This version of the Wrapper Upgrade Gradle plugin is not compatible with Gradle < 6.0");
         }
 
         WrapperUpgradeExtension wrapperUpgrades = project.getExtensions().create("wrapperUpgrade", WrapperUpgradeExtension.class);

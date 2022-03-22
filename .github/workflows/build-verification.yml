@@ -8,14 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
         matrix:
-            gradle-version: [ '6.2', '6.9.2', '7.0', '7.4.1' ]
+            gradle-version: [ '6.0.1', '6.9.2', '7.0.2', '7.4.1' ]
     env:
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GE_ACCESS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup git user
-      # Needed for functionnal tests executing git commands
+      # Needed for functional tests executing git commands
         run: |
           git config --global user.name "bot-githubaction"
           git config --global user.email "bot-githubaction@gradle.com"
