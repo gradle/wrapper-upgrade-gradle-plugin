@@ -125,6 +125,51 @@ wrapperUpgrade {
         result.output.contains('Reusing configuration cache.')
     }
 
+    def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run and optional Git arguments"() {
+        given:
+        buildFile.text = """
+
+plugins {
+    id 'base'
+    id 'org.gradle.wrapper-upgrade'
+}
+
+wrapperUpgrade {
+    gradle {
+        'wrapper-upgrade-gradle-plugin-for-func-tests' {
+            repo = 'gradle/wrapper-upgrade-gradle-plugin'
+            baseBranch = 'func-test-do-not-delete'
+            dir = 'samples/gradle'
+            options {
+                gitCommitExtraArgs = ['--signoff', '--date="Wed Mar 23 15:00:00 CET 2022"']
+            }
+        }
+    }
+}
+        """
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withPluginClasspath()
+            .withGradleVersion(determineGradleVersion().version)
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .build()
+
+        then:
+        result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
+
+        and:
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
+
+        and:
+        def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/gradle')
+        def proc = 'git show -s HEAD'.execute(null, gitDir)
+        def output = proc.in.text
+        output.contains "Bump Gradle Wrapper from 6.9 to ${latestGradleVersion}"
+        output.contains 'Date:   Wed Mar 23 15:00:00 2022 +0100'
+        output.contains 'Signed-off-by:'
+    }
+
     private static GradleVersion determineGradleVersion() {
         def injectedGradleVersionString = System.getProperty('testContext.gradleVersion')
         injectedGradleVersionString ? GradleVersion.version(injectedGradleVersionString) : GradleVersion.current()

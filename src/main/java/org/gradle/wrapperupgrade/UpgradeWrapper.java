@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static java.lang.Boolean.parseBoolean;
@@ -151,7 +154,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
         buildToolStrategy.includeWrapperFiles(changes);
         changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
-        execGitCmd(execOperations, params.gitCheckoutDir, "commit", "--quiet", "-s", "-m", commitMessage);
+        var argsAndExtra = new ArrayList<>(List.of("commit", "--quiet", "-s", "-m", commitMessage));
+        argsAndExtra.addAll(params.gitExtraArgs);
+        execGitCmd(execOperations, params.gitCheckoutDir, argsAndExtra.toArray());
         if (!isDryRun()) {
             execGitCmd(execOperations, params.gitCheckoutDir, "push", "--quiet", "-u", "origin", params.prBranch);
         }
@@ -197,10 +202,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final Path rootProjectDirRelativePath;
         private final VersionInfo latestBuildToolVersion;
         private final GitHub gitHub;
+        private final List<String> gitExtraArgs;
 
         private Params(String project, String repository, String baseBranch, String prBranch,
                        Path executionRootDir, Path gitCheckoutDir, Path rootProjectDir, Path rootProjectDirRelativePath,
-                       VersionInfo latestBuildToolVersion, GitHub gitHub) {
+                       VersionInfo latestBuildToolVersion, GitHub gitHub, List<String> gitExtraArgs) {
             this.project = project;
             this.repository = repository;
             this.baseBranch = baseBranch;
@@ -211,6 +217,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.rootProjectDirRelativePath = rootProjectDirRelativePath;
             this.latestBuildToolVersion = latestBuildToolVersion;
             this.gitHub = gitHub;
+            this.gitExtraArgs = gitExtraArgs;
         }
 
         private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, VersionInfo latestBuildToolVersion, Directory executionRootDirectory, DirectoryProperty buildDirectory, GitHub gitHub) {
@@ -222,8 +229,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("git-clones", project));
             var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
             var rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
-
-            return new Params(project, repository, baseBranch, prBranch, executionRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, gitHub);
+            var gitExtraArgs = upgrade.getOptions().getGitCommitExtraArgs().orElse(Collections.emptyList()).get();
+            return new Params(project, repository, baseBranch, prBranch, executionRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, gitHub, gitExtraArgs);
         }
 
     }
