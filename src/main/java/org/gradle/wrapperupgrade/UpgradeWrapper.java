@@ -32,6 +32,8 @@ import static org.gradle.wrapperupgrade.ExecUtils.execGitCmd;
 public abstract class UpgradeWrapper extends DefaultTask {
 
     private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADE_GIT_TOKEN";
+
+    private static final String UNSIGNED_COMMITS_SYS_PROP = "wrapperUpgrade.unsignedCommits";
     private static final String DRY_RUN_SYS_PROP = "wrapperUpgrade.dryRun";
 
     private final WrapperUpgradeDomainObject upgrade;
@@ -83,6 +85,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void cloneGitProject(Params params) {
         var gitUrl = isUrl(params.repository) ? params.repository : "https://github.com/" + params.repository + ".git";
         execGitCmd(execOperations, params.executionRootDir, "clone", "--quiet", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
+        if (isUnsignedCommits()) {
+            execGitCmd(execOperations, params.gitCheckoutDir, "config", "--local", "commit.gpgsign", "false");
+        }
     }
 
     private void runWrapperWithLatestBuildToolVersion(Params params) {
@@ -173,6 +178,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
             getLogger().lifecycle(String.format("Dry run: Skipping creation of PR '%s' that would upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         }
+    }
+
+    private static boolean isUnsignedCommits() {
+        return Optional.ofNullable(System.getProperty(UNSIGNED_COMMITS_SYS_PROP)).map(p -> "".equals(p) || parseBoolean(p)).orElse(false);
     }
 
     private static boolean isDryRun() {

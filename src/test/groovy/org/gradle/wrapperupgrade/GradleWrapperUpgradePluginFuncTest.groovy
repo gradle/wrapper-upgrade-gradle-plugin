@@ -53,7 +53,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(GradleVersion.version('5.6.4').version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .buildAndFail()
 
         then:
@@ -66,7 +66,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
@@ -99,7 +99,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
@@ -114,7 +114,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
@@ -152,7 +152,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
