@@ -53,7 +53,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(GradleVersion.version('5.6.4').version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun')
             .buildAndFail()
 
         then:
@@ -66,7 +66,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun')
             .build()
 
         then:
@@ -99,7 +99,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun')
             .build()
 
         then:
@@ -114,7 +114,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun')
             .build()
 
         then:
@@ -141,7 +141,7 @@ wrapperUpgrade {
             baseBranch = 'func-test-do-not-delete'
             dir = 'samples/gradle'
             options {
-                gitCommitExtraArgs = ['--signoff', '--date="Wed Mar 23 15:00:00 CET 2022"']
+                gitCommitExtraArgs = ['--date="Wed Mar 23 15:00:00 CET 2022"']
             }
         }
     }
@@ -152,7 +152,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun')
             .build()
 
         then:
@@ -167,7 +167,6 @@ wrapperUpgrade {
         def output = proc.in.text
         output.contains "Bump Gradle Wrapper from 6.9 to ${latestGradleVersion}"
         output.contains 'Date:   Wed Mar 23 15:00:00 2022 +0100'
-        output.contains 'Signed-off-by:'
     }
 
     private static GradleVersion determineGradleVersion() {
