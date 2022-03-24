@@ -1,6 +1,8 @@
 package org.gradle.wrapperupgrade;
 
+import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 
 import javax.inject.Inject;
@@ -11,6 +13,7 @@ public abstract class WrapperUpgradeDomainObject {
     private final Property<String> repo;
     private final Property<String> dir;
     private final Property<String> baseBranch;
+    private final Options options;
 
     @Inject
     public WrapperUpgradeDomainObject(String name, ObjectFactory objects) {
@@ -18,6 +21,7 @@ public abstract class WrapperUpgradeDomainObject {
         this.repo = objects.property(String.class);
         this.dir = objects.property(String.class).convention(".");
         this.baseBranch = objects.property(String.class).convention("main");
+        this.options = objects.newInstance(Options.class);
     }
 
     public Property<String> getRepo() {
@@ -32,4 +36,27 @@ public abstract class WrapperUpgradeDomainObject {
         return baseBranch;
     }
 
+    public Options getOptions() {
+        return options;
+    }
+
+    /**
+     * Called by Gradle at runtime when configuring this object with the `options { }` closure
+     */
+    public void options(Action<Options> action) {
+        action.execute(options);
+    }
+
+    public static class Options {
+        private final ListProperty<String> gitCommitExtraArgs;
+
+        @Inject
+        public Options(ObjectFactory objects) {
+            this.gitCommitExtraArgs = objects.listProperty(String.class);
+        }
+
+        public ListProperty<String> getGitCommitExtraArgs() {
+            return gitCommitExtraArgs;
+        }
+    }
 }
