@@ -32,7 +32,6 @@ import static org.gradle.wrapperupgrade.ExecUtils.execGitCmd;
 public abstract class UpgradeWrapper extends DefaultTask {
 
     private static final String GIT_TOKEN_ENV_VAR = "WRAPPER_UPGRADE_GIT_TOKEN";
-
     private static final String DRY_RUN_SYS_PROP = "wrapperUpgrade.dryRun";
 
     private final WrapperUpgradeDomainObject upgrade;
@@ -146,13 +145,20 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void gitCommitAndPush(Params params, String commitMessage) {
+        // Git add
         var changes = objects.fileTree().from(params.gitCheckoutDir);
         buildToolStrategy.includeWrapperFiles(changes);
         changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
+
+        // Git checkout
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
-        var argsAndExtra = new ArrayList<>(List.of("commit", "--quiet", "-m", commitMessage));
-        argsAndExtra.addAll(params.gitCommitExtraArgs);
-        execGitCmd(execOperations, params.gitCheckoutDir, argsAndExtra.toArray());
+
+        // Git commit
+        var argsAndExtraArgs = new ArrayList<>(List.of("commit", "--quiet", "-m", commitMessage));
+        argsAndExtraArgs.addAll(params.gitCommitExtraArgs);
+        execGitCmd(execOperations, params.gitCheckoutDir, argsAndExtraArgs.toArray());
+
+        // Git push
         if (!isDryRun()) {
             execGitCmd(execOperations, params.gitCheckoutDir, "push", "--quiet", "-u", "origin", params.prBranch);
         }
@@ -193,12 +199,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final Path rootProjectDir;
         private final Path rootProjectDirRelativePath;
         private final VersionInfo latestBuildToolVersion;
-        private final GitHub gitHub;
         private final List<String> gitCommitExtraArgs;
+        private final GitHub gitHub;
 
         private Params(String project, String repository, String baseBranch, String prBranch,
                        Path executionRootDir, Path gitCheckoutDir, Path rootProjectDir, Path rootProjectDirRelativePath,
-                       VersionInfo latestBuildToolVersion, GitHub gitHub, List<String> gitExtraArgs) {
+                       VersionInfo latestBuildToolVersion, List<String> gitCommitExtraArgs, GitHub gitHub) {
             this.project = project;
             this.repository = repository;
             this.baseBranch = baseBranch;
@@ -208,8 +214,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.rootProjectDir = rootProjectDir;
             this.rootProjectDirRelativePath = rootProjectDirRelativePath;
             this.latestBuildToolVersion = latestBuildToolVersion;
+            this.gitCommitExtraArgs = gitCommitExtraArgs;
             this.gitHub = gitHub;
-            this.gitCommitExtraArgs = gitExtraArgs;
         }
 
         private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, VersionInfo latestBuildToolVersion, Directory executionRootDirectory, DirectoryProperty buildDirectory, GitHub gitHub) {
@@ -222,7 +228,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
             var rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
             var gitCommitExtraArgs = upgrade.getOptions().getGitCommitExtraArgs().orElse(Collections.emptyList()).get();
-            return new Params(project, repository, baseBranch, prBranch, executionRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, gitHub, gitCommitExtraArgs);
+            return new Params(project, repository, baseBranch, prBranch, executionRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, gitCommitExtraArgs, gitHub);
         }
 
     }

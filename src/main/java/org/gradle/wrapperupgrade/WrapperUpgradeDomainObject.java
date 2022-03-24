@@ -41,13 +41,14 @@ public abstract class WrapperUpgradeDomainObject {
     }
 
     /**
-     * Called by Gradle at runtime when configuring this object with the `options { }` closure
+     * Called by Gradle at runtime when configuring this object with the `options { }` closure.
      */
     public void options(Action<Options> action) {
         action.execute(options);
     }
 
     public static class Options {
+
         private final ListProperty<String> gitCommitExtraArgs;
 
         @Inject
@@ -58,5 +59,7 @@ public abstract class WrapperUpgradeDomainObject {
         public ListProperty<String> getGitCommitExtraArgs() {
             return gitCommitExtraArgs;
         }
+
     }
+
 }
