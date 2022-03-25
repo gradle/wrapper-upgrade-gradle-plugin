@@ -75,17 +75,21 @@ wrapperUpgrade {
             repo = ...
             baseBranch = ...
             dir = ...
+            options {
+                gitCommitExtraArgs = [...]
+            }
         }
     }
 }
 ```
 
-| Field        | description                                                                                                                                                      |
-| :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`       | A name identifying the upgrade, it can be different from the project name, for example when you need to upgrade multiple gradle projects in the same git project |
-| `repo`       | The Github repository to clone, format 'organization/project`                                                                                                    |
-| `dir`        | The directory inside the project base directory to run the gradle or maven upgrade in                                                                            |
-| `baseBranch` | The git branch to checkout and that the pull request will target                                                                                                 |
+| Field                           | description                                                                                                                                                      |
+| :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`                          | A name identifying the upgrade, it can be different from the project name, for example when you need to upgrade multiple gradle projects in the same git project |
+| `repo`                          | The Github repository to clone, format 'organization/project`                                                                                                    |
+| `dir`                           | The directory inside the project base directory to run the gradle or maven upgrade in                                                                            |
+| `baseBranch`                    | The git branch to checkout and that the pull request will target                                                                                                 |
+| `options.gitCommitExtraArgs`    | List of additional git commit arguments
 
 ## License
 
