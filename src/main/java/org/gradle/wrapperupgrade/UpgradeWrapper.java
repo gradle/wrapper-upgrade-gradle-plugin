@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -161,11 +162,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
 
         // Git commit
-        List<String> argsAndExtraArgs = new ArrayList<>();
-        argsAndExtraArgs.add("commit");
-        argsAndExtraArgs.add("--quiet");
-        argsAndExtraArgs.add("-m");
-        argsAndExtraArgs.add(commitMessage);
+        List<String> argsAndExtraArgs = new ArrayList<>(Arrays.asList("commit", "--quiet", "-m", commitMessage));
         argsAndExtraArgs.addAll(params.gitCommitExtraArgs);
         execGitCmd(execOperations, params.gitCheckoutDir, argsAndExtraArgs.toArray());
 
