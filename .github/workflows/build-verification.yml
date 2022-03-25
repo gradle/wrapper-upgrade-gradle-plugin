@@ -10,7 +10,7 @@ jobs:
         matrix:
             gradle-version: [ '6.0.1', '6.9.2', '7.0.2', '7.4.1' ]
     env:
-      GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GE_ACCESS_TOKEN }}
+      GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GE_SOLUTIONS_ACCESS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
