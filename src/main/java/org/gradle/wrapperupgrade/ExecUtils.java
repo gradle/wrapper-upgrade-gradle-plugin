@@ -21,7 +21,7 @@ final class ExecUtils {
     }
 
     private static void execCmd(ExecOperations execOperations, Path workingDir, String cmd, Object... args) {
-        var cmdLine = new LinkedList<>();
+        LinkedList<Object> cmdLine = new LinkedList<>();
         cmdLine.add(cmd);
         cmdLine.addAll(Arrays.asList(args));
         execOperations.exec(

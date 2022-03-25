@@ -1,6 +1,7 @@
 package org.gradle.wrapperupgrade;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
@@ -12,6 +13,7 @@ import org.gradle.process.internal.ExecException;
 import org.gradle.work.DisableCachingByDefault;
 import org.gradle.wrapperupgrade.BuildToolStrategy.VersionInfo;
 import org.kohsuke.github.GHIssueState;
+import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 
@@ -53,9 +55,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     @TaskAction
     void upgrade() throws IOException {
-        var gitHub = createGitHub();
-        var latestBuildToolVersion = buildToolStrategy.lookupLatestVersion();
-        var params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getProjectDirectory(), layout.getBuildDirectory(), gitHub);
+        GitHub gitHub = createGitHub();
+        VersionInfo latestBuildToolVersion = buildToolStrategy.lookupLatestVersion();
+        Params params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getProjectDirectory(), layout.getBuildDirectory(), gitHub);
 
         if (!prExists(params)) {
             createPrIfWrapperUpgradeAvailable(params);
@@ -66,7 +68,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private static GitHub createGitHub() throws IOException {
-        var gitHub = new GitHubBuilder();
+        GitHubBuilder gitHub = new GitHubBuilder();
         Optional.ofNullable(System.getenv(GIT_TOKEN_ENV_VAR)).ifPresent(gitHub::withOAuthToken);
         return gitHub.build();
     }
@@ -77,13 +79,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void createPrIfWrapperUpgradeAvailable(Params params) throws IOException {
         cloneGitProject(params);
-        var usedBuildToolVersion = buildToolStrategy.extractCurrentVersion(params.rootProjectDir);
+        VersionInfo usedBuildToolVersion = buildToolStrategy.extractCurrentVersion(params.rootProjectDir);
         runWrapperWithLatestBuildToolVersion(params);
         createPrIfWrapperChanged(params, usedBuildToolVersion.version);
     }
 
     private void cloneGitProject(Params params) {
-        var gitUrl = isUrl(params.repository) ? params.repository : "https://github.com/" + params.repository + ".git";
+        String gitUrl = isUrl(params.repository) ? params.repository : "https://github.com/" + params.repository + ".git";
         execGitCmd(execOperations, params.executionRootDir, "clone", "--quiet", "--depth", "1", "-b", params.baseBranch, gitUrl, params.gitCheckoutDir);
         if (isUnsignedCommits()) {
             execGitCmd(execOperations, params.gitCheckoutDir, "config", "--local", "commit.gpgsign", "false");
@@ -115,18 +117,18 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private void createPr(Params params, String usedBuildToolVersion) throws IOException {
-        var shortDesc = createShortDescription(params, usedBuildToolVersion);
-        var longDesc = createLongDescription(params, usedBuildToolVersion);
+        String shortDesc = createShortDescription(params, usedBuildToolVersion);
+        String longDesc = createLongDescription(params, usedBuildToolVersion);
         gitCommitAndPush(params, shortDesc);
         gitCreatePr(params, shortDesc, longDesc);
     }
 
     private String createShortDescription(Params params, String usedBuildToolVersion) {
-        var buildToolName = buildToolStrategy.buildToolName();
-        var latestBuildToolVersion = params.latestBuildToolVersion.version;
-        var relativePath = params.rootProjectDirRelativePath.normalize().toString();
+        String buildToolName = buildToolStrategy.buildToolName();
+        String latestBuildToolVersion = params.latestBuildToolVersion.version;
+        String relativePath = params.rootProjectDirRelativePath.normalize().toString();
 
-        var description = new StringBuilder();
+        StringBuilder description = new StringBuilder();
         description.append(String.format("Bump %s Wrapper from %s to %s", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
         if (!relativePath.isEmpty()) {
             String path = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
@@ -136,11 +138,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
     }
 
     private String createLongDescription(Params params, String usedBuildToolVersion) {
-        var buildToolName = buildToolStrategy.buildToolName();
-        var latestBuildToolVersion = params.latestBuildToolVersion.version;
-        var releaseNotesLink = buildToolStrategy.releaseNotesLink(latestBuildToolVersion);
+        String buildToolName = buildToolStrategy.buildToolName();
+        String latestBuildToolVersion = params.latestBuildToolVersion.version;
+        String releaseNotesLink = buildToolStrategy.releaseNotesLink(latestBuildToolVersion);
 
-        var description = new StringBuilder();
+        StringBuilder description = new StringBuilder();
         description.append(String.format("Bumps %s Wrapper from %s to %s.", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
         description.append("\n\n");
         description.append(String.format("Release notes of %s %s can be found here:", buildToolName, latestBuildToolVersion));
@@ -151,7 +153,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void gitCommitAndPush(Params params, String commitMessage) {
         // Git add
-        var changes = objects.fileTree().from(params.gitCheckoutDir);
+        ConfigurableFileTree changes = objects.fileTree().from(params.gitCheckoutDir);
         buildToolStrategy.includeWrapperFiles(changes);
         changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
 
@@ -159,7 +161,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
 
         // Git commit
-        var argsAndExtraArgs = new ArrayList<>(List.of("commit", "--quiet", "-m", commitMessage));
+        List<String> argsAndExtraArgs = new ArrayList<>();
+        argsAndExtraArgs.add("commit");
+        argsAndExtraArgs.add("--quiet");
+        argsAndExtraArgs.add("-m");
+        argsAndExtraArgs.add(commitMessage);
         argsAndExtraArgs.addAll(params.gitCommitExtraArgs);
         execGitCmd(execOperations, params.gitCheckoutDir, argsAndExtraArgs.toArray());
 
@@ -171,7 +177,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void gitCreatePr(Params params, String prTitle, String prBody) throws IOException {
         if (!isDryRun()) {
-            var pr = params.gitHub.getRepository(params.repository).createPullRequest(prTitle, params.prBranch, params.baseBranch, prBody);
+            GHPullRequest pr = params.gitHub.getRepository(params.repository).createPullRequest(prTitle, params.prBranch, params.baseBranch, prBody);
             getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         } else {
@@ -228,15 +234,15 @@ public abstract class UpgradeWrapper extends DefaultTask {
         }
 
         private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, VersionInfo latestBuildToolVersion, Directory executionRootDirectory, DirectoryProperty buildDirectory, GitHub gitHub) {
-            var project = upgrade.name;
-            var repository = upgrade.getRepo().get();
-            var baseBranch = upgrade.getBaseBranch().get();
-            var prBranch = String.format("wrapperbot/%s/%s-wrapper-%s", project, buildToolStrategy.buildToolName().toLowerCase(), latestBuildToolVersion.version);
-            var executionRootDir = executionRootDirectory.getAsFile().toPath();
-            var gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve(Path.of("git-clones", project));
-            var rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
-            var rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
-            var gitCommitExtraArgs = upgrade.getOptions().getGitCommitExtraArgs().orElse(Collections.emptyList()).get();
+            String project = upgrade.name;
+            String repository = upgrade.getRepo().get();
+            String baseBranch = upgrade.getBaseBranch().get();
+            String prBranch = String.format("wrapperbot/%s/%s-wrapper-%s", project, buildToolStrategy.buildToolName().toLowerCase(), latestBuildToolVersion.version);
+            Path executionRootDir = executionRootDirectory.getAsFile().toPath();
+            Path gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve("git-clones").resolve(project);
+            Path rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
+            Path rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
+            List<String> gitCommitExtraArgs = upgrade.getOptions().getGitCommitExtraArgs().orElse(Collections.emptyList()).get();
             return new Params(project, repository, baseBranch, prBranch, executionRootDir, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, gitCommitExtraArgs, gitHub);
         }
 
