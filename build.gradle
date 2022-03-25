@@ -7,6 +7,7 @@ plugins {
     id 'signing'
     id 'com.gradle.plugin-publish' version '0.20.0'
     id 'com.github.breadmoirai.github-release' version '2.2.12'
+    id 'org.gradle.wrapper-upgrade' version '0.10.1'
 }
 
 group = 'org.gradle'
@@ -24,6 +25,14 @@ dependencies {
 
     testImplementation gradleTestKit()
     testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+}
+
+wrapperUpgrade {
+    gradle {
+        'wrapper-upgrade-gradle-plugin' {
+            repo = 'gradle/wrapper-upgrade-gradle-plugin'
+        }
+    }
 }
 
 java {
