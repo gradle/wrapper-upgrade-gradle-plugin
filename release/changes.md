@@ -1,4 +1,0 @@
-- [NEW] - Support for Gradle 6.x and above
-- [NEW] - Support for passing additional arguments to git commit
-- [NEW] - Add Gradle/Maven release notes link to the PR description
-- [FIX] - Publish signature file
