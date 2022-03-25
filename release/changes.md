@@ -1,1 +1,0 @@
-- [NEW] - Add JDK 8 compatibility
