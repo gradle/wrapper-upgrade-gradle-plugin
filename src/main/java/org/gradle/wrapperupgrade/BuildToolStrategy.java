@@ -5,10 +5,12 @@ import org.gradle.process.ExecOperations;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface BuildToolStrategy {
@@ -31,19 +33,19 @@ public interface BuildToolStrategy {
     static VersionInfo extractBuildToolVersion(Path rootProjectDir, String wrapperPropertiesFile,
                                                String distributionUrlProperty, String distributionChecksumProperty,
                                                String versionRegExp) throws IOException {
-        try (var is = Files.newInputStream(rootProjectDir.resolve(wrapperPropertiesFile))) {
-            var wrapperProperties = new Properties();
+        try (InputStream is = Files.newInputStream(rootProjectDir.resolve(wrapperPropertiesFile))) {
+            Properties wrapperProperties = new Properties();
             wrapperProperties.load(is);
             return extractBuildToolVersion(wrapperProperties, wrapperPropertiesFile, distributionUrlProperty, distributionChecksumProperty, versionRegExp);
         }
     }
 
-    private static VersionInfo extractBuildToolVersion(Properties props, String wrapperPropertiesFile,
+    static VersionInfo extractBuildToolVersion(Properties props, String wrapperPropertiesFile,
                                                        String distributionUrlProperty, String distributionChecksumProperty,
                                                        String versionRegExp) {
-        var distributionUrl = props.getProperty(distributionUrlProperty);
+        String distributionUrl = props.getProperty(distributionUrlProperty);
         if (distributionUrl != null) {
-            var matcher = Pattern.compile(versionRegExp).matcher(distributionUrl);
+            Matcher matcher = Pattern.compile(versionRegExp).matcher(distributionUrl);
             if (matcher.find()) {
                 return new VersionInfo(matcher.group(1), distributionChecksumProperty != null ? props.getProperty(distributionChecksumProperty) : null);
             } else {

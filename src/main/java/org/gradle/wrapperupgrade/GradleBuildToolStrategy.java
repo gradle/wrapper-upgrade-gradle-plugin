@@ -1,5 +1,6 @@
 package org.gradle.wrapperupgrade;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.process.ExecOperations;
@@ -20,11 +21,11 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public VersionInfo lookupLatestVersion() throws IOException {
-        var mapper = new ObjectMapper();
-        var gradleMetadata = mapper.readTree(new URL("https://services.gradle.org/versions/current"));
-        var version = gradleMetadata.get("version");
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode gradleMetadata = mapper.readTree(new URL("https://services.gradle.org/versions/current"));
+        JsonNode version = gradleMetadata.get("version");
         if (version != null) {
-            var checksumUrl = gradleMetadata.get("checksumUrl");
+            JsonNode checksumUrl = gradleMetadata.get("checksumUrl");
             if (checksumUrl != null) {
                 URL url = new URL(checksumUrl.asText());
                 String checksum = new Scanner(url.openStream()).useDelimiter("\\A").next();

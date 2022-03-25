@@ -5,6 +5,7 @@ import org.gradle.process.ExecOperations;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 final class ExecUtils {
 
@@ -21,7 +22,7 @@ final class ExecUtils {
     }
 
     private static void execCmd(ExecOperations execOperations, Path workingDir, String cmd, Object... args) {
-        var cmdLine = new LinkedList<>();
+        List<Object> cmdLine = new LinkedList<>();
         cmdLine.add(cmd);
         cmdLine.addAll(Arrays.asList(args));
         execOperations.exec(
