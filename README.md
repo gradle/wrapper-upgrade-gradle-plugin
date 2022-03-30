@@ -16,7 +16,7 @@
 The Wrapper Upgrade Gradle Plugin create tasks to upgrade Gradle wrappers for target projects hosted on Github.
 
 ## Usage
-You would apply the plugin to a dedicated project and configure which project needs to be upgraded.
+Apply the plugin to a dedicated project and configure which project needs to be upgraded.
 Example:
 
 ```build.gradle
