@@ -63,7 +63,6 @@ wrapperUpgrade {
         def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/maven')
         def proc = 'git show --oneline --name-only HEAD'.execute(null, gitDir)
         def output = proc.in.text
-
         output.contains ".mvn/wrapper/maven-wrapper.jar"
         output.contains ".mvn/wrapper/maven-wrapper.properties"
 
