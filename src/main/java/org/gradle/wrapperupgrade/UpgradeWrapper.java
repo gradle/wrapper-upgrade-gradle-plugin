@@ -149,7 +149,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void gitCommitAndPush(Params params, String commitMessage) {
         // Git add
-        buildToolStrategy.wrapperFiles(params.rootProjectDir).forEach(p -> execGitCmd(execOperations, params.gitCheckoutDir, "add", p));
+        List<Path> wrapperFiles = buildToolStrategy.wrapperFiles(params.rootProjectDir);
+        wrapperFiles.forEach(p -> execGitCmd(execOperations, params.gitCheckoutDir, "add", p));
 
         // Git checkout
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);

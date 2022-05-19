@@ -47,10 +47,10 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public List<Path> wrapperFiles(Path rootProjectDir) {
-        LinkedList<Path> paths = new LinkedList<>();
-        paths.add(rootProjectDir.resolve(".mvn").resolve("wrapper"));
+        List<Path> paths = new LinkedList<>();
         paths.add(rootProjectDir.resolve("mvnw"));
         paths.add(rootProjectDir.resolve("mvnw.cmd"));
+        paths.add(rootProjectDir.resolve(".mvn").resolve("wrapper"));
         return paths;
     }
 

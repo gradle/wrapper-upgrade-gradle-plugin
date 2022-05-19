@@ -60,10 +60,10 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public List<Path> wrapperFiles(Path rootProjectDir) {
-        LinkedList<Path> paths = new LinkedList<>();
-        paths.add(rootProjectDir.resolve("gradle").resolve("wrapper"));
+        List<Path> paths = new LinkedList<>();
         paths.add(rootProjectDir.resolve("gradlew"));
         paths.add(rootProjectDir.resolve("gradlew.bat"));
+        paths.add(rootProjectDir.resolve("gradle").resolve("wrapper"));
         return paths;
     }
 
