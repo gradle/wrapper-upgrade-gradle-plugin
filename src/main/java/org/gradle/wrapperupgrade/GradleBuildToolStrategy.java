@@ -2,12 +2,13 @@ package org.gradle.wrapperupgrade;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.process.ExecOperations;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 import static org.gradle.wrapperupgrade.BuildToolStrategy.extractBuildToolVersion;
@@ -58,8 +59,12 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
     }
 
     @Override
-    public void includeWrapperFiles(ConfigurableFileTree tree) {
-        tree.include("**/gradle/wrapper/**", "**/gradlew", "**/gradlew.bat");
+    public List<Path> wrapperFiles(Path rootProjectDir) {
+        LinkedList<Path> paths = new LinkedList<>();
+        paths.add(rootProjectDir.resolve("gradle").resolve("wrapper"));
+        paths.add(rootProjectDir.resolve("gradlew"));
+        paths.add(rootProjectDir.resolve("gradlew.bat"));
+        return paths;
     }
 
     @Override

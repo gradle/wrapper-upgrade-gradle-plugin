@@ -1,6 +1,5 @@
 package org.gradle.wrapperupgrade;
 
-import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.process.ExecOperations;
 
 import javax.annotation.Nullable;
@@ -8,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -26,7 +26,7 @@ public interface BuildToolStrategy {
 
     void runWrapper(ExecOperations execOperations, Path rootProjectDir, VersionInfo version);
 
-    void includeWrapperFiles(ConfigurableFileTree tree);
+    List<Path> wrapperFiles(Path rootProjectDir);
 
     String releaseNotesLink(String buildToolVersion);
 

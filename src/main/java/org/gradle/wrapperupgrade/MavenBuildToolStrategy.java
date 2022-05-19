@@ -2,12 +2,13 @@ package org.gradle.wrapperupgrade;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.process.ExecOperations;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.gradle.wrapperupgrade.BuildToolStrategy.extractBuildToolVersion;
 
@@ -41,12 +42,16 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public void runWrapper(ExecOperations execOperations, Path rootProjectDir, VersionInfo version) {
-        ExecUtils.execMavenCmd(execOperations, rootProjectDir, "-B", "-N", "wrapper:wrapper", "-Dmaven=" + version.version);
+        ExecUtils.execMavenCmd(execOperations, rootProjectDir, "-B", "-N", "-U", "wrapper:wrapper", "-Dmaven=" + version.version);
     }
 
     @Override
-    public void includeWrapperFiles(ConfigurableFileTree tree) {
-        tree.include("**/.mvn/wrapper/**", "**/mvnw", "**/mvnw.cmd");
+    public List<Path> wrapperFiles(Path rootProjectDir) {
+        LinkedList<Path> paths = new LinkedList<>();
+        paths.add(rootProjectDir.resolve(".mvn").resolve("wrapper"));
+        paths.add(rootProjectDir.resolve("mvnw"));
+        paths.add(rootProjectDir.resolve("mvnw.cmd"));
+        return paths;
     }
 
     @Override

@@ -1,12 +1,9 @@
 package org.gradle.wrapperupgrade;
 
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.ConfigurableFileTree;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.process.internal.ExecException;
@@ -42,15 +39,13 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final WrapperUpgradeDomainObject upgrade;
     private final BuildToolStrategy buildToolStrategy;
     private final ProjectLayout layout;
-    private final ObjectFactory objects;
     private final ExecOperations execOperations;
 
     @Inject
-    public UpgradeWrapper(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, ProjectLayout layout, ObjectFactory objects, ExecOperations execOperations, ProviderFactory providers) {
+    public UpgradeWrapper(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, ProjectLayout layout, ExecOperations execOperations) {
         this.upgrade = upgrade;
         this.buildToolStrategy = buildToolStrategy;
         this.layout = layout;
-        this.objects = objects;
         this.execOperations = execOperations;
     }
 
@@ -154,9 +149,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
 
     private void gitCommitAndPush(Params params, String commitMessage) {
         // Git add
-        ConfigurableFileTree changes = objects.fileTree().from(params.gitCheckoutDir);
-        buildToolStrategy.includeWrapperFiles(changes);
-        changes.forEach(c -> execGitCmd(execOperations, params.gitCheckoutDir, "add", c.toPath().toString()));
+        buildToolStrategy.wrapperFiles(params.rootProjectDir).forEach(p -> execGitCmd(execOperations, params.gitCheckoutDir, "add", p));
 
         // Git checkout
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
