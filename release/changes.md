@@ -1,0 +1,1 @@
+- [FIX] - Failures when a wrapper upgrade has some wrapper files deleted
