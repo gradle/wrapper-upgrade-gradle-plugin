@@ -5,7 +5,7 @@ plugins {
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'signing'
-    id 'com.gradle.plugin-publish' version '0.21.0'
+    id 'com.gradle.plugin-publish' version '1.0.0'
     id 'com.github.breadmoirai.github-release' version '2.4.1'
     id 'org.gradle.wrapper-upgrade' version '0.10.2'
 }
@@ -50,7 +50,7 @@ tasks.withType(Test).configureEach {
 }
 
 gradlePlugin {
-    automatedPublishing = false
+    automatedPublishing = true
 
     plugins {
         wrapperUpgrade {
@@ -71,11 +71,6 @@ pluginBundle {
     website = "https://github.com/gradle/wrapper-upgrade-gradle-plugin/"
     vcsUrl = "https://github.com/gradle/wrapper-upgrade-gradle-plugin.git"
     tags = ["gradle", "maven", "wrapper"]
-
-    mavenCoordinates {
-        groupId = 'org.gradle'
-        artifactId = 'wrapper-upgrade-gradle-plugin'
-    }
 }
 
 signing {
@@ -86,8 +81,6 @@ signing {
         providers.environmentVariable('PGP_SIGNING_KEY').orNull,
         providers.environmentVariable('PGP_SIGNING_KEY_PASSPHRASE').orNull
     )
-
-    sign(configurations.archives)
 }
 
 githubRelease {
@@ -109,10 +102,6 @@ tasks.register('createReleaseTag', CreateGitTag) {
 
 tasks.named('githubRelease').configure {
     dependsOn('createReleaseTag')
-}
-
-tasks.named('publishPlugins').configure {
-    notCompatibleWithConfigurationCache("$name task does not support configuration caching")
 }
 
 tasks.withType(Sign).configureEach {
