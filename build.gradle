@@ -24,7 +24,15 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.3'
 
     testImplementation gradleTestKit()
-    testImplementation 'org.spockframework:spock-core:2.2-groovy-4.0'
+
+    testImplementation(platform('org.apache.groovy:groovy-bom:4.0.4'))
+    testImplementation('org.spockframework:spock-core:2.2-groovy-4.0') {
+        exclude(group: 'org.codehaus.groovy')
+    }
+}
+
+tasks.named('compileTestGroovy').configure {
+    options.forkOptions.jvmArgs << '-Dspock.iKnowWhatImDoing.disableGroovyVersionCheck=true'
 }
 
 wrapperUpgrade {
