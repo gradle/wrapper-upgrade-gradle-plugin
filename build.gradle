@@ -24,7 +24,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.3'
 
     testImplementation gradleTestKit()
-    testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+    testImplementation 'org.spockframework:spock-core:2.2-groovy-3.0'
 }
 
 wrapperUpgrade {
