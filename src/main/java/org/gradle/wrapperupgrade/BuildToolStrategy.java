@@ -20,7 +20,7 @@ public interface BuildToolStrategy {
 
     String buildToolName();
 
-    VersionInfo lookupLatestVersion() throws IOException;
+    VersionInfo lookupLatestVersion(boolean allowPreRelease) throws IOException;
 
     VersionInfo extractCurrentVersion(Path rootProjectDir) throws IOException;
 

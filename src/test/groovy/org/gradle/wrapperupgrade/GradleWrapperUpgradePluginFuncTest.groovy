@@ -19,8 +19,10 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
     File settingsFile
     File buildFile
 
+    static boolean allowPreRelease = false
+
     def setupSpec() {
-        latestGradleVersion = BuildToolStrategy.GRADLE.lookupLatestVersion().version
+        latestGradleVersion = BuildToolStrategy.GRADLE.lookupLatestVersion(allowPreRelease).version
     }
 
     def setup() {
@@ -41,6 +43,9 @@ wrapperUpgrade {
             repo = 'gradle/wrapper-upgrade-gradle-plugin'
             baseBranch = 'func-test-do-not-delete'
             dir = 'samples/gradle'
+            options {
+                allowPreRelease = ${allowPreRelease}
+            }
         }
     }
 }
@@ -92,7 +97,7 @@ wrapperUpgrade {
         output2.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
     }
 
-    @Requires({ determineGradleVersion().baseVersion >= GradleVersion.version('7.0') })
+    @Requires({ determineGradleVersion().baseVersion >= GradleVersion.version('7.1') })
     def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run and configuration cache"() {
         when:
         def result = GradleRunner.create()
@@ -114,7 +119,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits', '--stacktrace')
             .build()
 
         then:

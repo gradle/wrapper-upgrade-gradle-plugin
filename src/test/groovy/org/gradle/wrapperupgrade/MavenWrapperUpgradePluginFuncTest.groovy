@@ -17,8 +17,10 @@ class MavenWrapperUpgradePluginFuncTest extends Specification {
     File settingsFile
     File buildFile
 
+    static boolean allowPreRelease = false
+
     def setupSpec() {
-        latestMavenVersion = BuildToolStrategy.MAVEN.lookupLatestVersion().version
+        latestMavenVersion = BuildToolStrategy.MAVEN.lookupLatestVersion(allowPreRelease).version
     }
 
     def setup() {
@@ -39,6 +41,9 @@ wrapperUpgrade {
             repo = 'gradle/wrapper-upgrade-gradle-plugin'
             baseBranch = 'func-test-do-not-delete'
             dir = 'samples/maven'
+            options {
+                allowPreRelease = ${allowPreRelease}
+            }
         }
     }
 }

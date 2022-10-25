@@ -1,31 +1,29 @@
 package org.gradle.wrapperupgrade;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.gradle.process.ExecOperations;
+import org.gradle.util.internal.VersionNumber;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.gradle.wrapperupgrade.BuildToolStrategy.extractBuildToolVersion;
 
 public final class MavenBuildToolStrategy implements BuildToolStrategy {
 
+    private final MavenMetadataFetcher mavenMetadataFetcher = new MavenMetadataFetcher();
     @Override
     public String buildToolName() {
         return "Maven";
     }
 
     @Override
-    public VersionInfo lookupLatestVersion() throws IOException {
-        XmlMapper mapper = new XmlMapper();
-        JsonNode mavenMetadata = mapper.readTree(new URL("https://repo.maven.apache.org/maven2/org/apache/maven/maven-core/maven-metadata.xml"));
-        JsonNode version = mavenMetadata.get("versioning").get("release");
-        if (version != null) {
-            return new VersionInfo(version.asText(), null);
+    public VersionInfo lookupLatestVersion(boolean allowPreRelease) throws IOException {
+        Optional<VersionNumber> latestVersion = mavenMetadataFetcher.fetchLatestVersion(allowPreRelease);
+        if (latestVersion.isPresent()) {
+            return new VersionInfo(latestVersion.get().toString(), null);
         } else {
             throw new IllegalStateException("Could not determine latest Maven version");
         }

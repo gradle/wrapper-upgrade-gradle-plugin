@@ -52,7 +52,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
     @TaskAction
     void upgrade() throws IOException {
         GitHub gitHub = createGitHub();
-        VersionInfo latestBuildToolVersion = buildToolStrategy.lookupLatestVersion();
+        boolean allowPreRelease = upgrade.getOptions().getAllowPreRelease().orElse(Boolean.FALSE).get();
+        VersionInfo latestBuildToolVersion = buildToolStrategy.lookupLatestVersion(allowPreRelease);
         Params params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getProjectDirectory(), layout.getBuildDirectory(), gitHub);
 
         if (!prExists(params)) {
