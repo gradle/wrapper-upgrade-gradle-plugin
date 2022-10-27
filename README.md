@@ -77,6 +77,7 @@ wrapperUpgrade {
             dir = ...
             options {
                 gitCommitExtraArgs = [...]
+                allowPreRelease = [...]
             }
         }
     }
