@@ -22,7 +22,7 @@ Example:
 ```build.gradle
 plugins {
     id 'base'
-    id 'org.gradle.wrapper-upgrade' version '0.10.2'
+    id 'org.gradle.wrapper-upgrade' version '0.11'
 }
 
 wrapperUpgrade {
