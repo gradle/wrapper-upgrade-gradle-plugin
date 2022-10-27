@@ -1,1 +1,0 @@
-- [NEW] - Add `options.allowPreRelease` to control whether to upgrade to pre-release versions
