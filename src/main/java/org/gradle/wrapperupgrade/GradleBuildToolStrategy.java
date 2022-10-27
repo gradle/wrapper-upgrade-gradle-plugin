@@ -1,7 +1,6 @@
 package org.gradle.wrapperupgrade;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gradle.process.ExecOperations;
 
 import java.io.IOException;
@@ -9,11 +8,14 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 import static org.gradle.wrapperupgrade.BuildToolStrategy.extractBuildToolVersion;
 
 public final class GradleBuildToolStrategy implements BuildToolStrategy {
+
+    private final GradleMetadataFetcher gradleMetadataFetcher = new GradleMetadataFetcher();
 
     @Override
     public String buildToolName() {
@@ -21,21 +23,17 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
     }
 
     @Override
-    public VersionInfo lookupLatestVersion() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode gradleMetadata = mapper.readTree(new URL("https://services.gradle.org/versions/current"));
-        JsonNode version = gradleMetadata.get("version");
-        if (version != null) {
-            JsonNode checksumUrl = gradleMetadata.get("checksumUrl");
-            if (checksumUrl != null) {
-                URL url = new URL(checksumUrl.asText());
-                String checksum = new Scanner(url.openStream()).useDelimiter("\\A").next();
-                return new VersionInfo(version.asText(), checksum);
-            } else {
-                return new VersionInfo(version.asText(), null);
-            }
+    public VersionInfo lookupLatestVersion(boolean allowPreRelease) throws IOException {
+        JsonNode latestVersion = gradleMetadataFetcher.fetchLatestVersion(allowPreRelease)
+            .orElseThrow(() -> new IllegalStateException("Could not determine latest Gradle version"));
+
+        JsonNode checksumUrl = latestVersion.get("checksumUrl");
+        if (checksumUrl != null) {
+            URL url = new URL(checksumUrl.asText());
+            String checksum = new Scanner(url.openStream()).useDelimiter("\\A").next(); //unhandled stream
+            return new VersionInfo(latestVersion.get("version").asText(), checksum);
         } else {
-            throw new IllegalStateException("Could not determine latest Gradle version");
+            return new VersionInfo(latestVersion.get("version").asText(), null);
         }
     }
 

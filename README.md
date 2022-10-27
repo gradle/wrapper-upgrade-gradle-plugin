@@ -56,7 +56,7 @@ Running `/gradlew upgradeGradleWrapperXXX` will:
 - clone the project XXX in  `build/git-clones`
 - run in the cloned project `./gradlew wrapper --gradle-version=<latest_gradle_version>`
 - run a second time `./gradlew wrapper --gradle-version=<latest_gradle_version>`
-- If changes occured
+- If changes occurred
   - create a specific branch
   - commit and push the branch
   - create a pull request on Github, it requires a Github access token, passed with `WRAPPER_UPGRADE_GIT_TOKEN` environment variable.
@@ -83,13 +83,14 @@ wrapperUpgrade {
 }
 ```
 
-| Field                           | description                                                                                                                                                      |
-| :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`                          | A name identifying the upgrade, it can be different from the project name, for example when you need to upgrade multiple gradle projects in the same git project |
-| `repo`                          | The Github repository to clone, format 'organization/project`                                                                                                    |
-| `dir`                           | The directory inside the project base directory to run the gradle or maven upgrade in                                                                            |
-| `baseBranch`                    | The git branch to checkout and that the pull request will target                                                                                                 |
-| `options.gitCommitExtraArgs`    | List of additional git commit arguments
+| Field                        | description                                                                                                                                                      |
+|:-----------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `name`                       | A name identifying the upgrade, it can be different from the project name, for example when you need to upgrade multiple gradle projects in the same git project |
+| `repo`                       | The Github repository to clone, format 'organization/project`                                                                                                    |
+| `dir`                        | The directory inside the project base directory to run the gradle or maven upgrade in                                                                            |
+| `baseBranch`                 | The git branch to checkout and that the pull request will target                                                                                                 |
+| `options.gitCommitExtraArgs` | List of additional git commit arguments                                                                                                                          |
+| `options.allowPreRelease`    | Boolean: true will get the latest Maven/Gradle version even if it's a pre-release. Default is false.                                                             |
 
 ## License
 
