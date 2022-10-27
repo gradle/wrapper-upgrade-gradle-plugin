@@ -13,7 +13,7 @@ class MavenMetadataFetcherTest extends Specification {
         def version = mavenMetadataFetcher.fetchLatestVersion(true)
 
         then:
-        version.get() as String == '4.0.0-alpha-2'
+        version.map(v -> v as String).orElse(null) == '4.0.0-alpha-2'
     }
 
     def "fetch latest version ignoring pre-releases"() {
@@ -21,7 +21,7 @@ class MavenMetadataFetcherTest extends Specification {
         def version = mavenMetadataFetcher.fetchLatestVersion(false)
 
         then:
-        version.get() as String == '3.8.6'
+        version.map(v -> v as String).orElse(null) == '3.8.6'
     }
 
     def "fetch unknown latest version"() {

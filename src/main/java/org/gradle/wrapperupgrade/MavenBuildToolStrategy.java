@@ -21,12 +21,9 @@ public final class MavenBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public VersionInfo lookupLatestVersion(boolean allowPreRelease) throws IOException {
-        Optional<VersionNumber> latestVersion = mavenMetadataFetcher.fetchLatestVersion(allowPreRelease);
-        if (latestVersion.isPresent()) {
-            return new VersionInfo(latestVersion.get().toString(), null);
-        } else {
-            throw new IllegalStateException("Could not determine latest Maven version");
-        }
+        return mavenMetadataFetcher.fetchLatestVersion(allowPreRelease)
+            .map(latestVersion -> new VersionInfo(latestVersion.toString(), null))
+            .orElseThrow(() -> new IllegalStateException("Could not determine latest Maven version"));
     }
 
     @Override

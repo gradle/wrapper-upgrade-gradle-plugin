@@ -24,18 +24,16 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
 
     @Override
     public VersionInfo lookupLatestVersion(boolean allowPreRelease) throws IOException {
-        Optional<JsonNode> latestVersion = gradleMetadataFetcher.fetchLatestVersion(allowPreRelease);
-        if (latestVersion.isPresent()) {
-            JsonNode checksumUrl = latestVersion.get().get("checksumUrl");
-            if (checksumUrl != null) {
-                URL url = new URL(checksumUrl.asText());
-                String checksum = new Scanner(url.openStream()).useDelimiter("\\A").next();
-                return new VersionInfo(latestVersion.get().get("version").asText(), checksum);
-            } else {
-                return new VersionInfo(latestVersion.get().get("version").asText(), null);
-            }
+        JsonNode latestVersion = gradleMetadataFetcher.fetchLatestVersion(allowPreRelease)
+            .orElseThrow(() -> new IllegalStateException("Could not determine latest Gradle version"));
+
+        JsonNode checksumUrl = latestVersion.get("checksumUrl");
+        if (checksumUrl != null) {
+            URL url = new URL(checksumUrl.asText());
+            String checksum = new Scanner(url.openStream()).useDelimiter("\\A").next(); //unhandled stream
+            return new VersionInfo(latestVersion.get("version").asText(), checksum);
         } else {
-            throw new IllegalStateException("Could not determine latest Gradle version");
+            return new VersionInfo(latestVersion.get("version").asText(), null);
         }
     }
 

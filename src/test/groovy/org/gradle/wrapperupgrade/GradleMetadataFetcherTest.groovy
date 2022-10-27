@@ -14,7 +14,7 @@ class GradleMetadataFetcherTest extends Specification {
         def version = gradleMetadataFetcher.fetchLatestVersion(true)
 
         then:
-        version.get().get('version').asText() == '8.0-milestone-2'
+        version.map(node -> node.get('version').asText()).orElse(null) == '8.0-milestone-2'
     }
 
     def "fetch latest version ignoring pre-releases"() {
@@ -22,7 +22,7 @@ class GradleMetadataFetcherTest extends Specification {
         def version = gradleMetadataFetcher.fetchLatestVersion(false)
 
         then:
-        version.get().get('version').asText() == '7.5.1'
+        version.map(node -> node.get('version').asText()).orElse(null) == '7.5.1'
     }
 
     def "fetch unknown latest version allowing pre-releases"() {
