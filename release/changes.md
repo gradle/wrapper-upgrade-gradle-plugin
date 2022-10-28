@@ -1,1 +1,0 @@
-- [FIX] - Properly parse `distributionUrl` for Gradle snapshot distributions
