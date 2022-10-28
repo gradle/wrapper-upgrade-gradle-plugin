@@ -63,6 +63,18 @@ class GradleBuildToolStrategyTest extends Specification {
         e.message == "Could not extract version from property 'distributionUrl': unknown"
     }
 
+    def "extract current Gradle version snapshot"() {
+        given:
+        createGradleWrapperProperties().text = standard('7.6-20221024231219+0000', 'bin', '789', true)
+
+        when:
+        def version = gradleBuildToolStrategy.extractCurrentVersion(workingDir)
+
+        then:
+        version.version == '7.6-20221024231219+0000'
+        version.checksum == Optional.of('789')
+    }
+
     def "resolve release notes links"() {
         given:
         def version = '7.4.1'
@@ -74,12 +86,12 @@ class GradleBuildToolStrategyTest extends Specification {
         releaseNotesLink == 'https://docs.gradle.org/7.4.1/release-notes.html'
     }
 
-    private static String standard(String gradleVersion, String gradleDistro, String distributionChecksum) {
+    private static String standard(String gradleVersion, String gradleDistro, String distributionChecksum, boolean isSnapshot = false) {
         """
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
 distributionSha256Sum=${distributionChecksum}
-distributionUrl=https\\://services.gradle.org/distributions/gradle-${gradleVersion}-${gradleDistro}.zip
+distributionUrl=https\\://services.gradle.org/distributions${isSnapshot ? "-snapshots": ""}/gradle-${gradleVersion}-${gradleDistro}.zip
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
 """

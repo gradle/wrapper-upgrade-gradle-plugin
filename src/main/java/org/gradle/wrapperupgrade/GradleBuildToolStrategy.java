@@ -42,7 +42,7 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
         return extractBuildToolVersion(rootProjectDir,
             "gradle/wrapper/gradle-wrapper.properties",
             "distributionUrl", "distributionSha256Sum",
-            "distributions/gradle-(.*)-(bin|all).zip"
+            "distributions(?:-snapshots)?/gradle-(.*)-(bin|all).zip"
         );
     }
 
