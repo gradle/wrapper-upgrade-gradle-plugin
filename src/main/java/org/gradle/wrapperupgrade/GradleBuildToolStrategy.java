@@ -30,7 +30,7 @@ public final class GradleBuildToolStrategy implements BuildToolStrategy {
         JsonNode checksumUrl = latestVersion.get("checksumUrl");
         if (checksumUrl != null) {
             URL url = new URL(checksumUrl.asText());
-            String checksum = new Scanner(url.openStream()).useDelimiter("\\A").next(); //unhandled stream
+            String checksum = new Scanner(url.openStream()).useDelimiter("\\A").next();
             return new VersionInfo(latestVersion.get("version").asText(), checksum);
         } else {
             return new VersionInfo(latestVersion.get("version").asText(), null);
