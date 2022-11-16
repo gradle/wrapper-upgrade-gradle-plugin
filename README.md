@@ -52,7 +52,7 @@ wrapperUpgrade {
 
 This will create one task per configured project and 2 aggregating tasks: `upgradeGradleWrapperAll` and `upgradeMavenWrapperAll` that will run all the specific tasks.
 
-Running `/gradlew upgradeGradleWrapperXXX` will:
+Running `./gradlew upgradeGradleWrapperXXX` will:
 - clone the project XXX in  `build/git-clones`
 - run in the cloned project `./gradlew wrapper --gradle-version=<latest_gradle_version>`
 - run a second time `./gradlew wrapper --gradle-version=<latest_gradle_version>`
