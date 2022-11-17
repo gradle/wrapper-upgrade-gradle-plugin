@@ -2,6 +2,7 @@
 > - _[Gradle Enterprise Build Configuration Samples][ge-build-config-samples]_
 > - _[Gradle Enterprise Build Optimization Experiments][ge-build-optimization-experiments]_
 > - _[Gradle Enterprise Build Validation Scripts][ge-build-validation-scripts]_
+> - _[Gradle Enterprise Open Source Projects][ge-oss-projects]_
 > - _[Common Custom User Data Maven Extension][ccud-maven-extension]_
 > - _[Common Custom User Data Gradle Plugin][ccud-gradle-plugin]_
 > - _[Android Cache Fix Gradle Plugin][android-cache-fix-plugin]_
@@ -100,6 +101,7 @@ The Wrapper Upgrade Gradle plugin is open-source software released under the [Ap
 [ge-build-config-samples]: https://github.com/gradle/gradle-enterprise-build-config-samples
 [ge-build-optimization-experiments]: https://github.com/gradle/gradle-enterprise-build-optimization-experiments
 [ge-build-validation-scripts]: https://github.com/gradle/gradle-enterprise-build-validation-scripts
+[ge-oss-projects]: https://github.com/gradle/gradle-enterprise-oss-projects
 [ccud-gradle-plugin]: https://github.com/gradle/common-custom-user-data-gradle-plugin
 [ccud-maven-extension]: https://github.com/gradle/common-custom-user-data-maven-extension
 [android-cache-fix-plugin]: https://github.com/gradle/android-cache-fix-gradle-plugin
