@@ -97,7 +97,7 @@ githubRelease {
 }
 
 def createReleaseTag = tasks.register('createReleaseTag', CreateGitTag) {
-    // This makes sure the tag is created only after building and publishing the plugin succeeds
+    // Ensure the tag is created if building and publishing the plugin succeeds.
     mustRunAfter('publishPlugins')
     tagName = gitReleaseTag()
 }
