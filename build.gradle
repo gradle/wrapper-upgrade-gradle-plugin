@@ -50,6 +50,9 @@ tasks.withType(Test).configureEach {
 }
 
 gradlePlugin {
+    website = "https://github.com/gradle/wrapper-upgrade-gradle-plugin/"
+    vcsUrl = "https://github.com/gradle/wrapper-upgrade-gradle-plugin.git"
+
     automatedPublishing = true
 
     plugins {
@@ -58,6 +61,7 @@ gradlePlugin {
             displayName = 'Wrapper Upgrade Gradle Plugin'
             description = 'A Gradle plugin that detects and updates Gradle and Maven wrappers to the latest Gradle and Maven version.'
             implementationClass = 'org.gradle.wrapperupgrade.WrapperUpgradePlugin'
+            tags.addAll("gradle", "maven", "wrapper")
         }
     }
 }
@@ -65,12 +69,6 @@ gradlePlugin {
 tasks.withType(ValidatePlugins).configureEach {
     failOnWarning = true
     enableStricterValidation = true
-}
-
-pluginBundle {
-    website = "https://github.com/gradle/wrapper-upgrade-gradle-plugin/"
-    vcsUrl = "https://github.com/gradle/wrapper-upgrade-gradle-plugin.git"
-    tags = ["gradle", "maven", "wrapper"]
 }
 
 signing {
