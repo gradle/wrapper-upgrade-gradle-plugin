@@ -12,7 +12,9 @@ plugins {
 
 group = 'org.gradle'
 version = layout.projectDirectory.file('release/version.txt').asFile.text.trim()
+description = 'A Gradle plugin that detects and updates Gradle and Maven wrappers to the latest Gradle and Maven version.'
 
+def releaseNotes = releaseNotes()
 
 repositories {
     mavenCentral()
@@ -59,7 +61,7 @@ gradlePlugin {
         wrapperUpgrade {
             id = 'org.gradle.wrapper-upgrade'
             displayName = 'Wrapper Upgrade Gradle Plugin'
-            description = 'A Gradle plugin that detects and updates Gradle and Maven wrappers to the latest Gradle and Maven version.'
+            description = releaseNotes.get()
             implementationClass = 'org.gradle.wrapperupgrade.WrapperUpgradePlugin'
             tags.addAll("gradle", "maven", "wrapper")
         }
@@ -91,7 +93,7 @@ githubRelease {
    prerelease = false
    overwrite = false
    generateReleaseNotes = false
-   body = layout.projectDirectory.file('release/changes.md').asFile.text.trim()
+   body = releaseNotes
 }
 
 def createReleaseTag = tasks.register('createReleaseTag', CreateGitTag) {
@@ -114,4 +116,9 @@ def gitHubReleaseName() {
 
 def gitReleaseTag() {
     return "v${version}"
+}
+
+def releaseNotes() {
+    def releaseNotesFile = layout.projectDirectory.file('release/changes.md')
+    return providers.fileContents(releaseNotesFile).asText.map { it -> it.trim() }
 }
