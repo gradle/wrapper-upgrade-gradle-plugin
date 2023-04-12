@@ -10,11 +10,12 @@ plugins {
     id 'org.gradle.wrapper-upgrade' version '0.11.1'
 }
 
-group = 'org.gradle'
-version = layout.projectDirectory.file('release/version.txt').asFile.text.trim()
-description = 'A Gradle plugin that detects and updates Gradle and Maven wrappers to the latest Gradle and Maven version.'
-
+def releaseVersion = releaseVersion()
 def releaseNotes = releaseNotes()
+
+group = 'org.gradle'
+version = releaseVersion
+description = 'A Gradle plugin that detects and updates Gradle and Maven wrappers to the latest Gradle and Maven version.'
 
 repositories {
     mavenCentral()
@@ -84,22 +85,22 @@ signing {
 }
 
 githubRelease {
-   token = System.getenv('WRAPPER_UPGRADE_GRADLE_PLUGIN_GIT_TOKEN') ?: ''
-   owner = 'gradle'
-   repo = 'wrapper-upgrade-gradle-plugin'
-   targetCommitish = 'main'
-   releaseName = gitHubReleaseName()
-   tagName = gitReleaseTag()
-   prerelease = false
-   overwrite = false
-   generateReleaseNotes = false
-   body = releaseNotes
+    token = System.getenv('WRAPPER_UPGRADE_GRADLE_PLUGIN_GIT_TOKEN') ?: ''
+    owner = 'gradle'
+    repo = 'wrapper-upgrade-gradle-plugin'
+    targetCommitish = 'main'
+    releaseName = releaseVersion
+    tagName = releaseVersion.map { "v$it" }
+    prerelease = false
+    overwrite = false
+    generateReleaseNotes = false
+    body = releaseNotes
 }
 
 def createReleaseTag = tasks.register('createReleaseTag', CreateGitTag) {
     // Ensure tag is created only after a successful publishing
     mustRunAfter('publishPlugins')
-    tagName = gitReleaseTag()
+    tagName = githubRelease.tagName.map { it.toString() }
 }
 
 tasks.named('githubRelease') {
@@ -110,12 +111,9 @@ tasks.withType(Sign).configureEach {
     notCompatibleWithConfigurationCache("$name task does not support configuration caching")
 }
 
-def gitHubReleaseName() {
-    return version.toString()
-}
-
-def gitReleaseTag() {
-    return "v${version}"
+def releaseVersion() {
+    def releaseVersionFile = layout.projectDirectory.file('release/version.txt')
+    return providers.fileContents(releaseVersionFile).asText.map { it -> it.trim() }
 }
 
 def releaseNotes() {
