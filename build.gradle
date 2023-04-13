@@ -107,7 +107,7 @@ tasks.named('githubRelease') {
     dependsOn(createReleaseTag)
 }
 
-tasks.withType(Sign).configureEach {
+tasks.withType(com.gradle.publish.PublishTask).configureEach {
     notCompatibleWithConfigurationCache("$name task does not support configuration caching")
 }
 
