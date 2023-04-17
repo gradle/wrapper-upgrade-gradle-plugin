@@ -14,7 +14,7 @@ def releaseVersion = releaseVersion()
 def releaseNotes = releaseNotes()
 
 group = 'org.gradle'
-version = releaseVersion
+version = releaseVersion.get()
 description = 'A Gradle plugin that detects and updates Gradle and Maven wrappers to the latest Gradle and Maven version.'
 
 repositories {
