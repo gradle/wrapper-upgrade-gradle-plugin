@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     implementation 'org.kohsuke:github-api:1.314'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.14.2'
 
     testImplementation gradleTestKit()
