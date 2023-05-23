@@ -14,11 +14,10 @@
 [![Plugin Portal](https://img.shields.io/maven-metadata/v?metadataUrl=https://plugins.gradle.org/m2/org/gradle/wrapper-upgrade-gradle-plugin/maven-metadata.xml&label=Plugin%20Portal&color=blue)](https://plugins.gradle.org/plugin/org.gradle.wrapper-upgrade)
 [![Revved up by Gradle Enterprise](https://img.shields.io/badge/Revved%20up%20by-Gradle%20Enterprise-06A0CE?logo=Gradle&labelColor=02303A)](https://ge.solutions-team.gradle.com/scans)
 
-The Wrapper Upgrade Gradle Plugin create tasks to upgrade Gradle wrappers for target projects hosted on Github.
+The Wrapper Upgrade Gradle Plugin creates tasks to upgrade the Gradle Wrapper for target projects hosted on GitHub.
 
 ## Usage
-Apply the plugin to a dedicated project and configure which project needs to be upgraded.
-Example:
+Apply the plugin to a dedicated project and configure which project needs to be upgraded. Example:
 
 ```build.gradle
 plugins {
@@ -67,7 +66,7 @@ Note that a check is done first to make sure the branch does not exist yet. That
 Running `upgradeMavenWrapperXXX` will do the same, executing `./mvnw wrapper:wrapper -Dmaven=<latest_maven_version>` instead.
 
 
-### Task configuration
+### Configuration
 
 ```
 wrapperUpgrade {
@@ -96,7 +95,7 @@ wrapperUpgrade {
 
 ## License
 
-The Wrapper Upgrade Gradle plugin is open-source software released under the [Apache 2.0 License][apache-license].
+The Wrapper Upgrade Gradle Plugin is open-source software released under the [Apache 2.0 License][apache-license].
 
 [ge-build-config-samples]: https://github.com/gradle/gradle-enterprise-build-config-samples
 [ge-build-optimization-experiments]: https://github.com/gradle/gradle-enterprise-build-optimization-experiments
