@@ -20,6 +20,47 @@ The Wrapper Upgrade Gradle Plugin create tasks to upgrade Gradle wrappers for ta
 Apply the plugin to a dedicated project and configure which project needs to be upgraded.
 Example:
 
+<details open>
+    
+<summary>Kotlin DSL</summary>
+
+```build.gradle
+plugins {
+    id("base")
+    id("org.gradle.wrapper-upgrade") version "0.11.1"
+}
+
+wrapperUpgrade {
+    gradle {
+        register("some-gradle-project") {
+            repo.set("my-org/some-gradle-project")
+            baseBranch.set("release")
+        }
+        register("some-samples-gradle-project") {
+            repo.set("my-org/some-samples-gradle-project")
+            dir.set("samples")
+        }
+    }
+
+    maven {
+        register("some-maven-project") {
+            repo.set("my-org/some-maven-project")
+            baseBranch.set("release")
+        }
+        register("some-samples-maven-project") {
+            repo.set("my-org/some-samples-maven-project")
+            baseBranch.set("samples")
+        }
+    }
+}
+```
+    
+</details>
+
+<details>
+    
+<summary>Groovy DSL</summary>
+
 ```build.gradle
 plugins {
     id 'base'
@@ -50,6 +91,8 @@ wrapperUpgrade {
     }
 }
 ```
+    
+</details>
 
 This will create one task per configured project and 2 aggregating tasks: `upgradeGradleWrapperAll` and `upgradeMavenWrapperAll` that will run all the specific tasks.
 
