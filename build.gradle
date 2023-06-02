@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.kohsuke:github-api:1.314'
+    implementation 'org.kohsuke:github-api:1.315'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.2'
 
