@@ -7,6 +7,7 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.process.internal.ExecException;
+import org.gradle.util.internal.VersionNumber;
 import org.gradle.work.DisableCachingByDefault;
 import org.gradle.wrapperupgrade.BuildToolStrategy.VersionInfo;
 import org.kohsuke.github.GHIssueState;
@@ -57,11 +58,23 @@ public abstract class UpgradeWrapper extends DefaultTask {
         Params params = Params.create(upgrade, buildToolStrategy, latestBuildToolVersion, layout.getProjectDirectory(), layout.getBuildDirectory(), gitHub);
 
         if (!prExists(params)) {
-            createPrIfWrapperUpgradeAvailable(params);
+            cloneGitProject(params);
+            VersionInfo usedBuildToolVersion = buildToolStrategy.extractCurrentVersion(params.rootProjectDir);
+            if (isCurrentVersionNewer(usedBuildToolVersion, params.latestBuildToolVersion)) {
+                getLogger().lifecycle(String.format("Project '%s' %s Wrapper current version '%s' is equal or newer than latest version '%s' available",
+                    params.project, buildToolStrategy.buildToolName(), usedBuildToolVersion.version, params.latestBuildToolVersion.version));
+            } else {
+                createPr(usedBuildToolVersion, params);
+            }
         } else {
             getLogger().lifecycle(String.format("PR '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         }
+    }
+
+    private boolean isCurrentVersionNewer(VersionInfo usedBuildToolVersion, VersionInfo latestBuildToolVersion) {
+        return VersionNumber.parse(usedBuildToolVersion.version)
+            .compareTo(VersionNumber.parse(latestBuildToolVersion.version)) >= 0;
     }
 
     private static GitHub createGitHub() throws IOException {
@@ -74,9 +87,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         return params.gitHub.getRepository(params.repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(params.prBranch));
     }
 
-    private void createPrIfWrapperUpgradeAvailable(Params params) throws IOException {
-        cloneGitProject(params);
-        VersionInfo usedBuildToolVersion = buildToolStrategy.extractCurrentVersion(params.rootProjectDir);
+    private void createPr(VersionInfo usedBuildToolVersion, Params params) throws IOException {
         runWrapperWithLatestBuildToolVersion(params);
         createPrIfWrapperChanged(params, usedBuildToolVersion.version);
     }
@@ -98,6 +109,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         if (isWrapperChanged(params.gitCheckoutDir)) {
             createPr(params, usedBuildToolVersion);
         } else {
+            // This should not happen since we check upfront the latest version
             getLogger().lifecycle(String.format("No PR created to upgrade %s Wrapper to %s since already on latest version for project '%s'",
                 buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         }
@@ -225,7 +237,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.gitHub = gitHub;
         }
 
-        private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, VersionInfo latestBuildToolVersion, Directory executionRootDirectory, DirectoryProperty buildDirectory, GitHub gitHub) {
+        private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, VersionInfo latestBuildToolVersion, Directory executionRootDirectory, DirectoryProperty buildDirectory, GitHub gitHub) throws IOException {
             String project = upgrade.name;
             String repository = upgrade.getRepo().get();
             String baseBranch = upgrade.getBaseBranch().get();

@@ -2,6 +2,7 @@ package org.gradle.wrapperupgrade
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.util.GradleVersion
+import spock.lang.Ignore
 import spock.lang.Requires
 import spock.lang.Shared
 import spock.lang.Specification
@@ -18,6 +19,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
     File testProjectDir
     File settingsFile
     File buildFile
+    String plugins
 
     static boolean allowPreRelease = false
 
@@ -30,26 +32,28 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         buildFile = new File(testProjectDir, 'build.gradle')
 
         settingsFile << "rootProject.name = 'wrapper-upgrade-gradle-plugin-example'"
-        buildFile << """
-
-plugins {
-    id 'base'
-    id 'org.gradle.wrapper-upgrade'
-}
-
-wrapperUpgrade {
-    gradle {
-        'wrapper-upgrade-gradle-plugin-for-func-tests' {
-            repo = 'gradle/wrapper-upgrade-gradle-plugin'
-            baseBranch = 'func-test-do-not-delete'
-            dir = 'samples/gradle'
-            options {
-                allowPreRelease = ${allowPreRelease}
+        plugins = """
+            plugins {
+                id 'base'
+                id 'org.gradle.wrapper-upgrade'
             }
-        }
-    }
-}
-        """
+            """.stripMargin()
+
+        buildFile << """
+            ${plugins}
+            wrapperUpgrade {
+                gradle {
+                    'wrapper-upgrade-gradle-plugin-for-func-tests' {
+                        repo = 'gradle/wrapper-upgrade-gradle-plugin'
+                        baseBranch = 'func-test-do-not-delete'
+                        dir = 'samples/gradle'
+                        options {
+                            allowPreRelease = ${allowPreRelease}
+                        }
+                    }
+                }
+            }
+        """.stripMargin()
     }
 
     def "plugin requires at least Gradle 6.0"() {
@@ -63,6 +67,37 @@ wrapperUpgrade {
 
         then:
         result.output.contains('This version of the Wrapper Upgrade Gradle plugin is not compatible with Gradle < 6.0')
+    }
+
+    @Ignore("Hard to maintain")
+    def "upgrade wrapper on junit project with dry run"() {
+        when:
+        buildFile.text = """
+            ${plugins}
+            wrapperUpgrade {
+                gradle {
+                    'junit-func-test' {
+                        repo = 'junit-team/junit5'
+                        baseBranch = 'main'
+                        options {
+                            allowPreRelease = ${allowPreRelease}
+                        }
+                    }
+                }
+            }
+        """.stripMargin()
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withPluginClasspath()
+            .withGradleVersion(determineGradleVersion().version)
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .build()
+
+        then:
+        result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
+
+        and:
+        result.output =~ /Project 'junit-func-test' Gradle Wrapper current version '(.*)' is equal or newer than latest version '(.*)' available/
     }
 
     def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run"() {
