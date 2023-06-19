@@ -97,7 +97,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output =~ /Project 'junit-func-test' Gradle Wrapper current version '(.*)' is equal or newer than latest version '(.*)' available/
+        result.output.contains "No PR created to upgrade Gradle Wrapper to 8.2-rc-2 since already on latest version for project 'junit-func-test'"
     }
 
     def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run"() {
@@ -139,7 +139,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+                .withArguments('upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
@@ -150,11 +150,17 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         result.output.contains('Configuration cache entry stored.')
 
         when:
+        GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withPluginClasspath()
+            .withGradleVersion(determineGradleVersion().version)
+            .withArguments('clean')
+            .build()
         result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits', '--stacktrace')
+            .withArguments('upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
