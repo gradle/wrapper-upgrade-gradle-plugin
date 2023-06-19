@@ -2,8 +2,8 @@ package org.gradle.wrapperupgrade;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.Directory;
-import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.process.internal.ExecException;
@@ -16,6 +16,7 @@ import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -48,14 +49,18 @@ public abstract class UpgradeWrapper extends DefaultTask {
         this.buildToolStrategy = buildToolStrategy;
         this.layout = layout;
         this.execOperations = execOperations;
+        getOutputs().dir(getCheckoutDir());
+    }
+
+    private Provider<Directory> getCheckoutDir() {
+        return layout.getBuildDirectory().dir("git-clones" + File.separatorChar + upgrade.name);
     }
 
     @TaskAction
     void upgrade() throws IOException {
         GitHub gitHub = createGitHub();
         boolean allowPreRelease = upgrade.getOptions().getAllowPreRelease().orElse(Boolean.FALSE).get();
-        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), layout.getBuildDirectory(), gitHub, execOperations);
-
+        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, execOperations);
         if (!prExists(params)) {
             createPrIfWrapperUpgradeAvailable(params);
         } else {
@@ -215,12 +220,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.gitHub = gitHub;
         }
 
-        private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, boolean allowPreRelease, Directory executionRootDirectory, DirectoryProperty buildDirectory, GitHub gitHub, ExecOperations exec) throws IOException {
+        private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, boolean allowPreRelease, Directory executionRootDirectory, Directory gitCheckoutDirectory, GitHub gitHub, ExecOperations exec) throws IOException {
             String project = upgrade.name;
             String repository = upgrade.getRepo().get();
             String baseBranch = upgrade.getBaseBranch().get();
             Path executionRootDir = executionRootDirectory.getAsFile().toPath();
-            Path gitCheckoutDir = buildDirectory.getAsFile().get().toPath().resolve("git-clones").resolve(project);
+            Path gitCheckoutDir = gitCheckoutDirectory.getAsFile().toPath();
             Path rootProjectDir = gitCheckoutDir.resolve(upgrade.getDir().get());
 
             cloneGitProject(repository, executionRootDir, baseBranch, gitCheckoutDir, exec);

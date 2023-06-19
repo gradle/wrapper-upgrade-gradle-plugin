@@ -139,7 +139,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-                .withArguments('upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+                .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits', '--stacktrace')
             .build()
 
         then:
@@ -150,17 +150,11 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         result.output.contains('Configuration cache entry stored.')
 
         when:
-        GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withPluginClasspath()
-            .withGradleVersion(determineGradleVersion().version)
-            .withArguments('clean')
-            .build()
         result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-            .withArguments('upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
