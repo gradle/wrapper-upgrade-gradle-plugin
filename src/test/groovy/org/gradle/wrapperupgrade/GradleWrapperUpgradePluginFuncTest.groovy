@@ -139,7 +139,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
-                .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits', '--stacktrace')
+            .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
         then:
