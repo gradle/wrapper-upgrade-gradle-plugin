@@ -118,10 +118,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private String createShortDescription(Params params) {
         String buildToolName = buildToolStrategy.buildToolName();
         String latestBuildToolVersion = params.latestBuildToolVersion.version;
+        String usedBuildToolVersion = params.usedBuildToolVersion.version;
         String relativePath = params.rootProjectDirRelativePath.normalize().toString();
 
         StringBuilder description = new StringBuilder();
-        description.append(String.format("Bump %s Wrapper from %s to %s", buildToolName, params.usedBuildToolVersion.version, latestBuildToolVersion));
+        description.append(String.format("Bump %s Wrapper from %s to %s", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
         if (!relativePath.isEmpty()) {
             String path = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
             description.append(String.format(" in %s", path));
