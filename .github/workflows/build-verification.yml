@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
         matrix:
-            gradle-version: [ '7.6.1', '8.0.2', '8.1.1' ]
+            gradle-version: [ '7.6.1', '8.0.2', '8.1.1', '8.2' ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
