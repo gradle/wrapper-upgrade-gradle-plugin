@@ -1,13 +1,3 @@
-> _This repository is maintained by the Gradle Enterprise Solutions team, as one of several publicly available repositories:_
-> - _[Gradle Enterprise Build Configuration Samples][ge-build-config-samples]_
-> - _[Gradle Enterprise Build Optimization Experiments][ge-build-optimization-experiments]_
-> - _[Gradle Enterprise Build Validation Scripts][ge-build-validation-scripts]_
-> - _[Gradle Enterprise Open Source Projects][ge-oss-projects]_
-> - _[Common Custom User Data Maven Extension][ccud-maven-extension]_
-> - _[Common Custom User Data Gradle Plugin][ccud-gradle-plugin]_
-> - _[Android Cache Fix Gradle Plugin][android-cache-fix-plugin]_
-> - _[Wrapper Upgrade Gradle Plugin][wrapper-upgrade-gradle-plugin] (this repository)_
-
 # Wrapper Upgrade Gradle Plugin
 
 [![Verify Build](https://github.com/gradle/wrapper-upgrade-gradle-plugin/actions/workflows/build-verification.yml/badge.svg?branch=main)](https://github.com/gradle/wrapper-upgrade-gradle-plugin/actions/workflows/build-verification.yml)
