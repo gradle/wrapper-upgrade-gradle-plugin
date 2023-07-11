@@ -1,0 +1,27 @@
+name: Submit GitHub Dependency Graph
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  
+permissions:
+  contents: write
+
+jobs:
+  generate-and-submit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 8
+    - name: Set up Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        dependency-graph: generate-and-submit
+    - name: Run gradle to resolve dependencies
+      run: ./gradlew :GitHubDependencyGraphPlugin_generateDependencyGraph
+      env:
+        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GE_SOLUTIONS_ACCESS_TOKEN }}
