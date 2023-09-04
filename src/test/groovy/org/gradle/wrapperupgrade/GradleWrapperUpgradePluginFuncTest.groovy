@@ -132,6 +132,71 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         output2.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
     }
 
+    def "upgrade wrapper on wrapper-upgrade-gradle-plugin configured with Kotlin (#factoryFunc) with dry run"(factoryFunc) {
+        given:
+        buildFile.delete()
+        settingsFile.delete()
+        settingsFile = new File(testProjectDir, 'settings.gradle.kts')
+        buildFile = new File(testProjectDir, 'build.gradle.kts')
+
+        settingsFile << '''rootProject.name = "wrapper-upgrade-gradle-plugin-example"'''
+        plugins = """
+            plugins {
+                id("base")
+                id("org.gradle.wrapper-upgrade")
+            }
+            """.stripMargin()
+
+        buildFile.text = """
+            ${plugins}
+            wrapperUpgrade {
+                gradle {
+                    ${factoryFunc}("wrapper-upgrade-gradle-plugin-for-func-tests") {
+                        repo.set("gradle/wrapper-upgrade-gradle-plugin")
+                        baseBranch.set("func-test-do-not-delete")
+                        dir.set("samples/gradle")
+                        options {
+                            allowPreRelease.set(${allowPreRelease})
+                        }
+                    }
+                }
+            }
+        """.stripMargin()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withPluginClasspath()
+            .withGradleVersion(determineGradleVersion().version)
+            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
+            .build()
+
+        then:
+        result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
+
+        and:
+        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
+
+        and:
+        def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/gradle')
+        def proc = 'git show --oneline --name-only HEAD'.execute(null, gitDir)
+        def output = proc.in.text
+        output.contains "gradle/wrapper/gradle-wrapper.jar"
+        output.contains "gradle/wrapper/gradle-wrapper.properties"
+        output.contains "gradlew"
+
+        and:
+        def proc2 = 'git show --oneline HEAD'.execute(null, gitDir)
+        def output2 = proc2.in.text
+        output2.contains "Bump Gradle Wrapper from 6.9 to ${latestGradleVersion}"
+        output2.contains "Binary files a/samples/gradle/gradle/wrapper/gradle-wrapper.jar and b/samples/gradle/gradle/wrapper/gradle-wrapper.jar differ"
+        output2.contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-6.9-bin.zip"
+        output2.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
+
+        where:
+        factoryFunc << ['create', 'register']
+    }
+
     @Requires({ determineGradleVersion().baseVersion >= GradleVersion.version('7.1') })
     def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run and configuration cache"() {
         when:

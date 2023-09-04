@@ -23,7 +23,7 @@ public abstract class WrapperUpgradePlugin implements Plugin<Project> {
                 t.setDescription("Updates the Gradle Wrapper on all configured projects.");
             });
 
-        wrapperUpgrades.getGradle().configureEach(upgrade -> {
+        wrapperUpgrades.getGradle().all(upgrade -> {
             String taskNameSuffix = upgrade.name.substring(0, 1).toUpperCase() + upgrade.name.substring(1);
             TaskProvider<UpgradeWrapper> upgradeTask = project.getTasks().register("upgradeGradleWrapper" + taskNameSuffix, UpgradeWrapper.class, upgrade, BuildToolStrategy.GRADLE);
             upgradeGradleWrapperAllTask.configure(task -> task.dependsOn(upgradeTask));
@@ -35,7 +35,7 @@ public abstract class WrapperUpgradePlugin implements Plugin<Project> {
                 t.setDescription("Updates the Maven Wrapper on all configured projects.");
             });
 
-        wrapperUpgrades.getMaven().configureEach(upgrade -> {
+        wrapperUpgrades.getMaven().all(upgrade -> {
             String taskNameSuffix = upgrade.name.substring(0, 1).toUpperCase() + upgrade.name.substring(1);
             TaskProvider<UpgradeWrapper> upgradeTask = project.getTasks().register("upgradeMavenWrapper" + taskNameSuffix, UpgradeWrapper.class, upgrade, BuildToolStrategy.MAVEN);
             upgradeMavenWrapperAllTask.configure(task -> task.dependsOn(upgradeTask));
