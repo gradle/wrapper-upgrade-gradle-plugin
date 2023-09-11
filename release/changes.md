@@ -1,2 +1,0 @@
-- [FIX] Make `register` work with Kotlin build scripts (#158)
-- [FIX] PGP key to sign the artifacts needs to be rotated
