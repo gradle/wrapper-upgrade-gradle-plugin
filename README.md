@@ -10,7 +10,7 @@ The Wrapper Upgrade Gradle Plugin creates tasks to upgrade the Gradle Wrapper fo
 Apply the plugin to a dedicated project and configure which project needs to be upgraded. Example:
 
 <details open>
-    
+
 <summary>Kotlin DSL</summary>
 
 ```build.gradle
@@ -43,17 +43,17 @@ wrapperUpgrade {
     }
 }
 ```
-    
+
 </details>
 
 <details>
-    
+
 <summary>Groovy DSL</summary>
 
 ```build.gradle
 plugins {
     id 'base'
-    id 'org.gradle.wrapper-upgrade' version '0.11.1'
+    id 'org.gradle.wrapper-upgrade' version '0.11.4'
 }
 
 wrapperUpgrade {
@@ -80,7 +80,7 @@ wrapperUpgrade {
     }
 }
 ```
-    
+
 </details>
 
 This will create one task per configured project and 2 aggregating tasks: `upgradeGradleWrapperAll` and `upgradeMavenWrapperAll` that will run all the specific tasks.
