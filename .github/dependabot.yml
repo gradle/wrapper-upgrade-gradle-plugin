@@ -8,7 +8,7 @@ updates:
     schedule:
       interval: "daily"
       time: "02:00"
-    group:
+    groups:
       fasterxml-jackson:
         patterns: 
           - "com.fasterxml.jackson*"
