@@ -1,10 +1,5 @@
 version: 2
-registries:
-  gradle-plugin-portal:
-    type: maven-repository
-    url: https://plugins.gradle.org/m2
-    username: dummy # Required by dependabot
-    password: dummy # Required by dependabot
+
 updates:
   - package-ecosystem: "gradle"
     directory: "/"
@@ -13,8 +8,18 @@ updates:
     schedule:
       interval: "daily"
       time: "02:00"
+    groups:
+      fasterxml-jackson:
+        patterns: 
+          - "com.fasterxml.jackson*"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
       time: "02:00"
+
+registries:
+  gradle-plugin-portal:
+    type: maven-repository
+    url: https://plugins.gradle.org/m2
