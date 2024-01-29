@@ -18,7 +18,7 @@ jobs:
         distribution: temurin
         java-version: 8
     - name: Set up Gradle
-      uses: gradle/gradle-build-action@v2
+      uses: gradle/gradle-build-action@v3
       with:
         dependency-graph: generate-and-submit
     - name: Run gradle to resolve dependencies
