@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  
+
 permissions:
   contents: write
 
@@ -18,7 +18,7 @@ jobs:
         distribution: temurin
         java-version: 8
     - name: Set up Gradle
-      uses: gradle/gradle-build-action@v3
+      uses: gradle/actions/setup-gradle@v3
       with:
         dependency-graph: generate-and-submit
     - name: Run gradle to resolve dependencies
