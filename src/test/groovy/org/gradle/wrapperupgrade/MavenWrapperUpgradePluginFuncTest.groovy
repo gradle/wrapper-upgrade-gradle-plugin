@@ -75,11 +75,11 @@ wrapperUpgrade {
         def proc2 = 'git show --oneline HEAD'.execute(null, gitDir)
         def output2 = proc2.in.text
         output2.contains "Bump Maven Wrapper from 3.6.3 to ${latestMavenVersion}"
-        output2.contains 'Binary files a/samples/maven/.mvn/wrapper/maven-wrapper.jar and b/samples/maven/.mvn/wrapper/maven-wrapper.jar differ'
+        output2.contains 'Binary files a/samples/maven/.mvn/wrapper/maven-wrapper.jar and /dev/null differ'
         output2.contains "-distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.zip"
         output2.contains "+distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${latestMavenVersion}/apache-maven-${latestMavenVersion}-bin.zip"
         output2.contains "-wrapperUrl=https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
-        output2.contains "+wrapperUrl=https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.2.0/maven-wrapper-3.2.0.jar"
+        output2.contains "+wrapperVersion=3.3.1"
     }
 
 }
