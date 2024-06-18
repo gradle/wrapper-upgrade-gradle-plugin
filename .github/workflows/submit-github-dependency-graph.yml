@@ -20,8 +20,7 @@ jobs:
     - name: Set up Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
+        develocity-access-key: ${{ secrets.GE_SOLUTIONS_ACCESS_TOKEN }}
         dependency-graph: generate-and-submit
     - name: Run gradle to resolve dependencies
       run: ./gradlew :ForceDependencyResolutionPlugin_resolveAllDependencies
-      env:
-        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GE_SOLUTIONS_ACCESS_TOKEN }}
