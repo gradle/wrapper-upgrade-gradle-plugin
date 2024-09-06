@@ -52,6 +52,13 @@ tasks.withType(Test).configureEach {
     buildScan.value(identityPath.path + "#gradleVersion", testGradleVersion)
 }
 
+tasks.withType(Jar).configureEach {
+    into(".") {
+        from(layout.projectDirectory.file("LICENSE"))
+        from(layout.projectDirectory.dir("release/distribution"))
+    }
+}
+
 gradlePlugin {
     website = "https://github.com/gradle/wrapper-upgrade-gradle-plugin/"
     vcsUrl = "https://github.com/gradle/wrapper-upgrade-gradle-plugin.git"
