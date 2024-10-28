@@ -104,6 +104,35 @@ githubRelease {
     body = releaseNotes
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                name = 'Wrapper Upgrade Gradle Plugin'
+                description = 'A Gradle plugin that detects and updates Gradle and Maven wrappers to the latest Gradle and Maven version.'
+                url = 'https://github.com/gradle/common-custom-user-data-gradle-plugin'
+                licenses {
+                    license {
+                        name = "Apache-2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        name = "The Gradle team"
+                        organization = "Gradle Inc."
+                        organizationUrl = "https://gradle.com"
+                    }
+                }
+                scm {
+                    developerConnection = "scm:git:https://github.com/gradle/wrapper-upgrade-gradle-plugin.git"
+                    url = "https://github.com/gradle/wrapper-upgrade-gradle-plugin"
+                }
+            }
+        }
+    }
+}
+
 def createReleaseTag = tasks.register('createReleaseTag', CreateGitTag) {
     // Ensure tag is created only after a successful publishing
     mustRunAfter('publishPlugins')
