@@ -110,7 +110,7 @@ publishing {
             pom {
                 name = 'Wrapper Upgrade Gradle Plugin'
                 description = 'A Gradle plugin that detects and updates Gradle and Maven wrappers to the latest Gradle and Maven version.'
-                url = 'https://github.com/gradle/common-custom-user-data-gradle-plugin'
+                url = 'https://github.com/gradle/wrapper-upgrade-gradle-plugin'
                 licenses {
                     license {
                         name = "Apache-2.0"
