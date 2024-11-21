@@ -49,6 +49,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
                         dir = 'samples/gradle'
                         options {
                             allowPreRelease = ${allowPreRelease}
+                            labels = ["dependencies", "java"]
                         }
                     }
                 }

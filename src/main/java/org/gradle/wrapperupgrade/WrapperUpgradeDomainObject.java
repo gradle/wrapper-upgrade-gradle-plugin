@@ -51,11 +51,13 @@ public abstract class WrapperUpgradeDomainObject {
 
         private final ListProperty<String> gitCommitExtraArgs;
         private final Property<Boolean> allowPreRelease;
+        private final ListProperty<String> labels;
 
         @Inject
         public Options(ObjectFactory objects) {
             this.gitCommitExtraArgs = objects.listProperty(String.class);
             this.allowPreRelease = objects.property(Boolean.class);
+            this.labels = objects.listProperty(String.class);
         }
 
         public ListProperty<String> getGitCommitExtraArgs() {
@@ -64,6 +66,10 @@ public abstract class WrapperUpgradeDomainObject {
 
         public Property<Boolean> getAllowPreRelease() {
             return allowPreRelease;
+        }
+
+         public ListProperty<String> getLabels() {
+            return labels;
         }
     }
 
