@@ -130,6 +130,11 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         output2.contains "Binary files a/samples/gradle/gradle/wrapper/gradle-wrapper.jar and b/samples/gradle/gradle/wrapper/gradle-wrapper.jar differ"
         output2.contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-6.9-bin.zip"
         output2.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
+
+        and:
+        def proc3 = 'git log --format=%B -n 1 HEAD'.execute(null, gitDir)
+        def output3 = proc3.in.text
+        output3.contains "Signed-off-by:"
     }
 
     def "upgrade wrapper on wrapper-upgrade-gradle-plugin configured with Kotlin (#factoryFunc) with dry run"(factoryFunc) {
