@@ -44,7 +44,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private final ExecOperations execOperations;
 
     @Inject
-    public UpgradeWrapper(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, ProjectLayout layout, ExecOperations execOperations) {
+    public UpgradeWrapper(
+        WrapperUpgradeDomainObject upgrade,
+        BuildToolStrategy buildToolStrategy,
+        ProjectLayout layout,
+        ExecOperations execOperations
+    ) {
         this.upgrade = upgrade;
         this.buildToolStrategy = buildToolStrategy;
         this.layout = layout;
@@ -121,8 +126,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
         String usedBuildToolVersion = params.usedBuildToolVersion.version;
         String relativePath = params.rootProjectDirRelativePath.normalize().toString();
 
+        String title = latestBuildToolVersion.equals(usedBuildToolVersion) ?
+            String.format("Update %s Wrapper version %s files", buildToolName, latestBuildToolVersion) :
+            String.format("Bump %s Wrapper from %s to %s", buildToolName, usedBuildToolVersion, latestBuildToolVersion);
+
         StringBuilder description = new StringBuilder();
-        description.append(String.format("Bump %s Wrapper from %s to %s", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
+        description.append(title);
         if (!relativePath.isEmpty()) {
             String path = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
             description.append(String.format(" in %s", path));
@@ -136,13 +145,18 @@ public abstract class UpgradeWrapper extends DefaultTask {
         String usedBuildToolVersion = params.usedBuildToolVersion.version;
         String releaseNotesLink = buildToolStrategy.releaseNotesLink(latestBuildToolVersion);
 
-        StringBuilder description = new StringBuilder();
-        description.append(String.format("Bump %s Wrapper from %s to %s.", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
-        description.append("\n\n");
-        description.append(String.format("Release notes of %s %s can be found here:", buildToolName, latestBuildToolVersion));
-        description.append("\n");
-        description.append(releaseNotesLink);
-        return description.toString();
+        boolean updatedWrapperFilesOnly = latestBuildToolVersion.equals(usedBuildToolVersion);
+        String title = updatedWrapperFilesOnly ?
+            String.format("Update %s Wrapper version %s files.", buildToolName, latestBuildToolVersion) :
+            String.format("Bump %s Wrapper from %s to %s.", buildToolName, usedBuildToolVersion, latestBuildToolVersion);
+
+        String releaseNotes = updatedWrapperFilesOnly ? "" :
+            "\n\n" +
+                String.format("Release notes of %s %s can be found here:", buildToolName, latestBuildToolVersion) +
+                "\n" +
+                releaseNotesLink;
+
+        return title + releaseNotes;
     }
 
     private void gitCommitAndPush(Params params, String commitMessage) {
