@@ -111,7 +111,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void createPr(Params params) throws IOException {
         String shortDesc = createShortDescription(params);
         String longDesc = createLongDescription(params);
-        gitCommitAndPush(params, shortDesc);
+        gitCommitAndPush(params, longDesc);
         gitCreatePr(params, shortDesc, longDesc);
     }
 
@@ -137,7 +137,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         String releaseNotesLink = buildToolStrategy.releaseNotesLink(latestBuildToolVersion);
 
         StringBuilder description = new StringBuilder();
-        description.append(String.format("Bumps %s Wrapper from %s to %s.", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
+        description.append(String.format("Bump %s Wrapper from %s to %s.", buildToolName, usedBuildToolVersion, latestBuildToolVersion));
         description.append("\n\n");
         description.append(String.format("Release notes of %s %s can be found here:", buildToolName, latestBuildToolVersion));
         description.append("\n");
