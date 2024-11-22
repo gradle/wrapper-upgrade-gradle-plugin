@@ -80,6 +80,11 @@ wrapperUpgrade {
         output2.contains "+distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${latestMavenVersion}/apache-maven-${latestMavenVersion}-bin.zip"
         output2.contains "-wrapperUrl=https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
         output2.contains "+wrapperVersion=" // we do not include the version as it's updated frequently
+
+        and:
+        def proc3 = 'git log --format=%B -n 1 HEAD'.execute(null, gitDir)
+        def output3 = proc3.in.text
+        output3.contains "Signed-off-by:"
     }
 
 }

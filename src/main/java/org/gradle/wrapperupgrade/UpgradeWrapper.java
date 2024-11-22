@@ -154,7 +154,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         execGitCmd(execOperations, params.gitCheckoutDir, "checkout", "--quiet", "-b", params.prBranch);
 
         // Git commit
-        List<String> argsAndExtraArgs = new ArrayList<>(Arrays.asList("commit", "--quiet", "-m", commitMessage));
+        List<String> argsAndExtraArgs = new ArrayList<>(Arrays.asList("commit", "--quiet", "--signoff", "-m", commitMessage));
         argsAndExtraArgs.addAll(params.gitCommitExtraArgs);
         execGitCmd(execOperations, params.gitCheckoutDir, argsAndExtraArgs.toArray());
 
