@@ -119,22 +119,29 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/gradle')
         def proc = 'git show --oneline --name-only HEAD'.execute(null, gitDir)
         def output = proc.in.text
-        output.contains "gradle/wrapper/gradle-wrapper.jar"
-        output.contains "gradle/wrapper/gradle-wrapper.properties"
-        output.contains "gradlew"
+        with(output) {
+            contains "gradle/wrapper/gradle-wrapper.jar"
+            contains "gradle/wrapper/gradle-wrapper.properties"
+            contains "gradlew"
+        }
 
         and:
         def proc2 = 'git show --oneline HEAD'.execute(null, gitDir)
         def output2 = proc2.in.text
-        output2.contains "Bump Gradle Wrapper from 6.9 to ${latestGradleVersion}"
-        output2.contains "Binary files a/samples/gradle/gradle/wrapper/gradle-wrapper.jar and b/samples/gradle/gradle/wrapper/gradle-wrapper.jar differ"
-        output2.contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-6.9-bin.zip"
-        output2.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
+        with(output2) {
+            contains "Bump Gradle Wrapper from 6.9 to ${latestGradleVersion}"
+            contains "Binary files a/samples/gradle/gradle/wrapper/gradle-wrapper.jar and b/samples/gradle/gradle/wrapper/gradle-wrapper.jar differ"
+            contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-6.9-bin.zip"
+            contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
+        }
 
         and:
         def proc3 = 'git log --format=%B -n 1 HEAD'.execute(null, gitDir)
         def output3 = proc3.in.text
-        output3.contains "Signed-off-by:"
+        with(output3) {
+            contains "Signed-off-by:"
+            contains "Release notes of Gradle ${latestGradleVersion} can be found here"
+        }
     }
 
     def "upgrade wrapper on wrapper-upgrade-gradle-plugin configured with Kotlin (#factoryFunc) with dry run"(factoryFunc) {

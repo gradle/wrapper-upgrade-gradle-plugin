@@ -68,23 +68,30 @@ wrapperUpgrade {
         def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/maven')
         def proc = 'git show --oneline --name-only HEAD'.execute(null, gitDir)
         def output = proc.in.text
-        output.contains ".mvn/wrapper/maven-wrapper.jar"
-        output.contains ".mvn/wrapper/maven-wrapper.properties"
+        with(output) {
+            contains ".mvn/wrapper/maven-wrapper.jar"
+            contains ".mvn/wrapper/maven-wrapper.properties"
+        }
 
         and:
         def proc2 = 'git show --oneline HEAD'.execute(null, gitDir)
         def output2 = proc2.in.text
-        output2.contains "Bump Maven Wrapper from 3.6.3 to ${latestMavenVersion}"
-        output2.contains 'Binary files a/samples/maven/.mvn/wrapper/maven-wrapper.jar and /dev/null differ'
-        output2.contains "-distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.zip"
-        output2.contains "+distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${latestMavenVersion}/apache-maven-${latestMavenVersion}-bin.zip"
-        output2.contains "-wrapperUrl=https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
-        output2.contains "+wrapperVersion=" // we do not include the version as it's updated frequently
+        with(output2) {
+            contains "Bump Maven Wrapper from 3.6.3 to ${latestMavenVersion}"
+            contains 'Binary files a/samples/maven/.mvn/wrapper/maven-wrapper.jar and /dev/null differ'
+            contains "-distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.zip"
+            contains "+distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${latestMavenVersion}/apache-maven-${latestMavenVersion}-bin.zip"
+            contains "-wrapperUrl=https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
+            contains "+wrapperVersion=" // we do not include the version as it's updated frequently
+        }
 
         and:
         def proc3 = 'git log --format=%B -n 1 HEAD'.execute(null, gitDir)
         def output3 = proc3.in.text
-        output3.contains "Signed-off-by:"
+        with(output3) {
+            contains "Signed-off-by:"
+            contains "Release notes of Maven ${latestMavenVersion} can be found here"
+        }
     }
 
 }
