@@ -43,6 +43,7 @@ wrapperUpgrade {
             dir = 'samples/maven'
             options {
                 allowPreRelease = ${allowPreRelease}
+                labels = ["dependencies", "java"]
             }
         }
     }

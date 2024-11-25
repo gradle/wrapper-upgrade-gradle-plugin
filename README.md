@@ -128,6 +128,7 @@ wrapperUpgrade {
 | `baseBranch`                 | The git branch to checkout and that the pull request will target                                                                                                 |
 | `options.gitCommitExtraArgs` | List of additional git commit arguments                                                                                                                          |
 | `options.allowPreRelease`    | Boolean: true will get the latest Maven/Gradle version even if it's a pre-release. Default is false.                                                             |
+| `options.labels`             | Optional list of label (names) that will be added to the PR.                                                                                                     |
 
 ## License
 

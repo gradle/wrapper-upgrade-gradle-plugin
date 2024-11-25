@@ -167,6 +167,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void gitCreatePr(Params params, String prTitle, String prBody) throws IOException {
         if (!isDryRun()) {
             GHPullRequest pr = params.gitHub.getRepository(params.repository).createPullRequest(prTitle, params.prBranch, params.baseBranch, prBody);
+            List<String> labels = upgrade.getOptions().getLabels().get();
+            if (!labels.isEmpty()) {
+                pr.addLabels(labels.toArray(new String[0]));
+            }
             getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         } else {
