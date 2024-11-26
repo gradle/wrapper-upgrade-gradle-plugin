@@ -71,7 +71,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             Set<GHPullRequest> pullRequestsToClose = utils.pullRequestsToClose(params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version);
             createPrIfWrapperUpgradeAvailable(params, pullRequestsToClose);
         } else {
-            String message = "A PR from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
+            String message = "An opened or closed PR from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
             if (params.ignoreExistingClosedPr) {
                 message = "An opened PR from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
             }
