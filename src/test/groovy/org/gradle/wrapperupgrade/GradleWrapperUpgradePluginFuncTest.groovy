@@ -48,7 +48,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
                         baseBranch = 'func-test-do-not-delete'
                         dir = 'samples/gradle'
                         options {
-                            ignoreClosedPRs = true
+                            ignoreClosedPullRequests = true
                             allowPreRelease = ${allowPreRelease}
                             labels = ["dependencies", "java"]
                         }
@@ -99,7 +99,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains "No PR created to upgrade Gradle Wrapper to 8.2-rc-2 since already on latest version for project 'junit-func-test'"
+        result.output.contains "No pull request created to upgrade Gradle Wrapper to 8.2-rc-2 since already on latest version for project 'junit-func-test'"
     }
 
     def "upgrade wrapper on wrapper-upgrade-gradle-plugin with dry run"() {
@@ -115,7 +115,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of pull request 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
 
         and:
         def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/gradle')
@@ -189,7 +189,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of pull request 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
 
         and:
         def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/gradle')
@@ -225,7 +225,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of pull request 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
         result.output.contains('Configuration cache entry stored.')
 
         when:
@@ -240,7 +240,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of pull request 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
         result.output.contains('Reusing configuration cache.')
     }
 
@@ -278,7 +278,7 @@ wrapperUpgrade {
         result.task(':upgradeGradleWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
+        result.output.contains("Dry run: Skipping creation of pull request 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/gradle-wrapper-${latestGradleVersion}")
 
         and:
         def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/gradle')

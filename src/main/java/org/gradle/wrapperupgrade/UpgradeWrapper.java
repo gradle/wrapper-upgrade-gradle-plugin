@@ -63,7 +63,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         GitHub gitHub = createGitHub();
         boolean allowPreRelease = upgrade.getOptions().getAllowPreRelease().orElse(Boolean.FALSE).get();
-        boolean ignoreClosedPRs = upgrade.getOptions().getIgnoreClosedPRs().orElse(Boolean.FALSE).get();
+        boolean ignoreClosedPRs = upgrade.getOptions().getIgnoreClosedPullRequests().orElse(Boolean.FALSE).get();
         Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, ignoreClosedPRs, execOperations);
 
         PullRequestUtils utils = new PullRequestUtils(pullRequests(params));
@@ -71,9 +71,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
             Set<GHPullRequest> pullRequestsToClose = utils.pullRequestsToClose(params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version);
             createPrIfWrapperUpgradeAvailable(params, pullRequestsToClose);
         } else {
-            String message = "An opened or closed PR from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
+            String message = "An opened or closed pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
             if (params.ignoreClosedPRs) {
-                message = "An opened PR from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
+                message = "An opened pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
             }
             getLogger().lifecycle(String.format(message,
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
@@ -101,7 +101,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             createPr(params);
             closePullRequests(params, prsToClose);
         } else {
-            getLogger().lifecycle(String.format("No PR created to upgrade %s Wrapper to %s since already on latest version for project '%s'",
+            getLogger().lifecycle(String.format("No pull request created to upgrade %s Wrapper to %s since already on latest version for project '%s'",
                 buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         }
     }
@@ -179,10 +179,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
             if (!labels.isEmpty()) {
                 pr.addLabels(labels.toArray(new String[0]));
             }
-            getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
+            getLogger().lifecycle(String.format("Pull request '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         } else {
-            getLogger().lifecycle(String.format("Dry run: Skipping creation of PR '%s' that would upgrade %s Wrapper to %s for project '%s'",
+            getLogger().lifecycle(String.format("Dry run: Skipping creation of pull request '%s' that would upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         }
     }
@@ -199,18 +199,18 @@ public abstract class UpgradeWrapper extends DefaultTask {
             try {
                 closePullRequest(params, pr);
             } catch (IOException e) {
-                getLogger().warn(String.format("Error deleting PR #%s", pr.getId()), e);
+                getLogger().warn(String.format("Error closing pull request #%s", pr.getId()), e);
             }
         }
     }
 
     private void closePullRequest(Params params, GHPullRequest pr) throws IOException {
         if (!isDryRun()) {
-            getLogger().lifecycle(String.format("PR #'%s' on project '%s' has been closed because target %s Wrapper version is older than %s",
+            getLogger().lifecycle(String.format("Pull request #%s on project '%s' has been closed because target %s Wrapper version is older than %s",
                 pr.getNumber(), params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version));
             pr.close();
         } else {
-            getLogger().lifecycle(String.format("Dry run: Skipping closure of PR #%s on project '%s' because target %s Wrapper version is older than %s",
+            getLogger().lifecycle(String.format("Dry run: Skipping closure of pull request #%s on project '%s' because target %s Wrapper version is older than %s",
                 pr.getNumber(), params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version));
         }
     }

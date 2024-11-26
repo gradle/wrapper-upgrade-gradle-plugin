@@ -42,7 +42,7 @@ wrapperUpgrade {
             baseBranch = 'func-test-do-not-delete'
             dir = 'samples/maven'
             options {
-                ignoreClosedPRs = true
+                ignoreClosedPullRequests = true
                 allowPreRelease = ${allowPreRelease}
                 labels = ["dependencies", "java"]
             }
@@ -64,7 +64,7 @@ wrapperUpgrade {
         result.task(':upgradeMavenWrapperAll').outcome == SUCCESS
 
         and:
-        result.output.contains("Dry run: Skipping creation of PR 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/maven-wrapper-${latestMavenVersion}")
+        result.output.contains("Dry run: Skipping creation of pull request 'wrapperbot/wrapper-upgrade-gradle-plugin-for-func-tests/maven-wrapper-${latestMavenVersion}")
 
         and:
         def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/maven')
