@@ -63,16 +63,16 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         GitHub gitHub = createGitHub();
         boolean allowPreRelease = upgrade.getOptions().getAllowPreRelease().orElse(Boolean.FALSE).get();
-        boolean ignoreExistingClosedPr = upgrade.getOptions().getIgnoreExistingClosedPr().orElse(Boolean.FALSE).get();
-        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, ignoreExistingClosedPr, execOperations);
+        boolean ignoreClosedPRs = upgrade.getOptions().getIgnoreClosedPRs().orElse(Boolean.FALSE).get();
+        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, ignoreClosedPRs, execOperations);
 
         PullRequestUtils utils = new PullRequestUtils(pullRequests(params));
-        if (!utils.prExists(params.prBranch, params.ignoreExistingClosedPr)) {
+        if (!utils.prExists(params.prBranch, params.ignoreClosedPRs)) {
             Set<GHPullRequest> pullRequestsToClose = utils.pullRequestsToClose(params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version);
             createPrIfWrapperUpgradeAvailable(params, pullRequestsToClose);
         } else {
             String message = "An opened or closed PR from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
-            if (params.ignoreExistingClosedPr) {
+            if (params.ignoreClosedPRs) {
                 message = "An opened PR from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
             }
             getLogger().lifecycle(String.format(message,
@@ -244,7 +244,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final VersionInfo latestBuildToolVersion;
         private final VersionInfo usedBuildToolVersion;
         private final List<String> gitCommitExtraArgs;
-        private final boolean ignoreExistingClosedPr;
+        private final boolean ignoreClosedPRs;
         private final GitHub gitHub;
 
         private Params(
@@ -258,7 +258,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             VersionInfo latestBuildToolVersion,
             VersionInfo usedBuildToolVersion,
             List<String> gitCommitExtraArgs,
-            boolean ignoreExistingClosedPr,
+            boolean ignoreClosedPRs,
             GitHub gitHub
         ) {
             this.project = project;
@@ -272,7 +272,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.usedBuildToolVersion = usedBuildToolVersion;
             this.gitCommitExtraArgs = gitCommitExtraArgs;
             this.gitHub = gitHub;
-            this.ignoreExistingClosedPr = ignoreExistingClosedPr;
+            this.ignoreClosedPRs = ignoreClosedPRs;
         }
 
         private static Params create
@@ -283,7 +283,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
                 Directory executionRootDirectory,
                 Directory gitCheckoutDirectory,
                 GitHub gitHub,
-                boolean ignoreExistingClosedPr,
+                boolean ignoreClosedPRs,
                 ExecOperations exec
             ) throws IOException {
             String project = upgrade.name;
@@ -300,7 +300,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             String prBranch = PullRequestUtils.branchPrefix(project, buildToolStrategy.buildToolName().toLowerCase()) + latestBuildToolVersion.version;
             Path rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
             List<String> gitCommitExtraArgs = upgrade.getOptions().getGitCommitExtraArgs().orElse(Collections.emptyList()).get();
-            return new Params(project, repository, baseBranch, prBranch, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, usedBuildToolVersion, gitCommitExtraArgs, ignoreExistingClosedPr, gitHub);
+            return new Params(project, repository, baseBranch, prBranch, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, usedBuildToolVersion, gitCommitExtraArgs, ignoreClosedPRs, gitHub);
         }
 
         private static VersionInfo getLatestBuildToolVersion(BuildToolStrategy buildToolStrategy, boolean allowPreRelease, VersionInfo usedBuildToolVersion) throws IOException {

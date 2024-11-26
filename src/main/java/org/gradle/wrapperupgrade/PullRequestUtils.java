@@ -35,8 +35,8 @@ public class PullRequestUtils {
             .collect(Collectors.toSet());
     }
 
-    boolean prExists(String branch, boolean ignoreExistingClosedPr) {
-        Predicate<GHPullRequest> predicate = ignoreExistingClosedPr ? p -> branch.equals(p.getHead().getRef()) && p.getState() == GHIssueState.OPEN :
+    boolean prExists(String branch, boolean ignoreClosedPRs) {
+        Predicate<GHPullRequest> predicate = ignoreClosedPRs ? p -> branch.equals(p.getHead().getRef()) && p.getState() == GHIssueState.OPEN :
             p -> branch.equals(p.getHead().getRef());
         return pullRequests.stream().anyMatch(predicate);
     }

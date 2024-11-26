@@ -48,7 +48,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
                         baseBranch = 'func-test-do-not-delete'
                         dir = 'samples/gradle'
                         options {
-                            ignoreExistingClosedPr = true
+                            ignoreClosedPRs = true
                             allowPreRelease = ${allowPreRelease}
                             labels = ["dependencies", "java"]
                         }

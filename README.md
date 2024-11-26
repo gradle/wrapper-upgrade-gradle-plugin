@@ -115,23 +115,23 @@ wrapperUpgrade {
                 gitCommitExtraArgs = [...]
                 allowPreRelease = true
                 labels = ['dependencies']
-                ignoreExistingClosedPr = true
+                ignoreClosedPRs = true
             }
         }
     }
 }
 ```
 
-| Field                            | description                                                                                                                                                      |
-|:---------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `name`                           | A name identifying the upgrade, it can be different from the project name, for example when you need to upgrade multiple gradle projects in the same git project |
-| `repo`                           | The GitHub repository to clone, format 'organization/project`                                                                                                    |
-| `dir`                            | The directory inside the project base directory to run the gradle or maven upgrade in                                                                            |
-| `baseBranch`                     | The git branch to checkout and that the pull request will target                                                                                                 |
-| `options.gitCommitExtraArgs`     | List of additional git commit arguments                                                                                                                          |
-| `options.allowPreRelease`        | Boolean: true will get the latest Maven/Gradle version even if it's a pre-release. Default is false.                                                             |
-| `options.labels`                 | Optional list of label (names) that will be added to the PR.                                                                                                     |
-| `options.ignoreExistingClosedPr` | Boolean: true will recreate the PR if a closed PR with the same branch name exists. false will not create the PR. Default is false.                              |
+| Field                        | description                                                                                                                                                      |
+|:-----------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `name`                       | A name identifying the upgrade, it can be different from the project name, for example when you need to upgrade multiple gradle projects in the same git project |
+| `repo`                       | The GitHub repository to clone, format 'organization/project`                                                                                                    |
+| `dir`                        | The directory inside the project base directory to run the gradle or maven upgrade in                                                                            |
+| `baseBranch`                 | The git branch to checkout and that the pull request will target                                                                                                 |
+| `options.gitCommitExtraArgs` | List of additional git commit arguments                                                                                                                          |
+| `options.allowPreRelease`    | Boolean: true will get the latest Maven/Gradle version even if it's a pre-release. Default is false.                                                             |
+| `options.labels`             | Optional list of label (names) that will be added to the PR.                                                                                                     |
+| `options.ignoreClosedPRs`    | Boolean: true will recreate the PR if a closed PR with the same branch name exists. false will not create the PR. Default is false.                              |
 
 ## License
 
