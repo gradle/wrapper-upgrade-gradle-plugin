@@ -7,40 +7,58 @@ import spock.lang.Specification
 
 class PullRequestUtilsTest extends Specification {
 
-    def "pr exists"() {
+    def "open pr exists"() {
         given:
         def pullRequests = [
-            stub('somebranch', GHIssueState.OPEN),
-            stub('someotherbranch', GHIssueState.CLOSED),
-            stub('wrapperbot/someproj/gradle-wrapper-8.10', GHIssueState.OPEN),
-            stub('wrapperbot/someproj/gradle-wrapper-8.10', GHIssueState.CLOSED),
-            stub('wrapperbot/someproj/gradle-wrapper-8.11.1', status)
+                stub('wrapperbot/someproj/gradle-wrapper-8.10', GHIssueState.CLOSED),
+                stub('wrapperbot/someproj/gradle-wrapper-8.11.1', GHIssueState.OPEN),
+                stub('wrapperbot/someproj/gradle-wrapper-8.11.1', GHIssueState.CLOSED)
         ] as Set
 
         def utils = new PullRequestUtils(pullRequests)
 
         when:
-        def result = utils.prExists('wrapperbot/someproj/gradle-wrapper-8.11.1', ignoreExistingClosed)
+        def result = utils.openPrExists(branch)
 
         then:
         result == exists
 
         where:
-        ignoreExistingClosed | status              | exists
-        true                 | GHIssueState.OPEN   | true
-        true                 | GHIssueState.CLOSED | false
-        false                | GHIssueState.OPEN   | true
-        false                | GHIssueState.CLOSED | true
+        branch                                      | exists
+        'wrapperbot/someproj/gradle-wrapper-8.11.1' | true
+        'wrapperbot/someproj/gradle-wrapper-8.10'   | false
+    }
+
+    def "closed pr exists"() {
+        given:
+        def pullRequests = [
+                stub('wrapperbot/someproj/gradle-wrapper-8.10', GHIssueState.OPEN),
+                stub('wrapperbot/someproj/gradle-wrapper-8.11.1', GHIssueState.OPEN),
+                stub('wrapperbot/someproj/gradle-wrapper-8.11.1', GHIssueState.CLOSED)
+        ] as Set
+
+        def utils = new PullRequestUtils(pullRequests)
+
+        when:
+        def result = utils.closedPrExists(branch)
+
+        then:
+        result == exists
+
+        where:
+        branch                                      | exists
+        'wrapperbot/someproj/gradle-wrapper-8.11.1' | true
+        'wrapperbot/someproj/gradle-wrapper-8.10'   | false
     }
 
     def "pull requests to close"() {
         given:
         def pullRequests = [
-            stub('somebranch', GHIssueState.OPEN),
-            stub('someotherbranch', GHIssueState.CLOSED),
-            stub('wrapperbot/someproj/gradle-wrapper-8.9', GHIssueState.OPEN),
-            stub('wrapperbot/someproj/gradle-wrapper-8.10', GHIssueState.CLOSED),
-            stub('wrapperbot/someproj/gradle-wrapper-8.11.1', GHIssueState.OPEN)
+                stub('somebranch', GHIssueState.OPEN),
+                stub('someotherbranch', GHIssueState.CLOSED),
+                stub('wrapperbot/someproj/gradle-wrapper-8.9', GHIssueState.OPEN),
+                stub('wrapperbot/someproj/gradle-wrapper-8.10', GHIssueState.CLOSED),
+                stub('wrapperbot/someproj/gradle-wrapper-8.11.1', GHIssueState.OPEN)
         ] as Set
 
         def utils = new PullRequestUtils(pullRequests)

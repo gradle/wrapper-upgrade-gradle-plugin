@@ -5,7 +5,6 @@ import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
 
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PullRequestUtils {
@@ -35,10 +34,16 @@ public class PullRequestUtils {
             .collect(Collectors.toSet());
     }
 
-    boolean prExists(String branch, boolean ignoreClosedPRs) {
-        Predicate<GHPullRequest> predicate = ignoreClosedPRs ? p -> branch.equals(p.getHead().getRef()) && p.getState() == GHIssueState.OPEN :
-            p -> branch.equals(p.getHead().getRef());
-        return pullRequests.stream().anyMatch(predicate);
+    boolean openPrExists(String branch) {
+        return prExists(branch, GHIssueState.OPEN);
+    }
+
+    boolean closedPrExists(String branch) {
+        return prExists(branch, GHIssueState.CLOSED);
+    }
+
+    private boolean prExists(String branch, GHIssueState state) {
+        return pullRequests.stream().anyMatch(p -> branch.equals(p.getHead().getRef()) && p.getState() == state);
     }
 
 }

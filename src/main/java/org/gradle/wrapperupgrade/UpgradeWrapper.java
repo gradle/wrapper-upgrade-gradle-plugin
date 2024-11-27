@@ -10,8 +10,10 @@ import org.gradle.process.internal.ExecException;
 import org.gradle.util.internal.VersionNumber;
 import org.gradle.work.DisableCachingByDefault;
 import org.gradle.wrapperupgrade.BuildToolStrategy.VersionInfo;
+import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
+import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 
@@ -66,18 +68,24 @@ public abstract class UpgradeWrapper extends DefaultTask {
         boolean recreateClosedPRs = upgrade.getOptions().getRecreateClosedPullRequests().orElse(Boolean.FALSE).get();
         Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, recreateClosedPRs, execOperations);
 
-        PullRequestUtils utils = new PullRequestUtils(pullRequests(params));
-        if (!utils.prExists(params.prBranch, params.recreateClosedPRs)) {
-            Set<GHPullRequest> pullRequestsToClose = utils.pullRequestsToClose(params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version);
-            createPrIfWrapperUpgradeAvailable(params, pullRequestsToClose);
-        } else {
-            String message = "An opened or closed pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
-            if (params.recreateClosedPRs) {
-                message = "An opened pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
-            }
-            getLogger().lifecycle(String.format(message,
+        if (branchExists(params)) {
+            getLogger().lifecycle(String.format("GitHub branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
+            return;
         }
+        PullRequestUtils utils = new PullRequestUtils(pullRequests(params));
+        if (utils.openPrExists(params.prBranch)) {
+            getLogger().lifecycle(String.format("An opened pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
+                params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
+            return;
+        }
+        if (utils.closedPrExists(params.prBranch) && !params.recreateClosedPRs) {
+            getLogger().lifecycle(String.format("A closed pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'. Use `recreateClosedPullRequests` option to recreate it.",
+                params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
+            return;
+        }
+        Set<GHPullRequest> pullRequestsToClose = utils.pullRequestsToClose(params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version);
+        createPrIfWrapperUpgradeAvailable(params, pullRequestsToClose);
     }
 
     private static GitHub createGitHub() throws IOException {
@@ -184,6 +192,16 @@ public abstract class UpgradeWrapper extends DefaultTask {
         } else {
             getLogger().lifecycle(String.format("Dry run: Skipping creation of pull request '%s' that would upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
+        }
+    }
+
+    private boolean branchExists(Params params) throws IOException {
+        GHRepository repository = params.gitHub.getRepository(params.repository);
+        try {
+            repository.getBranch(params.prBranch);
+            return true;
+        } catch (GHFileNotFoundException e) {
+            return false;
         }
     }
 
