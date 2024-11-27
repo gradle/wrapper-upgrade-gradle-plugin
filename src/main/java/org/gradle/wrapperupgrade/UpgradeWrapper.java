@@ -10,8 +10,10 @@ import org.gradle.process.internal.ExecException;
 import org.gradle.util.internal.VersionNumber;
 import org.gradle.work.DisableCachingByDefault;
 import org.gradle.wrapperupgrade.BuildToolStrategy.VersionInfo;
+import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
+import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 
@@ -26,9 +28,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.Boolean.parseBoolean;
 import static org.gradle.wrapperupgrade.ExecUtils.execGitCmd;
+import static org.gradle.wrapperupgrade.PullRequestUtils.*;
 
 @DisableCachingByDefault(because = "Produces no cacheable output")
 public abstract class UpgradeWrapper extends DefaultTask {
@@ -65,13 +70,27 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         GitHub gitHub = createGitHub();
         boolean allowPreRelease = upgrade.getOptions().getAllowPreRelease().orElse(Boolean.FALSE).get();
-        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, execOperations);
-        if (!prExists(params)) {
-            createPrIfWrapperUpgradeAvailable(params);
-        } else {
-            getLogger().lifecycle(String.format("PR '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
+        boolean recreateClosedPRs = upgrade.getOptions().getRecreateClosedPullRequests().orElse(Boolean.FALSE).get();
+        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, recreateClosedPRs, execOperations);
+
+        if (branchExists(params)) {
+            getLogger().lifecycle(String.format("GitHub branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
+            return;
         }
+        PullRequestUtils utils = new PullRequestUtils(pullRequests(params));
+        if (utils.openPrExists(params.prBranch)) {
+            getLogger().lifecycle(String.format("An opened pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
+                params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
+            return;
+        }
+        if (utils.closedPrExists(params.prBranch) && !params.recreateClosedPRs) {
+            getLogger().lifecycle(String.format("A closed pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'. Use `recreateClosedPullRequests` option to recreate it.",
+                params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
+            return;
+        }
+        Set<GHPullRequest> pullRequestsToClose = utils.pullRequestsToClose(params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version);
+        createPrIfWrapperUpgradeAvailable(params, pullRequestsToClose);
     }
 
     private static GitHub createGitHub() throws IOException {
@@ -80,13 +99,9 @@ public abstract class UpgradeWrapper extends DefaultTask {
         return gitHub.build();
     }
 
-    private static boolean prExists(Params params) throws IOException {
-        return params.gitHub.getRepository(params.repository).getPullRequests(GHIssueState.OPEN).stream().anyMatch(pr -> pr.getHead().getRef().equals(params.prBranch));
-    }
-
-    private void createPrIfWrapperUpgradeAvailable(Params params) throws IOException {
+    private void createPrIfWrapperUpgradeAvailable(Params params, Set<GHPullRequest> prsToClose) throws IOException {
         runWrapperWithLatestBuildToolVersion(params);
-        createPrIfWrapperChanged(params);
+        createPrIfWrapperChanged(params, prsToClose);
     }
 
     private void runWrapperWithLatestBuildToolVersion(Params params) {
@@ -94,11 +109,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
         buildToolStrategy.runWrapper(execOperations, params.rootProjectDir, params.latestBuildToolVersion);
     }
 
-    private void createPrIfWrapperChanged(Params params) throws IOException {
+    private void createPrIfWrapperChanged(Params params, Set<GHPullRequest> prsToClose) throws IOException {
         if (isWrapperChanged(params.gitCheckoutDir)) {
             createPr(params);
+            closePullRequests(params, prsToClose);
         } else {
-            getLogger().lifecycle(String.format("No PR created to upgrade %s Wrapper to %s since already on latest version for project '%s'",
+            getLogger().lifecycle(String.format("No pull request created to upgrade %s Wrapper to %s since already on latest version for project '%s'",
                 buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         }
     }
@@ -185,11 +201,49 @@ public abstract class UpgradeWrapper extends DefaultTask {
             if (!labels.isEmpty()) {
                 pr.addLabels(labels.toArray(new String[0]));
             }
-            getLogger().lifecycle(String.format("PR '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
+            getLogger().lifecycle(String.format("Pull request '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
         } else {
-            getLogger().lifecycle(String.format("Dry run: Skipping creation of PR '%s' that would upgrade %s Wrapper to %s for project '%s'",
+            getLogger().lifecycle(String.format("Dry run: Skipping creation of pull request '%s' that would upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
+        }
+    }
+
+    private boolean branchExists(Params params) throws IOException {
+        GHRepository repository = params.gitHub.getRepository(params.repository);
+        try {
+            repository.getBranch(params.prBranch);
+            return true;
+        } catch (GHFileNotFoundException e) {
+            return false;
+        }
+    }
+
+    private Set<GHPullRequest> pullRequests(Params params) throws IOException {
+        return params.gitHub.getRepository(params.repository).getPullRequests(GHIssueState.ALL)
+            .stream()
+            .filter(pr -> pr.getHead().getRef().startsWith(branchPrefix(params.project, buildToolStrategy.buildToolName().toLowerCase())))
+            .collect(Collectors.toSet());
+    }
+
+    private void closePullRequests(Params params, Set<GHPullRequest> prs) {
+        for (GHPullRequest pr : prs) {
+            try {
+                closePullRequest(params, pr);
+            } catch (IOException e) {
+                getLogger().warn(String.format("Error closing pull request #%s", pr.getId()), e);
+            }
+        }
+    }
+
+    private void closePullRequest(Params params, GHPullRequest pr) throws IOException {
+        if (!isDryRun()) {
+            getLogger().lifecycle(String.format("Pull request #%s on project '%s' has been closed because target %s Wrapper version is older than %s",
+                pr.getNumber(), params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version));
+            pr.close();
+        } else {
+            getLogger().lifecycle(String.format("Dry run: Skipping closure of pull request #%s on project '%s' because target %s Wrapper version is older than %s",
+                pr.getNumber(), params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version));
         }
     }
 
@@ -222,11 +276,23 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final VersionInfo latestBuildToolVersion;
         private final VersionInfo usedBuildToolVersion;
         private final List<String> gitCommitExtraArgs;
+        private final boolean recreateClosedPRs;
         private final GitHub gitHub;
 
-        private Params(String project, String repository, String baseBranch, String prBranch,
-                       Path gitCheckoutDir, Path rootProjectDir, Path rootProjectDirRelativePath,
-                       VersionInfo latestBuildToolVersion, VersionInfo usedBuildToolVersion, List<String> gitCommitExtraArgs, GitHub gitHub) {
+        private Params(
+            String project,
+            String repository,
+            String baseBranch,
+            String prBranch,
+            Path gitCheckoutDir,
+            Path rootProjectDir,
+            Path rootProjectDirRelativePath,
+            VersionInfo latestBuildToolVersion,
+            VersionInfo usedBuildToolVersion,
+            List<String> gitCommitExtraArgs,
+            boolean recreateClosedPRs,
+            GitHub gitHub
+        ) {
             this.project = project;
             this.repository = repository;
             this.baseBranch = baseBranch;
@@ -238,9 +304,20 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.usedBuildToolVersion = usedBuildToolVersion;
             this.gitCommitExtraArgs = gitCommitExtraArgs;
             this.gitHub = gitHub;
+            this.recreateClosedPRs = recreateClosedPRs;
         }
 
-        private static Params create(WrapperUpgradeDomainObject upgrade, BuildToolStrategy buildToolStrategy, boolean allowPreRelease, Directory executionRootDirectory, Directory gitCheckoutDirectory, GitHub gitHub, ExecOperations exec) throws IOException {
+        private static Params create
+            (
+                WrapperUpgradeDomainObject upgrade,
+                BuildToolStrategy buildToolStrategy,
+                boolean allowPreRelease,
+                Directory executionRootDirectory,
+                Directory gitCheckoutDirectory,
+                GitHub gitHub,
+                boolean ignoreClosedPRs,
+                ExecOperations exec
+            ) throws IOException {
             String project = upgrade.name;
             String repository = upgrade.getRepo().get();
             String baseBranch = upgrade.getBaseBranch().get();
@@ -252,10 +329,10 @@ public abstract class UpgradeWrapper extends DefaultTask {
             VersionInfo usedBuildToolVersion = buildToolStrategy.extractCurrentVersion(rootProjectDir);
             VersionInfo latestBuildToolVersion = getLatestBuildToolVersion(buildToolStrategy, allowPreRelease, usedBuildToolVersion);
 
-            String prBranch = String.format("wrapperbot/%s/%s-wrapper-%s", project, buildToolStrategy.buildToolName().toLowerCase(), latestBuildToolVersion.version);
+            String prBranch = PullRequestUtils.branchPrefix(project, buildToolStrategy.buildToolName().toLowerCase()) + latestBuildToolVersion.version;
             Path rootProjectDirRelativePath = gitCheckoutDir.relativize(rootProjectDir);
             List<String> gitCommitExtraArgs = upgrade.getOptions().getGitCommitExtraArgs().orElse(Collections.emptyList()).get();
-            return new Params(project, repository, baseBranch, prBranch, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, usedBuildToolVersion, gitCommitExtraArgs, gitHub);
+            return new Params(project, repository, baseBranch, prBranch, gitCheckoutDir, rootProjectDir, rootProjectDirRelativePath, latestBuildToolVersion, usedBuildToolVersion, gitCommitExtraArgs, ignoreClosedPRs, gitHub);
         }
 
         private static VersionInfo getLatestBuildToolVersion(BuildToolStrategy buildToolStrategy, boolean allowPreRelease, VersionInfo usedBuildToolVersion) throws IOException {
