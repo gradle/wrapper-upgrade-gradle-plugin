@@ -42,7 +42,7 @@ wrapperUpgrade {
             baseBranch = 'func-test-do-not-delete'
             dir = 'samples/maven'
             options {
-                ignoreClosedPullRequests = true
+                recreateClosedPullRequests = true
                 allowPreRelease = ${allowPreRelease}
                 labels = ["dependencies", "java"]
             }

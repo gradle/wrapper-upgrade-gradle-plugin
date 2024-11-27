@@ -63,16 +63,16 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         GitHub gitHub = createGitHub();
         boolean allowPreRelease = upgrade.getOptions().getAllowPreRelease().orElse(Boolean.FALSE).get();
-        boolean ignoreClosedPRs = upgrade.getOptions().getIgnoreClosedPullRequests().orElse(Boolean.FALSE).get();
-        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, ignoreClosedPRs, execOperations);
+        boolean recreateClosedPRs = upgrade.getOptions().getRecreateClosedPullRequests().orElse(Boolean.FALSE).get();
+        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, recreateClosedPRs, execOperations);
 
         PullRequestUtils utils = new PullRequestUtils(pullRequests(params));
-        if (!utils.prExists(params.prBranch, params.ignoreClosedPRs)) {
+        if (!utils.prExists(params.prBranch, params.recreateClosedPRs)) {
             Set<GHPullRequest> pullRequestsToClose = utils.pullRequestsToClose(params.project, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version);
             createPrIfWrapperUpgradeAvailable(params, pullRequestsToClose);
         } else {
             String message = "An opened or closed pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
-            if (params.ignoreClosedPRs) {
+            if (params.recreateClosedPRs) {
                 message = "An opened pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'";
             }
             getLogger().lifecycle(String.format(message,
@@ -244,7 +244,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
         private final VersionInfo latestBuildToolVersion;
         private final VersionInfo usedBuildToolVersion;
         private final List<String> gitCommitExtraArgs;
-        private final boolean ignoreClosedPRs;
+        private final boolean recreateClosedPRs;
         private final GitHub gitHub;
 
         private Params(
@@ -258,7 +258,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             VersionInfo latestBuildToolVersion,
             VersionInfo usedBuildToolVersion,
             List<String> gitCommitExtraArgs,
-            boolean ignoreClosedPRs,
+            boolean recreateClosedPRs,
             GitHub gitHub
         ) {
             this.project = project;
@@ -272,7 +272,7 @@ public abstract class UpgradeWrapper extends DefaultTask {
             this.usedBuildToolVersion = usedBuildToolVersion;
             this.gitCommitExtraArgs = gitCommitExtraArgs;
             this.gitHub = gitHub;
-            this.ignoreClosedPRs = ignoreClosedPRs;
+            this.recreateClosedPRs = recreateClosedPRs;
         }
 
         private static Params create
