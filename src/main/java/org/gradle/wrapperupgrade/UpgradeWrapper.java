@@ -205,32 +205,12 @@ public abstract class UpgradeWrapper extends DefaultTask {
             }
             List<String> reviewers = upgrade.getOptions().getReviewers().get();
             if (!reviewers.isEmpty()) {
-                List<GHUser> githubReviewers = reviewers.stream()
-                    .map(reviewer -> {
-                        try {
-                            return params.gitHub.getUser(reviewer);
-                        } catch (IOException e) {
-                            getLogger().warn(String.format("Error fetching GitHub user '%s'", reviewer), e);
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                List<GHUser> githubReviewers = mapToGHUsers(params, reviewers);
                 pr.requestReviewers(githubReviewers);
             }
             List<String> assignees = upgrade.getOptions().getAssignees().get();
             if (!assignees.isEmpty()) {
-                List<GHUser> githubAssignees = assignees.stream()
-                    .map(assignee -> {
-                        try {
-                            return params.gitHub.getUser(assignee);
-                        } catch (IOException e) {
-                            getLogger().warn(String.format("Error fetching GitHub user '%s'", assignee), e);
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                List<GHUser> githubAssignees = mapToGHUsers(params, assignees);
                 pr.addAssignees(githubAssignees);
             }
             getLogger().lifecycle(String.format("Pull request '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
@@ -294,6 +274,20 @@ public abstract class UpgradeWrapper extends DefaultTask {
         } catch (MalformedURLException e) {
             return false;
         }
+    }
+
+    private List<GHUser> mapToGHUsers(Params params, List<String> users) {
+        return users.stream()
+            .map(user -> {
+                try {
+                    return params.gitHub.getUser(user);
+                } catch (IOException e) {
+                    getLogger().warn(String.format("Error fetching GitHub user '%s'", user), e);
+                    return null;
+                }
+            })
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
     }
 
     private static final class Params {
