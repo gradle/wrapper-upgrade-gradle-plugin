@@ -14,6 +14,7 @@ import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -200,6 +202,36 @@ public abstract class UpgradeWrapper extends DefaultTask {
             List<String> labels = upgrade.getOptions().getLabels().get();
             if (!labels.isEmpty()) {
                 pr.addLabels(labels.toArray(new String[0]));
+            }
+            List<String> reviewers = upgrade.getOptions().getReviewers().get();
+            if (!reviewers.isEmpty()) {
+                List<GHUser> githubReviewers = reviewers.stream()
+                    .map(reviewer -> {
+                        try {
+                            return params.gitHub.getUser(reviewer);
+                        } catch (IOException e) {
+                            getLogger().warn(String.format("Error fetching GitHub user '%s'", reviewer), e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+                pr.requestReviewers(githubReviewers);
+            }
+            List<String> assignees = upgrade.getOptions().getAssignees().get();
+            if (!assignees.isEmpty()) {
+                List<GHUser> githubAssignees = assignees.stream()
+                    .map(assignee -> {
+                        try {
+                            return params.gitHub.getUser(assignee);
+                        } catch (IOException e) {
+                            getLogger().warn(String.format("Error fetching GitHub user '%s'", assignee), e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+                pr.addAssignees(githubAssignees);
             }
             getLogger().lifecycle(String.format("Pull request '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
