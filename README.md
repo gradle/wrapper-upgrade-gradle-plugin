@@ -115,6 +115,8 @@ wrapperUpgrade {
                 gitCommitExtraArgs = [...]
                 allowPreRelease = true
                 labels = ['dependencies']
+                assignees = ['alextu']
+                reviewers = ['StefMa']
                 recreateClosedPullRequests = true
             }
         }
@@ -131,6 +133,8 @@ wrapperUpgrade {
 | `options.gitCommitExtraArgs`         | List of additional git commit arguments                                                                                                                                   |
 | `options.allowPreRelease`            | Boolean: `true` will get the latest Maven/Gradle version even if it's a pre-release. Default is `false`.                                                                  |
 | `options.labels`                     | Optional list of label (names) that will be added to the pull request.                                                                                                    |
+| `options.assignees`                  | Optional list of GitHub usernames that will be added as assignees to the pull request.                                                                                    |
+| `options.reviewers`                  | Optional list of GitHub usernames that will be added as reviewers to the pull request.                                                                                    |
 | `options.recreateClosedPullRequests` | Boolean: `true` will recreate the pull request if a closed pull request with the same branch name exists. `false` will not recreate the pull request. Default is `false`. |
 
 ## License
