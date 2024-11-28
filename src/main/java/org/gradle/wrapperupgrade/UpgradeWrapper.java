@@ -79,11 +79,6 @@ public abstract class UpgradeWrapper extends DefaultTask {
             return;
         }
         PullRequestUtils utils = new PullRequestUtils(pullRequests(params));
-        if (utils.openPrExists(params.prBranch)) {
-            getLogger().lifecycle(String.format("An opened pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
-                params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
-            return;
-        }
         if (utils.closedPrExists(params.prBranch) && !params.recreateClosedPRs) {
             getLogger().lifecycle(String.format("A closed pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'. Use `recreateClosedPullRequests` option to recreate it.",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
