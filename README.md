@@ -11,7 +11,7 @@ The Wrapper Upgrade Gradle Plugin creates tasks to upgrade the Gradle Wrapper fo
 To run the upgrade tasks, you'll need:
 
 * **Java 8 or later.**
-* **Git CLI.**  The plugin uses the Git CLI to commit, create branches, and push changes.
+* **Git.**  The plugin uses Git commands to commit, create branches, and push changes.
 
     * **Git author identity:** Make sure your Git author identity is configured. You can set this with:
 
