@@ -6,6 +6,42 @@
 
 The Wrapper Upgrade Gradle Plugin creates tasks to upgrade the Gradle Wrapper for target projects hosted on GitHub.
 
+## Prerequisites
+
+To run the upgrade tasks, you'll need:
+
+* **Java 8 or later.**
+* **Git CLI.**  The plugin uses the Git CLI to commit, create branches, and push changes.
+
+    * **Git author identity:** Make sure your Git author identity is configured. You can set this with:
+
+      ```bash
+      git config --global user.name "Your Name"
+      git config --global user.email "your.email@example.com"
+      ```
+
+      **Using GPG Signing (Optional):** If you use GitHub Actions and want to sign your commits with GPG, you can use the [crazy-max/ghaction-import-gpg](https://github.com/crazy-max/ghaction-import-gpg) action. This action imports your GPG key **and** configures the Git author identity.
+
+      ```yaml
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@cb9bde2e2525e640591a934b1fd28eef1dcaf5e5
+        with:
+          gpg_private_key: ${{ secrets.MY_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.MY_GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_config_global: true
+      ```
+
+    * **Git credentials:** If you use GitHub Actions, you can configure your Git credentials from a GitHub token with this trick:
+
+      ```yaml
+      - name: Set up Git credentials
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: git config --global url."https://unused-username:${TOKEN}@github.com/".insteadOf "https://github.com/"
+      ```
+
 ## Usage
 Apply the plugin to a dedicated project and configure which project needs to be upgraded. Example:
 
@@ -100,7 +136,6 @@ Running `./gradlew upgradeGradleWrapperXXX` will:
 Note that a check is done first to make sure the branch does not exist yet. That way you can run `upgradeGradleWrapperAll` and `upgradeMavenWrapperAll` periodically with a cron, CI job... a bit like dependabot does for upgrading libs.
 
 Running `upgradeMavenWrapperXXX` will do the same, executing `./mvnw wrapper:wrapper -Dmaven=<latest_maven_version>` instead.
-
 
 ### Configuration
 
