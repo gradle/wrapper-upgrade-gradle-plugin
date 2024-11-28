@@ -51,6 +51,8 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
                             recreateClosedPullRequests = true
                             allowPreRelease = ${allowPreRelease}
                             labels = ["dependencies", "java"]
+                            assignees = ["wrapperbot"]
+                            reviewers = ["wrapperbot"]
                         }
                     }
                 }
