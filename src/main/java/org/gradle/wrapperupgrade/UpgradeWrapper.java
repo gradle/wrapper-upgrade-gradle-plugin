@@ -14,6 +14,7 @@ import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -192,12 +194,11 @@ public abstract class UpgradeWrapper extends DefaultTask {
     private void gitCreatePr(Params params, String prTitle, String prBody) throws IOException {
         if (!isDryRun()) {
             GHPullRequest pr = params.gitHub.getRepository(params.repository).createPullRequest(prTitle, params.prBranch, params.baseBranch, prBody);
-            List<String> labels = upgrade.getOptions().getLabels().get();
-            if (!labels.isEmpty()) {
-                pr.addLabels(labels.toArray(new String[0]));
-            }
             getLogger().lifecycle(String.format("Pull request '%s' created at %s to upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, pr.getHtmlUrl(), buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
+            addLabels(pr);
+            requestReviewers(params.gitHub, pr);
+            addAssignees(params.gitHub, pr);
         } else {
             getLogger().lifecycle(String.format("Dry run: Skipping creation of pull request '%s' that would upgrade %s Wrapper to %s for project '%s'",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
@@ -257,6 +258,56 @@ public abstract class UpgradeWrapper extends DefaultTask {
         } catch (MalformedURLException e) {
             return false;
         }
+    }
+
+    private void addLabels(GHPullRequest pr) {
+        List<String> labels = upgrade.getOptions().getLabels().get();
+        if (!labels.isEmpty()) {
+            try {
+                pr.addLabels(labels.toArray(new String[0]));
+            } catch (IOException e) {
+                getLogger().warn("Error adding labels: " + (e.getMessage() != null ? e.getMessage() : "Unable to add labels"));
+            }
+        }
+    }
+
+    private void requestReviewers(GitHub gitHub, GHPullRequest pr) {
+        List<String> reviewers = upgrade.getOptions().getReviewers().get();
+        if (!reviewers.isEmpty()) {
+            List<GHUser> githubReviewers = mapToGHUsers(gitHub, reviewers);
+            try {
+                pr.requestReviewers(githubReviewers);
+            } catch (IOException e) {
+                getLogger().warn("Error requesting reviewers: " + (e.getMessage() != null ? e.getMessage() : "Unable to request reviewers"));
+            }
+        }
+    }
+
+
+    private void addAssignees(GitHub gitHub, GHPullRequest pr) {
+        List<String> assignees = upgrade.getOptions().getAssignees().get();
+        if (!assignees.isEmpty()) {
+            List<GHUser> githubAssignees = mapToGHUsers(gitHub, assignees);
+            try {
+                pr.addAssignees(githubAssignees);
+            } catch (IOException e) {
+                getLogger().warn("Error adding assignees: " + (e.getMessage() != null ? e.getMessage() : "Unable to add assignees"));
+            }
+        }
+    }
+
+    private List<GHUser> mapToGHUsers(GitHub gitHub, List<String> users) {
+        return users.stream()
+            .map(user -> {
+                try {
+                    return gitHub.getUser(user);
+                } catch (IOException e) {
+                    getLogger().warn(String.format("Error fetching GitHub user '%s'", user), e);
+                    return null;
+                }
+            })
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
     }
 
     private static final class Params {

@@ -45,6 +45,8 @@ wrapperUpgrade {
                 recreateClosedPullRequest = true
                 allowPreRelease = ${allowPreRelease}
                 labels = ["dependencies", "java"]
+                assignees = ["wrapperbot"]
+                reviewers = ["wrapperbot"]
             }
         }
     }
