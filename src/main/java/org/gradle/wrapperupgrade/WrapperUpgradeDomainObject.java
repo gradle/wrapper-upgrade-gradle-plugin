@@ -52,14 +52,14 @@ public abstract class WrapperUpgradeDomainObject {
         private final ListProperty<String> gitCommitExtraArgs;
         private final Property<Boolean> allowPreRelease;
         private final ListProperty<String> labels;
-        private final Property<Boolean> recreateClosedPullRequests;
+        private final Property<Boolean> recreateClosedPullRequest;
 
         @Inject
         public Options(ObjectFactory objects) {
             this.gitCommitExtraArgs = objects.listProperty(String.class);
             this.allowPreRelease = objects.property(Boolean.class);
             this.labels = objects.listProperty(String.class);
-            this.recreateClosedPullRequests = objects.property(Boolean.class);
+            this.recreateClosedPullRequest = objects.property(Boolean.class);
         }
 
         public ListProperty<String> getGitCommitExtraArgs() {
@@ -74,8 +74,8 @@ public abstract class WrapperUpgradeDomainObject {
             return labels;
         }
 
-        public Property<Boolean> getRecreateClosedPullRequests() {
-            return recreateClosedPullRequests;
+        public Property<Boolean> getRecreateClosedPullRequest() {
+            return recreateClosedPullRequest;
         }
     }
 

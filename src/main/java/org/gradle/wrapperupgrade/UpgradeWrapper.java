@@ -70,8 +70,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
     void upgrade() throws IOException {
         GitHub gitHub = createGitHub();
         boolean allowPreRelease = upgrade.getOptions().getAllowPreRelease().orElse(Boolean.FALSE).get();
-        boolean recreateClosedPRs = upgrade.getOptions().getRecreateClosedPullRequests().orElse(Boolean.FALSE).get();
-        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, recreateClosedPRs, execOperations);
+        boolean recreateClosedPr = upgrade.getOptions().getRecreateClosedPullRequest().orElse(Boolean.FALSE).get();
+        Params params = Params.create(upgrade, buildToolStrategy, allowPreRelease, layout.getProjectDirectory(), getCheckoutDir().get(), gitHub, recreateClosedPr, execOperations);
 
         if (branchExists(params)) {
             getLogger().lifecycle(String.format("GitHub branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
@@ -79,13 +79,8 @@ public abstract class UpgradeWrapper extends DefaultTask {
             return;
         }
         PullRequestUtils utils = new PullRequestUtils(pullRequests(params));
-        if (utils.openPrExists(params.prBranch)) {
-            getLogger().lifecycle(String.format("An opened pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'",
-                params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
-            return;
-        }
         if (utils.closedPrExists(params.prBranch) && !params.recreateClosedPRs) {
-            getLogger().lifecycle(String.format("A closed pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'. Use `recreateClosedPullRequests` option to recreate it.",
+            getLogger().lifecycle(String.format("A closed pull request from branch '%s' to upgrade %s Wrapper to %s already exists for project '%s'. Use `recreateClosedPullRequest` option to recreate it.",
                 params.prBranch, buildToolStrategy.buildToolName(), params.latestBuildToolVersion.version, params.project));
             return;
         }

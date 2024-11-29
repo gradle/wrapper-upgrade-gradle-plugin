@@ -34,16 +34,7 @@ public class PullRequestUtils {
             .collect(Collectors.toSet());
     }
 
-    boolean openPrExists(String branch) {
-        return prExists(branch, GHIssueState.OPEN);
-    }
-
     boolean closedPrExists(String branch) {
-        return prExists(branch, GHIssueState.CLOSED);
+        return pullRequests.stream().anyMatch(p -> branch.equals(p.getHead().getRef()) && p.getState() == GHIssueState.CLOSED);
     }
-
-    private boolean prExists(String branch, GHIssueState state) {
-        return pullRequests.stream().anyMatch(p -> branch.equals(p.getHead().getRef()) && p.getState() == state);
-    }
-
 }
