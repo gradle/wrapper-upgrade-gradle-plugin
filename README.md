@@ -52,7 +52,7 @@ Apply the plugin to a dedicated project and configure which project needs to be 
 ```build.gradle
 plugins {
     id("base")
-    id("org.gradle.wrapper-upgrade") version "0.11.1"
+    id("org.gradle.wrapper-upgrade") version "0.12"
 }
 
 wrapperUpgrade {
