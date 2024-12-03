@@ -1,6 +1,0 @@
-- [NEW] Add options to specify labels, reviewers and assignees to be associated with the created pull request (#215)
-- [NEW] Add link to release notes into commit description (#242)
-- [NEW] Always sign off wrapper updates in the commit message (#230)
-- [NEW] Do not create the PR if a closed one for the same version already exists (#252)
-- [NEW] Close existing open PR targeting older versions (#211)
-- [FIX] PR text unclear when the Maven Wrapper updates (#224)
