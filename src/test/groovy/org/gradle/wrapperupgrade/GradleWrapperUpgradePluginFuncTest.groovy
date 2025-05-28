@@ -66,6 +66,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(GradleVersion.version('5.6.4').version)
+            .withEnvironment(System.getenv() + ["JAVA_HOME": determineJavaHome()])
             .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .buildAndFail()
 
@@ -94,6 +95,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
+            .withEnvironment(System.getenv() + ["JAVA_HOME": determineJavaHome()])
             .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
@@ -110,6 +112,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
+            .withEnvironment(System.getenv() + ["JAVA_HOME": determineJavaHome()])
             .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
@@ -184,6 +187,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
+            .withEnvironment(System.getenv() + ["JAVA_HOME": determineJavaHome()])
             .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
@@ -220,6 +224,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
+            .withEnvironment(System.getenv() + ["JAVA_HOME": determineJavaHome()])
             .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
@@ -235,6 +240,7 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
+            .withEnvironment(System.getenv() + ["JAVA_HOME": determineJavaHome()])
             .withArguments('clean', 'upgradeGradleWrapperAll', '--configuration-cache', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
@@ -273,6 +279,7 @@ wrapperUpgrade {
             .withProjectDir(testProjectDir)
             .withPluginClasspath()
             .withGradleVersion(determineGradleVersion().version)
+            .withEnvironment(System.getenv() + ["JAVA_HOME": determineJavaHome()])
             .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
             .build()
 
@@ -293,6 +300,10 @@ wrapperUpgrade {
     private static GradleVersion determineGradleVersion() {
         def injectedGradleVersionString = System.getProperty('testContext.gradleVersion')
         injectedGradleVersionString ? GradleVersion.version(injectedGradleVersionString) : GradleVersion.current()
+    }
+
+    private static String determineJavaHome() {
+        return System.getProperty('testContext.javaHome')
     }
 
 }

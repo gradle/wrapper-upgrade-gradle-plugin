@@ -51,6 +51,11 @@ tasks.withType(Test).configureEach {
     def testGradleVersion = findProperty('testGradleVersion') ?: GradleVersion.current().version
     systemProperty 'testContext.gradleVersion', testGradleVersion
     project.develocity.buildScan.value(identityPath.path + "#gradleVersion", testGradleVersion)
+
+    def javaHome = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(8)
+    }.map { it.metadata.installationPath }
+    systemProperty 'testContext.javaHome', javaHome.get().asFile.absolutePath
 }
 
 tasks.withType(Jar).configureEach {
