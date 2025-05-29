@@ -52,10 +52,13 @@ tasks.withType(Test).configureEach {
     systemProperty 'testContext.gradleVersion', testGradleVersion
     project.develocity.buildScan.value(identityPath.path + "#gradleVersion", testGradleVersion)
 
-    def javaHome = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(8)
-    }.map { it.metadata.installationPath }
-    systemProperty 'testContext.javaHome', javaHome.get().asFile.absolutePath
+    def jdkMajorVersion = findProperty('testJdkMajorVersion') ?: '8'
+    jvmArgumentProviders.add(
+        new JdkHomeArgumentProvider(javaToolchains).tap {
+            it.jdkMajorVersion = jdkMajorVersion
+        }
+    )
+    project.develocity.buildScan.value(identityPath.path + "#jdkMajorVersion", jdkMajorVersion)
 }
 
 tasks.withType(Jar).configureEach {
@@ -161,4 +164,24 @@ def releaseVersion() {
 def releaseNotes() {
     def releaseNotesFile = layout.projectDirectory.file('release/changes.md')
     return providers.fileContents(releaseNotesFile).asText.map { it -> it.trim() }
+}
+
+class JdkHomeArgumentProvider implements CommandLineArgumentProvider {
+    private JavaToolchainService javaToolchainService
+    
+    @Input
+    String jdkMajorVersion
+
+    JdkHomeArgumentProvider(JavaToolchainService javaToolchainService) {
+        this.javaToolchainService = javaToolchainService
+    }
+
+    @Override
+    Iterable<String> asArguments() {
+        def javaHome = javaToolchainService.launcherFor {
+            it.languageVersion = JavaLanguageVersion.of(jdkMajorVersion)
+        }.map { it.metadata.installationPath }
+
+        return ['-DtestContext.javaHome=' + javaHome.get().asFile.absolutePath]
+    }
 }
