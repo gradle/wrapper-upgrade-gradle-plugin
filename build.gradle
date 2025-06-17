@@ -28,7 +28,7 @@ dependencies {
 
     testImplementation gradleTestKit()
     testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
-    testImplementation 'net.bytebuddy:byte-buddy:1.17.5'
+    testImplementation 'net.bytebuddy:byte-buddy:1.17.6'
 }
 
 wrapperUpgrade {
