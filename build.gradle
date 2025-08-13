@@ -52,7 +52,7 @@ tasks.withType(Test).configureEach {
     systemProperty 'testContext.gradleVersion', testGradleVersion
     project.develocity.buildScan.value(identityPath.path + "#gradleVersion", testGradleVersion)
 
-    def jdkMajorVersion = findProperty('testJdkMajorVersion') ?: '8'
+    def jdkMajorVersion = findProperty('testJdkMajorVersion') ?: '21'
     jvmArgumentProviders.add(
         new JdkHomeArgumentProvider(javaToolchains).tap {
             it.jdkMajorVersion = jdkMajorVersion
