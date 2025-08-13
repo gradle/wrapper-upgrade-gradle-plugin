@@ -2,7 +2,7 @@
 
 [![Verify Build](https://github.com/gradle/wrapper-upgrade-gradle-plugin/actions/workflows/build-verification.yml/badge.svg?branch=main)](https://github.com/gradle/wrapper-upgrade-gradle-plugin/actions/workflows/build-verification.yml)
 [![Plugin Portal](https://img.shields.io/maven-metadata/v?metadataUrl=https://plugins.gradle.org/m2/org/gradle/wrapper-upgrade-gradle-plugin/maven-metadata.xml&label=Plugin%20Portal&color=blue)](https://plugins.gradle.org/plugin/org.gradle.wrapper-upgrade)
-[![Revved up by Gradle Enterprise](https://img.shields.io/badge/Revved%20up%20by-Gradle%20Enterprise-06A0CE?logo=Gradle&labelColor=02303A)](https://ge.solutions-team.gradle.com/scans)
+[![Revved up by Develocity](https://img.shields.io/badge/Revved%20up%20by-Develocity-06A0CE?logo=Gradle&labelColor=02303A)](https://ge.solutions-team.gradle.com/scans)
 
 The Wrapper Upgrade Gradle Plugin creates tasks to upgrade the Gradle Wrapper for target projects hosted on GitHub.
 
@@ -41,6 +41,16 @@ To run the upgrade tasks, you'll need:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: git config --global url."https://unused-username:${TOKEN}@github.com/".insteadOf "https://github.com/"
       ```
+
+* **GitHub Personal Access Token (PAT) with write permission:** The plugin creates pull requests on GitHub. To do this, you need a GitHub personal access token (PAT) with the `repo` scope or read-write permissions for "Pull requests" on the relevant repositories. Set this token in the `WRAPPER_UPGRADE_GIT_TOKEN` environment variable.
+
+    Example usage for GitHub Actions:
+    ```yaml
+    - name: Upgrade Wrappers
+      run: ./gradlew clean upgradeGradleWrapperAll
+      env:
+        WRAPPER_UPGRADE_GIT_TOKEN: ${{ secrets.<<your PAT with write permission>> }}
+    ```
 
 ## Usage
 Apply the plugin to a dedicated project and configure which project needs to be upgraded. Example:
