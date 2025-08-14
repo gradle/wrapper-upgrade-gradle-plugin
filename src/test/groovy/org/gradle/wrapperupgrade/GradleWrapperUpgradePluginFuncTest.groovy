@@ -60,20 +60,6 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         """.stripMargin()
     }
 
-    def "plugin requires at least Gradle 6.0"() {
-        when:
-        def result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withPluginClasspath()
-            .withGradleVersion(GradleVersion.version('5.6.4').version)
-            .withEnvironment(System.getenv() + ["JAVA_HOME": determineJavaHome()])
-            .withArguments('clean', 'upgradeGradleWrapperAll', '-DwrapperUpgrade.dryRun', '-DwrapperUpgrade.unsignedCommits')
-            .buildAndFail()
-
-        then:
-        result.output.contains('This version of the Wrapper Upgrade Gradle plugin is not compatible with Gradle < 6.0')
-    }
-
     @Ignore("Hard to maintain")
     def "upgrade wrapper on junit project with dry run"() {
         when:

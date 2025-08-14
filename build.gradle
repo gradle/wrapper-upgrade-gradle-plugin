@@ -3,6 +3,7 @@ import org.gradle.util.GradleVersion
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
+    id 'jvm-test-suite'
     id 'maven-publish'
     id 'signing'
     id 'com.gradle.plugin-publish' version '1.3.1'
@@ -27,8 +28,10 @@ dependencies {
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.16.0'
 
     testImplementation gradleTestKit()
-    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
     testImplementation 'net.bytebuddy:byte-buddy:1.17.6'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 wrapperUpgrade {
@@ -45,20 +48,59 @@ java {
     }
 }
 
-tasks.withType(Test).configureEach {
+sourceSets {
+    java8Test {
+        // Inherit the compile and runtime classpaths from the main source set
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+// Inherit dependencies from the default test configuration
+configurations {
+    java8TestImplementation.extendsFrom testImplementation
+    java8TestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+tasks.register('java8Test', Test) {
+    description = 'Runs tests that require Java 8.'
+    group = 'verification'
+
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.java8Test.output.classesDirs
+    classpath = sourceSets.java8Test.runtimeClasspath
+
+    javaLauncher = javaToolchains.launcherFor {
+        it.languageVersion = JavaLanguageVersion.of(8)
+    }
+
+    jvmArgumentProviders.add(
+            new JdkHomeArgumentProvider(javaToolchains).tap {
+                it.jdkMajorVersion = '8'
+            }
+    )
+}
+
+test {
     useJUnitPlatform()
 
     def testGradleVersion = findProperty('testGradleVersion') ?: GradleVersion.current().version
     systemProperty 'testContext.gradleVersion', testGradleVersion
     project.develocity.buildScan.value(identityPath.path + "#gradleVersion", testGradleVersion)
 
-    def jdkMajorVersion = findProperty('testJdkMajorVersion') ?: '21'
+    def jdkMajorVersion = (String) findProperty('testJdkMajorVersion') ?: '17'
     jvmArgumentProviders.add(
-        new JdkHomeArgumentProvider(javaToolchains).tap {
-            it.jdkMajorVersion = jdkMajorVersion
-        }
+            new JdkHomeArgumentProvider(javaToolchains).tap {
+                it.jdkMajorVersion = jdkMajorVersion
+            }
     )
+
+    javaLauncher = javaToolchains.launcherFor {
+        it.languageVersion = JavaLanguageVersion.of(jdkMajorVersion)
+    }
     project.develocity.buildScan.value(identityPath.path + "#jdkMajorVersion", jdkMajorVersion)
+
+    dependsOn(tasks.named('java8Test'))
 }
 
 tasks.withType(Jar).configureEach {
@@ -182,6 +224,6 @@ class JdkHomeArgumentProvider implements CommandLineArgumentProvider {
             it.languageVersion = JavaLanguageVersion.of(jdkMajorVersion)
         }.map { it.metadata.installationPath }
 
-        return ['-DtestContext.javaHome=' + javaHome.get().asFile.absolutePath]
+        return [ '-DtestContext.javaHome=' + javaHome.get().asFile.absolutePath ]
     }
 }
