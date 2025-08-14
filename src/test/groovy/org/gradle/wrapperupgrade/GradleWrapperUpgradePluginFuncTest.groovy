@@ -122,9 +122,9 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         def proc2 = 'git show --oneline HEAD'.execute(null, gitDir)
         def output2 = proc2.in.text
         with(output2) {
-            contains "Bump Gradle Wrapper from 6.9 to ${latestGradleVersion}"
+            contains "Bump Gradle Wrapper from 7.3 to ${latestGradleVersion}"
             contains "Binary files a/samples/gradle/gradle/wrapper/gradle-wrapper.jar and b/samples/gradle/gradle/wrapper/gradle-wrapper.jar differ"
-            contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-6.9-bin.zip"
+            contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-7.3-bin.zip"
             contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
         }
 
@@ -194,9 +194,9 @@ class GradleWrapperUpgradePluginFuncTest extends Specification {
         and:
         def proc2 = 'git show --oneline HEAD'.execute(null, gitDir)
         def output2 = proc2.in.text
-        output2.contains "Bump Gradle Wrapper from 6.9 to ${latestGradleVersion}"
+        output2.contains "Bump Gradle Wrapper from 7.3 to ${latestGradleVersion}"
         output2.contains "Binary files a/samples/gradle/gradle/wrapper/gradle-wrapper.jar and b/samples/gradle/gradle/wrapper/gradle-wrapper.jar differ"
-        output2.contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-6.9-bin.zip"
+        output2.contains "-distributionUrl=https\\://services.gradle.org/distributions/gradle-7.3-bin.zip"
         output2.contains "+distributionUrl=https\\://services.gradle.org/distributions/gradle-${latestGradleVersion}-bin.zip"
 
         where:
@@ -279,7 +279,7 @@ wrapperUpgrade {
         def gitDir = new File(testProjectDir, 'build/git-clones/wrapper-upgrade-gradle-plugin-for-func-tests/samples/gradle')
         def proc = 'git show -s HEAD'.execute(null, gitDir)
         def output = proc.in.text
-        output.contains "Bump Gradle Wrapper from 6.9 to ${latestGradleVersion}"
+        output.contains "Bump Gradle Wrapper from 7.3 to ${latestGradleVersion}"
         output.contains 'Date:   Wed Mar 23 15:00:00 2022 +0100'
     }
 
