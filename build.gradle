@@ -92,7 +92,7 @@ tasks.withType(ValidatePlugins).configureEach {
 
 signing {
     // Require publications to be signed on CI. Otherwise, publication will be signed only if keys are provided.
-    required providers.environmentVariable('CI').isPresent()
+    required = providers.environmentVariable('CI').isPresent()
 
     useInMemoryPgpKeys(
         providers.environmentVariable('PGP_SIGNING_KEY').orNull,
