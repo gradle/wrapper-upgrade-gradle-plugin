@@ -7,11 +7,12 @@ jobs:
     name: Verification
     runs-on: ubuntu-latest
     strategy:
+        fail-fast: false
         matrix:
-            gradle-version: [ '7.6.2', '8.0.2', '8.1.1', '8.2', '8.3' ]
+            gradle-version: [ '7.6.2', '8.0.2', '8.1.1', '8.2', '8.3', '8.14.3', '9.0.0', 'wrapper' ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup git user
       # Needed for functional tests executing git commands
         run: |
@@ -27,4 +28,9 @@ jobs:
         with:
           develocity-access-key: ${{ secrets.GE_SOLUTIONS_ACCESS_TOKEN }}
       - name: Build with Gradle
+        if: ${{ matrix.gradle-version != 'wrapper' }}
         run: ./gradlew build -x signPluginMavenPublication -i -PtestGradleVersion=${{ matrix.gradle-version }} -Porg.gradle.java.installations.auto-download=false
+
+      - name: Build with Gradle - Wrapper version
+        if: ${{ matrix.gradle-version == 'wrapper' }}
+        run: ./gradlew build -x signPluginMavenPublication -i -Porg.gradle.java.installations.auto-download=false
