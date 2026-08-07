@@ -10,7 +10,7 @@
 > Both mainstream dependency bots now upgrade wrappers, so this plugin is no longer needed:
 >
 > - **[Renovate](https://docs.renovatebot.com/)** upgrades the Gradle wrapper and the Maven wrapper. Enable the [`gradle-wrapper`](https://docs.renovatebot.com/modules/manager/gradle-wrapper/) and [`maven-wrapper`](https://docs.renovatebot.com/modules/manager/maven-wrapper/) managers.
-> - **[Dependabot](https://docs.github.com/en/code-security/dependabot)** upgrades the Gradle wrapper through the `gradle` ecosystem. It does not yet upgrade the Maven wrapper. See [dependabot-core#13183](https://github.com/dependabot/dependabot-core/issues/13183).
+> - **[Dependabot](https://docs.github.com/en/code-security/dependabot)** upgrades the Gradle wrapper through the `gradle` ecosystem. As of 7 August 2026, it does not upgrade the Maven wrapper. See [dependabot-core#13183](https://github.com/dependabot/dependabot-core/issues/13183).
 >
 > Version 0.12 stays available on the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/org.gradle.wrapper-upgrade), but it receives no further changes.
 
