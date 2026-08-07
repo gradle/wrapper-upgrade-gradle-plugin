@@ -4,6 +4,16 @@
 [![Plugin Portal](https://img.shields.io/maven-metadata/v?metadataUrl=https://plugins.gradle.org/m2/org/gradle/wrapper-upgrade-gradle-plugin/maven-metadata.xml&label=Plugin%20Portal&color=blue)](https://plugins.gradle.org/plugin/org.gradle.wrapper-upgrade)
 [![Revved up by Develocity](https://img.shields.io/badge/Revved%20up%20by-Develocity-06A0CE?logo=Gradle&labelColor=02303A)](https://ge.solutions-team.gradle.com/scans)
 
+> [!IMPORTANT]
+> **This project is no longer maintained and this repository is archived.**
+>
+> Both mainstream dependency bots now upgrade wrappers, so this plugin is no longer needed:
+>
+> - **[Renovate](https://docs.renovatebot.com/)** upgrades the Gradle wrapper and the Maven wrapper. Enable the [`gradle-wrapper`](https://docs.renovatebot.com/modules/manager/gradle-wrapper/) and [`maven-wrapper`](https://docs.renovatebot.com/modules/manager/maven-wrapper/) managers.
+> - **[Dependabot](https://docs.github.com/en/code-security/dependabot)** upgrades the Gradle wrapper through the `gradle` ecosystem. It does not yet upgrade the Maven wrapper. See [dependabot-core#13183](https://github.com/dependabot/dependabot-core/issues/13183).
+>
+> Version 0.12 stays available on the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/org.gradle.wrapper-upgrade), but it receives no further changes.
+
 The Wrapper Upgrade Gradle Plugin creates tasks to upgrade the Gradle Wrapper for target projects hosted on GitHub.
 
 ## Prerequisites
